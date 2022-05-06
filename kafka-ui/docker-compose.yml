@@ -6,9 +6,9 @@ services:
     ports:
       - "8080:8080"
     extra_hosts:
-      - 'DESKTOP-NF2S1OK:192.168.10.87'  
+      - 'hostname:hostip'  
     restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=192.168.10.87:9092
-      - KAFKA_CLUSTERS_0_ZOOKEEPER=192.168.10.87:2181
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=hostip:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=hostip:2181
