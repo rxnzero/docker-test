@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Layout">
+<!--  #### 레이아웃  ###  -->
+	<!--  상세 조회 -->
+	<statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT 
+        LOUTNAME      AS "LOUTNAME" ,
+		LOUTPTRNNAME  AS "LOUTPTRNNAME" ,
+		LOUTDESC      AS "LOUTDESC" ,
+		LASTAMNDHMS   AS "LASTAMNDHMS" ,
+		EAIBZWKDSTCD  AS "EAIBZWKDSTCD" ,
+		UAPPLNAME     AS "UAPPLNAME" ,
+		SYSINTFACNAME AS "SYSINTFACNAME" 
+        FROM $schemaId$.TSEAITR07 
+        WHERE LOUTNAME = #loutName#
+	</statement>  
+	
+	<!--  DELETE-->
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR07 
+        WHERE LOUTNAME = #loutName#
+	</statement>  
+
+	<!--  Insert-->
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR07 ( 
+            LOUTNAME, LOUTDESC, LOUTPTRNNAME , LASTAMNDHMS , EAIBZWKDSTCD , UAPPLNAME , SYSINTFACNAME, CREATEBY, UPDATEBY
+        ) VALUES (#loutName#, #loutDesc#, #loutPtrnName#, #lastAmndHMS# , #eaiBzwkDstcd# , #uapplName# , #sysIntfacName#, #createBy#, #updateBy# ) 
+	</statement>  
+
+	<!--  Update-->
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+       UPDATE  $schemaId$.TSEAITR07  
+       SET LOUTDESC = #loutDesc#, 
+       		LOUTPTRNNAME= #loutPtrnName#,
+       		LASTAMNDHMS = #lastAmndHMS#,
+       		EAIBZWKDSTCD = #eaiBzwkDstcd#, 
+       		UAPPLNAME = #uapplName#, 
+       		SYSINTFACNAME = #sysIntfacName# ,
+       		UPDATEBY = #updateBy#
+       WHERE LOUTNAME = #loutName#
+	</statement> 
+
+	<!--  List All -->
+	<statement id="selectListAll" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT 
+        	L.LOUTNAME AS "LOUTNAME", 
+        	L.LOUTDESC AS "LOUTDESC", 
+        	L.LOUTPTRNNAME AS "LOUTPTRNNAME"
+        FROM  $schemaId$.TSEAITR07  L 
+    	WHERE L.EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 WHERE USERID = #loginId#)
+        ORDER BY L.LOUTNAME
+	</statement>  
+	
+	<!--  item delete all -->
+	<statement id="deleteItemAll" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR08 
+        WHERE LOUTNAME=#loutName# 
+	</statement>
+
+	<statement id="updateItemDesc" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAITR08
+           SET LOUTITEMDESC  = #loutDesc#
+         WHERE LOUTNAME      = #loutName# 
+           AND LOUTITEMNAME  = #loutName# 
+           AND LOUTITEMSERNO = 0
+  </statement>
+ 
+ 	<statement id="selectTypeAll" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+				SELECT  LOUTPTRNNAME AS "LOUTPTRNNAME", 
+						LOUTPTRNDESC AS "LOUTPTRNDESC" 
+				FROM $schemaId$.TSEAITR06
+				ORDER BY LOUTPTRNDESC
+	</statement>           
+
+ 	<statement id="selectEffect" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT SV.EAISVCNAME AS "EAISVCNAME" , SV.EAISVCDESC AS "EAISVCDESC" , 
+               TR.CNVSNNAME AS "CNVSNNAME" , TR.CNVSNDESC AS "CNVSNDESC" , TR.SOURCRSULTDSTCD AS "SOURCRSULTDSTCD"
+        FROM   
+          ( SELECT T1.CNVSNNAME , T1.CNVSNDESC ,
+                   T2.LOUTNAME , T2.SOURCRSULTDSTCD  
+            FROM $schemaId$.TSEAITR01 T1, $schemaId$.TSEAITR02 T2
+            WHERE T1.CNVSNNAME = T2.CNVSNNAME
+            AND   T2.LOUTNAME = #loutName#
+          ) TR, 
+          (
+            SELECT DISTINCT EAISVCNAME, EAISVCDESC, SVCPRCSSNO, CHNGMSGIDNAME FROM (
+            SELECT A.EAISVCNAME, A.EAISVCDESC, B.SVCPRCSSNO, B.CHNGMSGIDNAME  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME
+            UNION ALL
+            SELECT A.EAISVCNAME, A.EAISVCDESC, B.SVCPRCSSNO, B.BASCRSPNSCHNGMSGIDNAME CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME
+            UNION ALL
+            SELECT A.EAISVCNAME, A.EAISVCDESC, B.SVCPRCSSNO, B.ERRRSPNSCHNGMSGIDNAME  CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME
+            ) TMP
+          ) SV
+          WHERE TR.CNVSNNAME = SV.CHNGMSGIDNAME         
+ 	</statement>
+  
+    <statement id="selectReportCount" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT EAIBZWKDSTCD "EAIBzwkDstcd", COUNT(LOUTNAME) "Cnt" 
+        FROM $schemaId$.TSEAITR07
+        GROUP BY EAIBZWKDSTCD
+    </statement>
+
+    <!-- 여기서 부터 마이그레이션 영역 -->
+    <statement id="selectTR07Select" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT  
+			LOUTNAME      AS "LOUTNAME" ,
+			LOUTPTRNNAME  AS "LOUTPTRNNAME" ,
+			LOUTDESC      AS "LOUTDESC" ,
+			LASTAMNDHMS   AS "LASTAMNDHMS" ,
+			EAIBZWKDSTCD  AS "EAIBZWKDSTCD" ,
+			UAPPLNAME     AS "UAPPLNAME" ,
+			SYSINTFACNAME AS "SYSINTFACNAME"    
+        FROM $schemaId$.TSEAITR07
+        WHERE LOUTNAME = #loutName#
+    </statement>
+
+    <statement id="deleteTR07" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR07
+        WHERE LOUTNAME = #loutName#    
+    </statement>
+
+    <statement id="insertTR07" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR07 ( LOUTNAME, LOUTPTRNNAME, LOUTDESC, LASTAMNDHMS, EAIBZWKDSTCD, UAPPLNAME, SYSINTFACNAME )
+        VALUES ( #loutName#, #loutPtrnName#, #loutDesc#, #lastAmndHMS#, #eaiBzwkDstcd#, #uapplName#, #sysIntfacName# )    
+    </statement>
+
+    <statement id="selectTR08" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT  
+			LOUTNAME               AS "LOUTNAME" , 
+			LOUTITEMNAME           AS "LOUTITEMNAME" ,
+			LOUTITEMSERNO          AS "LOUTITEMSERNO" ,
+			LOUTITEMIDNAME         AS "LOUTITEMIDNAME" ,
+			PARNTLOUTITEMIDNAME    AS "PARNTLOUTITEMIDNAME" ,
+			LOUTITEMDESC           AS "LOUTITEMDESC" ,
+			LOUTITEMNODEPTRNIDNAME AS "LOUTITEMNODEPTRNIDNAME" ,
+			LOUTITEMPTRNIDNAME     AS "LOUTITEMPTRNIDNAME" ,
+			LOUTITEMPATHNAME       AS "LOUTITEMPATHNAME" ,
+			LOUTITEMLENCNT         AS "LOUTITEMLENCNT" ,
+			LOUTITEMREFINFO        AS "LOUTITEMREFINFO" ,
+			LOUTITEMREFINFO2       AS "LOUTITEMREFINFO2" ,
+			LOUTITEMOCCURPTRNDSTCD AS "LOUTITEMOCCURPTRNDSTCD" ,
+			LOUTITEMMAXOCCURNOITM  AS "LOUTITEMMAXOCCURNOITM" ,
+			LOUTITEMMINOCCURNOITM  AS "LOUTITEMMINOCCURNOITM" ,
+			LOUTITEMBASCVAL        AS "LOUTITEMBASCVAL" ,
+			LOUTITEMMSKYN          AS "LOUTITEMMSKYN" ,
+			LYOUTDPTCNT            AS "LYOUTDPTCNT" ,
+			DECPTLENCNT            AS "DECPTLENCNT" ,
+			LYOUTITEMREFPTRNIDNAME AS "LYOUTITEMREFPTRNIDNAME"    
+        FROM $schemaId$.TSEAITR08
+        WHERE LOUTNAME = #loutName#
+    </statement>
+
+    <statement id="deleteTR08" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR08
+        WHERE LOUTNAME = #loutName#
+    </statement>
+
+</sqlMap>

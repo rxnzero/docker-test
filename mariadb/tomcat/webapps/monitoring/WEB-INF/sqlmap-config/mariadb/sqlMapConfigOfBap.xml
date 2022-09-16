@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+
+<sqlMapConfig>
+  <settings
+    cacheModelsEnabled="true"
+    enhancementEnabled="true"
+    lazyLoadingEnabled="true"
+    maxRequests="512"
+    maxSessions="128"
+    maxTransactions="32"
+    useStatementNamespaces="true" />
+
+<!-- 일괄전송 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/adapter/InstStatus-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/CodeMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/CodeMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/LifecycleMan.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/LifecycleMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/PropertyMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/PropertyMan-mariadb.xml" />
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/ServerMan.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/ServerMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/SysinfoMan.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/SysinfoMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/LogDeleteMan.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/adapter/Adapter.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/bap/manage/adapter/Adapter-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/ScheduleMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/ScheduleMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/HolidayMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/HolidayMan-mariadb.xml" />
+     
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/ProcPeriodMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/ProcPeriodMan-mariadb.xml" />
+
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/ClassInfoMan.xml" />    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/ClassInfoMan-mariadb.xml" />    
+  
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/ClassMapMan.xml" />   
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/ClassMapMan-mariadb.xml" />   
+    
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/FlowStepMan.xml" />    
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/FlowStepMan-mariadb.xml" />    
+  
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/FlowRuleMan.xml" />   
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/FlowRuleMan-mariadb.xml" />   
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/MessageItemMan.xml" />    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/MessageItemMan-mariadb.xml" />    
+  
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/MessageMetaMan.xml" />      
+ <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/MessageMetaMan-mariadb.xml" />      
+
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/BizGbnMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/BizGbnMan-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/KikwanMan-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/MessageProcMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/MessageProcMan-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/SystemInstMan-mariadb.xml" />
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/transaction/ProcWorkMan-mariadb.xml" />
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/transaction/TransactionStatusMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/transaction/TransactionTraceMan-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/transaction/TransactionWaitMan-mariadb.xml" />
+  
+</sqlMapConfig>

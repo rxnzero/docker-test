@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapProperty">
+	<statement id="propertyGroupDetail" resultClass="java.util.HashMap">
+	 	SELECT  PRPTYGROUPNAME AS "PRPTYGROUPNAME", PRPTYGROUPDESC AS "PRPTYGROUPDESC" 
+         		FROM  $schemaId$.TSEAIBP01
+		WHERE	PrptyGroupName = #prptyGroupName#
+	</statement> 	
+	
+	<statement id="propertyDetail" resultClass="java.util.HashMap">
+	 	SELECT  PRPTYNAME AS "PRPTYNAME", PRPTY2VAL AS "PRPTY2VAL"
+         		FROM  $schemaId$.TSEAIBP02
+		WHERE	PrptyGroupName = #prptyGroupName#
+	</statement>  
+
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIBP01 
+				SET PrptyGroupDesc = #prptyGroupDesc# 
+		WHERE 	PrptyGroupName = #prptyGroupName#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIBP01(
+				PrptyGroupName, PrptyGroupDesc) 
+				VALUES(#prptyGroupName#, #prptyGroupDesc#)
+	</statement>
+	
+	<statement id="insertProperty" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIBP02(
+				PrptyGroupName, PrptyName, Prpty2Val) 
+				VALUES(#prptyGroupName#, #prptyName#, #prpty2Val#)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBP01 WHERE PrptyGroupName = #prptyGroupName#
+	</statement>
+
+	<statement id="deleteProperty" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBP02 WHERE PrptyGroupName = #prptyGroupName#
+	</statement>
+	
+</sqlMap>

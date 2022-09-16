@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CodeMan">
+	<statement id="selectCodeGroupList" resultClass="java.util.HashMap">
+		SELECT T19.CODEGROUP	AS "CDGROUP"
+			 , T19.DESCRIPTION	AS "CDGROUPDESC"
+			 , (
+			 	  SELECT COUNT(*)
+					FROM $schemaId$.TSEAICM20
+				   WHERE CODEGROUP = T19.CODEGROUP
+			   ) AS CHILDCNT
+		  FROM $schemaId$.TSEAICM19 T19 
+		  	LEFT OUTER JOIN $schemaId$.TSEAICM20 T20
+		 	ON T19.CODEGROUP = T20.CODEGROUP
+			<isNotEmpty prepend="WHERE" property="searchName">
+					(
+						UPPER(T19.CODEGROUP)	LIKE UPPER('%'||#searchName#||'%')
+					OR	UPPER(T20.CODE)			LIKE UPPER('%'||#searchName#||'%')
+					OR	UPPER(T20.CODENAME)		LIKE UPPER('%'||#searchName#||'%')
+					)
+			</isNotEmpty>
+		 GROUP BY T19.CODEGROUP
+		 		, T19.DESCRIPTION
+		 ORDER BY T19.CODEGROUP
+	</statement>
+	
+	<!--  Check 2depths level, this sql 2 depths only.  -->
+	<statement id="selectCodeTreeList" resultClass="java.util.HashMap">
+		SELECT level AS "level" 
+			 , T20.CODE AS "id"
+			 , T20.PARENTCODE	AS "parent"
+			 , 'true' AS "expanded"
+			 , isLeaf AS "isLeaf"
+			 , T20.CODE AS "CODE"
+			 , T20.CODENAME AS "CODENAME"
+			 , T20.PARENTCODE AS "PARENTCODE"
+			 , T20.CODEGROUP AS "CODEGROUP"
+			 , CASE WHEN T20.SEQ = 0 THEN '' ELSE CAST(T20.SEQ as CHAR) END AS "SEQ"
+			 , CASE WHEN T20.USEYN IS NULL OR T20.USEYN = '' THEN 'N' ELSE T20.USEYN END AS "USEYN"
+			 , CASE WHEN T20.PARENTCODE IS NULL THEN '' ELSE T20.USEYN END AS "USEYNNAME"
+		  FROM (
+					SELECT 1 AS level
+					    , 'true' AS isLeaf
+						 , CODEGROUP
+						 , CODE
+						 , CODENAME
+						 , CASE WHEN PARENTCODE IS NULL THEN #searchCodeGroup# ELSE PARENTCODE END PARENTCODE
+						 , SEQ
+						 , USEYN
+					  FROM $schemaId$.TSEAICM20
+					  WHERE CODEGROUP = #searchCodeGroup#
+					  UNION ALL
+        			SELECT 0 AS level
+					    , 'false' AS isLeaf
+					     , CODEGROUP
+						 , CODEGROUP AS CODE
+						 , ''
+						 , NULL
+						 , 0
+						 , ''
+					  FROM $schemaId$.TSEAICM19
+					 WHERE CODEGROUP = #searchCodeGroup#
+			   ) AS T20	 
+		   ORDER BY T20.SEQ, T20.CODE
+	</statement>
+    <!-- Start Code 입력, 수정, 삭제 -->
+    <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT  INTO $schemaId$.TSEAICM20(
+                    CODEGROUP
+                ,   CODE
+                ,   CODENAME
+                ,   SEQ
+                ,   PARENTCODE
+                ,   USEYN
+                )
+        VALUES  (
+                    #codeGroup#
+                ,   #code#
+                ,   #codeName#
+                ,   CAST(#seq# AS INTEGER)
+                ,   #parentCode#
+                ,   #useYn#
+                )       
+    </statement>
+    
+    <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE  $schemaId$.TSEAICM20 
+           SET  CODENAME    = #codeName#
+             ,  SEQ         = CAST(#seq# AS INTEGER)
+             ,  USEYN       = #useYn#
+         WHERE  CODEGROUP   = #codeGroup#
+           AND  CODE        = #code#
+    </statement>
+    
+    <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAICM20 x
+         WHERE CODEGROUP = #codeGroup#
+         <isNotEqual property="level" compareValue="0">
+           AND CODE = #code#
+         </isNotEqual>
+    </statement>
+    <!-- End Code 입력, 수정, 삭제 -->
+    
+</sqlMap>

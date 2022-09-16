@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Routing">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  @NO := @NO + 1 AS ROWNO,
+				ROUTNAME , MOTIVROUTURINAME , 
+				NONMOTIVROUTURINAME , LAYERDSTCD 
+				FROM $schemaId$.TSEAIFR02,  (SELECT @NO := 0) R
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchRoutName">
+					ROUTNAME LIKE UPPER( CONCAT('%' , #searchRoutName# , '%') )
+				</isNotEmpty>
+			</dynamic>			
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TOTALCOUNT
+			FROM $schemaId$.TSEAIFR02
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchRoutName">
+					ROUTNAME LIKE UPPER( CONCAT('%' , #searchRoutName# , '%') )
+				</isNotEmpty>
+			</dynamic>		
+	</statement>	
+</sqlMap>

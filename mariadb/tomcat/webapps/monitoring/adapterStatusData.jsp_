@@ -1,0 +1,329 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.io.*, 
+java.util.*,
+javax.xml.parsers.*,
+org.w3c.dom.*,
+javax.xml.xpath.*,
+java.sql.*,
+javax.sql.*,
+javax.naming.*,
+com.eactive.eai.agent.adapter.*,
+com.eactive.eai.agent.command.*,
+com.eactive.eai.rms.onl.common.util.*,
+org.apache.commons.logging.Log,
+org.apache.commons.logging.LogFactory
+"%>
+<%!
+/* 
+	어뎁터 상태정보 제공 기능
+	
+	Text 형식
+	adapterName|adapterDesc|instance|devStatus(db)|devstatus|send|rcv|qaStatus(db)|qaStatus|send|rcv
+	index: 0 adapterName
+	index: 1 adapterDesc
+	index: 2 instance
+	index: 3 dev status(db)
+	index: 4 dev status()
+	index: 5 send count
+	index: 6 rcv count
+	index: 7 qa status(db)
+	index: 8 qa status()
+	index: 9 send count(qa)
+	index: 10 rcv count(qa)
+
+
+ */
+
+private static final Log logger = LogFactory.getLog("adapterStatusData.jsp");
+
+//개발 DB
+private String dev_url       = "jdbc:oracle:thin:@172.31.32.103:1527/DCHN";
+private String dev_driver    = "oracle.jdbc.OracleDriver";
+private String dev_user      = "fep";
+private String dev_pwd       = "fep123!";
+//검증 DB
+private String test_url      = "jdbc:oracle:thin:@172.31.33.103:1527/QCHN";
+private String test_driver   = "oracle.jdbc.OracleDriver";
+private String test_user     = "fep";
+private String test_pwd      = "dusrP123!";
+
+//개발 동기화 서버 ,,, 메모리 상세현황 보는 주소 (팝업 디스플레이)
+private String[] DEV_IP      = {"172.31.32.111:20111"};
+private String[] TEST_IP     = {"172.31.33.111:20111"};
+private String   NEW_LINE    = "\n";
+
+/*
+ *  select 쿼리 로직 
+ *
+ */
+public Vector<String[]> getSqlSelect(String sql,boolean isDev ) throws Exception {
+	Connection conn = null;
+	Statement stmt = null;
+	ResultSet rs = null;
+	int rownum = 0;
+	try	{
+    	if (isDev){
+			Class.forName(dev_driver);
+			conn = DriverManager.getConnection(dev_url, dev_user, dev_pwd);
+    	}else{
+			Class.forName(test_driver);
+			conn = DriverManager.getConnection(test_url, test_user, test_pwd);
+    	}
+		stmt = conn.createStatement();
+  		stmt.execute(sql);
+  		rs = stmt.getResultSet();
+  		Vector<String[]> vt = new Vector<String[]>();
+  		int maxColumn = rs.getMetaData().getColumnCount();
+        while(rs.next()) {
+        	String[] row = new String[maxColumn];
+        	for (int i=0;i<maxColumn;i++){
+				row[i] = rs.getString(i+1);
+        	}    	
+        	vt.add(row);
+		}               
+		return vt;
+	}
+	catch(Exception e) {
+		logger.error(e.getMessage(),e);
+		throw e;
+	}
+	finally {
+		try {
+			if(rs != null)	 rs.close();
+			if(stmt != null) stmt.close();
+			if(conn != null) conn.close();
+		}
+		catch (SQLException sqle) {
+			logger.error("SQLException was thrown: " + sqle.getMessage());
+		}
+	}
+}
+
+public Vector getList(boolean isDev) throws Exception{
+	StringBuffer sb = new StringBuffer();
+	sb.append(" select ad01.AdptrBzwkGroupName ,ad01.AdptrBzwkGroupDesc, ad01.AdptrUseYn, max(ad02.EAISevrInstncName) as EAISevrInstncName ").append(NEW_LINE);
+	sb.append(" from tseaiad01 ad01, tseaiad02 ad02                                                                                                            ").append(NEW_LINE);
+	sb.append(" where ad01.AdptrBzwkGroupName = ad02.AdptrBzwkGroupName and not(ad02.EAISevrInstncName ='ALL') and not (ad01.AdptrBzwkGroupName ='SOCKET_MONITOR') ").append(NEW_LINE);
+	sb.append(" group by  ad01.AdptrBzwkGroupName ,ad01.AdptrBzwkGroupDesc, ad01.AdptrUseYn order by ad01.AdptrBzwkGroupName                   ").append(NEW_LINE);
+	
+	return getSqlSelect(sb.toString(),isDev);
+}
+
+
+public Vector getToBeStatusUrl(boolean isDev) throws Exception {
+	StringBuffer sb = new StringBuffer();
+	sb.append("select EAISevrInstncName, 'http://' || EAISevrIP || ':' || SevrLsnPortName||'/ONLWeb/agent/host/adapter_socket2_agent2.jsp?cmd=get+connection+summary&eaiSvrInstNm='||EAISevrInstncName url from TSEAISY02 where EAISevrInstncName <> 'ALL'  ").append(NEW_LINE);
+	return getSqlSelect(sb.toString(),isDev);
+}
+
+public HashMap getToBeStatus() throws Exception{
+	ArrayList al = new ArrayList();
+	//개발
+	Vector v = getToBeStatusUrl(true);
+	//검증
+	Vector v2 = getToBeStatusUrl(false);
+ 	// 개발 2, QA 2개 ; 총 4개의 인스턴스로 설정
+	for (int i=0;i<2;i++){
+		try{
+			al.add(((String[])v.get(i))[1]);
+		}catch(ArrayIndexOutOfBoundsException e){
+			al.add(null);
+			//logger.error("DEV_instance12 is null");	//보조 인스턴스가 없을경우 null로 넘겨줄것
+		}
+	}
+	for (int i=0;i<2;i++){
+		try{
+			al.add(((String[])v2.get(i))[1]);
+		}catch(ArrayIndexOutOfBoundsException e){
+			al.add(null);
+			//logger.error("QA_instance12 is null");  //보조 인스턴스가 없을경우 null로 넘겨줄것
+		}	
+	}
+	String [] data = new String[al.size()];
+	al.toArray(data);
+	
+	return flushXmlToClient(data);
+}
+
+
+public HashMap flushXmlToClient(String[] url)  {
+	NodeList nodes ;
+	HashMap hm = new HashMap();
+
+	for (int i = 0; i < url.length; i++) {
+    	try {
+	        // CallAgentUtil로 부터 Xml을 받는다.
+	        CallAgentUtil agent = new CallAgentUtil();
+	        Document doc = agent.getAgentDataToDocument(url[i]);
+	        if (doc == null) {
+	            continue;
+	        }
+		    // 로우 인서트
+		    nodes = doc.getElementsByTagName("Row");
+	        hm.put("inst"+i,addDataRows(nodes));
+	    } catch (Exception e) {
+	        //logger.error(e.toString());
+	        continue;
+	    }
+	}
+	return hm;
+	
+}
+
+public HashMap addDataRows(NodeList nodes) {
+/*
+- <Row>
+  <Data>fepOnlSvr11</Data> 
+  <Data>_EDU_IO_NET_AsS</Data> 
+  <Data>_EDU_IO_NET_AsS{I11}</Data> 
+  <Data>1</Data>                    <== max connect
+  <Data>1</Data>                    <== connection 갯수
+  <Data>0</Data>                    <== send 건수
+  <Data>1</Data>                    <== recv 건수
+  <Data>10</Data>                   <== error 건수
+  <Data>true</Data>                 <== status
+  </Row>
+
+*/
+    HashMap hm = new HashMap();
+    for (int i = 0; i < nodes.getLength(); i++) {
+        NodeList nl = nodes.item(i).getChildNodes();
+        int colIndex = -1;
+        String[] data = new String[10];
+        for (int j = 0; j < nl.getLength(); j++) {
+            Node n = nl.item(j);
+
+            if (n.getNodeType() == 3)
+                continue;
+
+            colIndex++;
+            
+			data[colIndex] = n.getTextContent();          
+        }
+        String[] oldData = (String[])hm.get(data[1]);
+        if (oldData != null) {
+        	data[2] = oldData[2] + "," + data[2]  ;
+        	data[3] = oldData[3]  ;
+        	data[4] = Integer.toString(Integer.parseInt(oldData[4]) +  Integer.parseInt(data[4]))  ;
+        	data[5] = Integer.toString(Integer.parseInt(oldData[5]) +  Integer.parseInt(data[5]))  ;
+        	data[6] = Integer.toString(Integer.parseInt(oldData[6]) +  Integer.parseInt(data[6]))  ;
+        	data[7] = Integer.toString(Integer.parseInt(oldData[7]) +  Integer.parseInt(data[7]))  ;
+        	data[8] = Integer.toString(Integer.parseInt(oldData[8]) +  Integer.parseInt(data[8]))  ;
+        	data[9] = Boolean.parseBoolean(oldData[9]) || Boolean.parseBoolean(data[9]) ? "true" : "false";
+        }
+        
+        hm.put(data[1],data);
+        
+    }
+    return hm;
+}
+
+public String displayStatus(HashMap hm, String adapterName,int index){
+	if (hm == null){
+		return "X";
+	}
+	Object adapters = hm.get(adapterName);
+	if (adapters == null){
+		return "X";
+	}
+	String[] data = (String[])adapters;
+	String status = "";
+	if (data != null){
+	    status =data[index];
+	}
+	if (index ==9){
+		if ("".equals(status)){
+			status="X";
+		}else if ("false".equals(status)){
+			status="X";
+		}else if ("true".equals(status)){
+			status="O";
+		}
+	}
+	
+	return status;
+	
+}
+
+
+%>
+
+
+<%
+	response.setHeader("Pragma", "No-cache");
+	response.setHeader("Cache-Control", "no-cache");
+	response.setHeader("Expires", "0");
+%>
+
+<%
+	request.setCharacterEncoding("euc-kr");
+	String filter = request.getParameter("filter");
+	String serverType = request.getParameter("serverType");
+	String controlType = request.getParameter("controlType");
+	String adapterName = request.getParameter("adapterName");
+	String userType=request.getParameter("userType");
+
+	//String displayType=request.getParameter("displayType");
+	String displayType="all";
+	if (filter == null) filter = "";
+	if (serverType == null) serverType = "";
+	if (controlType == null) controlType = "";
+	if (adapterName == null) adapterName = "";
+	if (userType == null) userType = "";			
+	if (displayType == null) displayType = "";	
+
+	
+	HashMap hm = getToBeStatus();	//From Memory
+
+	if(hm.get("inst0") == null)
+		logger.debug("개발 동기화서버_11 is closed");
+	if(hm.get("inst1") == null)
+		logger.debug("개발 동기화서버_12 is closed");
+	if(hm.get("inst2") == null)
+		logger.debug("검증 동기화서버_11 is closed");
+	if(hm.get("inst3") == null)
+		logger.debug("검증 동기화서버_12 is closed");					
+
+			Vector<String[]> list = getList(true);//개발 From Db
+		Vector<String[]> list2 = getList(false);//검증 From Db
+		StringBuffer sb =new StringBuffer();
+		HashMap dev = new HashMap();
+		String ls = System.getProperty("line.separator");
+		for( String[] row : list2){
+			dev.put(row[0],row);
+		}			
+		int i=0;
+		for( String[] row : list){
+			boolean is11 = row[3].contains("11");
+			String devStatus = "1".equals(row[2])?"On":"Off";														
+			String devConStatus = displayStatus(is11?(HashMap)hm.get("inst0"):(HashMap)hm.get("inst1"),row[0],9);	
+			String devSnd = displayStatus(is11?(HashMap)hm.get("inst0"):(HashMap)hm.get("inst1"),row[0],6);			
+			String devRcv = displayStatus(is11?(HashMap)hm.get("inst0"):(HashMap)hm.get("inst1"),row[0],7);
+			
+			String testStatus="";
+			if (dev.containsKey(row[0])) {
+				testStatus = "1".equals(((String[]) dev.get(row[0]))[2])?"On":"Off";
+			}else{
+				testStatus ="OFF";
+			}
+			String testConStatus = displayStatus(is11?(HashMap)hm.get("inst2"):(HashMap)hm.get("inst3"),row[0],9);
+			String testSnd = displayStatus(is11?(HashMap)hm.get("inst2"):(HashMap)hm.get("inst3"),row[0],6);
+			String testRcv = displayStatus(is11?(HashMap)hm.get("inst2"):(HashMap)hm.get("inst3"),row[0],7);
+
+			sb = sb.append(row[0]).append("|");		//index: 0 adapterName
+			sb.append(row[1]).append("|");			//index: 1 adapterDesc
+			sb.append(row[3]).append("|");			//index: 2 instance
+			sb.append(devStatus).append("|");		//index: 3 dev status(db)
+			sb.append(devConStatus).append("|");	//index: 4 dev status()
+			sb.append(devSnd).append("|");			//index: 5 send count
+			sb.append(devRcv).append("|");			//index: 6 rcv count
+			
+			sb.append(testStatus).append("|");		//index: 7 qa status(db)
+			sb.append(testConStatus).append("|");	//index: 8 qa status()
+			sb.append(testSnd).append("|");			//index: 9 send count(qa)
+			sb.append(testRcv).append(ls);			//index: 10 rcv count(qa)
+		}			
+
+%>
+<%=sb.toString()%>
+

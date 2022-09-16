@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TransformFunc">
+	
+<!--  #### 변환함수 ###  -->
+	<!--  목록 조회  -->
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT	ROWNO AS "ROWNO", 
+				CNVSNFUNTNNAME AS "CNVSNFUNTNNAME", 
+				CNVSNFUNTNDESC AS "CNVSNFUNTNDESC", 
+				CNVSNFUNTNRETUNPTRNIDNAME AS "CNVSNFUNTNRETUNPTRNIDNAME", 
+				CNVSNFUNTNPTRNIDNAME AS "CNVSNFUNTNPTRNIDNAME", 
+				CNVSNFUNTNCLSNAME AS "CNVSNFUNTNCLSNAME" 
+		FROM ( 
+			SELECT ROW_NUMBER() OVER()  AS ROWNO, 
+                   TB.CNVSNFUNTNNAME, 
+                   TB.CNVSNFUNTNDESC, 
+                   TB.CNVSNFUNTNRETUNPTRNIDNAME, 
+                   TB.CNVSNFUNTNPTRNIDNAME, 
+                   TB.CNVSNFUNTNCLSNAME 
+				 FROM $schemaId$.TSEAITR04 TB
+				<dynamic prepend="WHERE">
+					<isNotEmpty prepend="AND" property="searchCnvsnFuntnName">
+						TB.CNVSNFUNTNNAME LIKE LOWER('%'||#searchCnvsnFuntnName#||'%')
+					</isNotEmpty>
+				</dynamic>
+		) TMP1 
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#	
+	</statement>	
+
+	<!--   전체 목록수 얻기 -->
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "CNT"
+			FROM $schemaId$.TSEAITR04 TB
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchCnvsnFuntnName">
+				TB.CNVSNFUNTNNAME LIKE LOWER('%'||#searchCnvsnFuntnName#||'%')
+			</isNotEmpty>
+		</dynamic>	
+	</statement>	
+    <statement id="insertRule" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT  INTO $schemaId$.TSEAITR05(
+                CNVSNFUNTNNAME,
+                CNVSNFUNTNPARMNAME,
+                CNVSNFUNTNPARMDESC, 
+                CNVSNFUNTNPARMPTRNIDNAME,
+                CNVSNFUNTNPARMSERNO
+                )
+        VALUES  (#CNVSNFUNTNNAME#,
+                #CNVSNFUNTNPARMNAME#,
+                #CNVSNFUNTNPARMDESC#,
+                CAST(#CNVSNFUNTNPARMPTRNIDNAME# AS NUMERIC),
+                CAST(#CNVSNFUNTNPARMSERNO# AS NUMERIC)
+                )       
+    </statement>    
+    
+    <!--  insert  -->
+    <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT  INTO $schemaId$.TSEAITR04(
+                CNVSNFUNTNNAME,
+                CNVSNFUNTNDESC, 
+                CNVSNFUNTNRETUNPTRNIDNAME,
+                CNVSNFUNTNPTRNIDNAME,
+                CNVSNFUNTNCLSNAME
+                )
+        VALUES  (#cnvsnFuntnName#,
+                #cnvsnFuntnDesc#,
+                CAST(#cnvsnFuntnRetunPtrnIdName# AS NUMERIC),
+                CAST(#cnvsnFuntnPtrnIdName# AS NUMERIC),
+                #cnvsnFuntnClsName#
+                )       
+    </statement>    
+
+    <!--  update  -->
+    <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE  $schemaId$.TSEAITR04 
+        SET CNVSNFUNTNDESC = #cnvsnFuntnDesc#, 
+            CNVSNFUNTNRETUNPTRNIDNAME = CAST(#cnvsnFuntnRetunPtrnIdName# AS NUMERIC),
+            CNVSNFUNTNPTRNIDNAME = CAST(#cnvsnFuntnPtrnIdName# AS NUMERIC),
+            CNVSNFUNTNCLSNAME = #cnvsnFuntnClsName#
+        WHERE   CNVSNFUNTNNAME = #cnvsnFuntnName#
+    </statement>    
+    
+</sqlMap>

@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MonthlyBackup">
+  
+  <parameterMap class="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist03VO" id="insertMonthlyBackupData-params">
+    <parameter property="statcYm"/>
+    <parameter property="eaiBzwkDstcd"/>
+    <parameter property="eaiSvcName"/>
+    <parameter property="intfacPtrnCd"/>
+    <parameter property="chnlMdiaDstcd"/>
+    <parameter property="logPrcssSerno"/>
+    <parameter property="stndMsgUseYn"/>
+    <parameter property="ddTrsmtNoitm1"/> <parameter property="ddErrNoitm1"/> <parameter property="ddRspnsAvgVal1"/> 
+    <parameter property="ddTrsmtNoitm2"/> <parameter property="ddErrNoitm2"/> <parameter property="ddRspnsAvgVal2"/> 
+    <parameter property="ddTrsmtNoitm3"/> <parameter property="ddErrNoitm3"/> <parameter property="ddRspnsAvgVal3"/> 
+    <parameter property="ddTrsmtNoitm4"/> <parameter property="ddErrNoitm4"/> <parameter property="ddRspnsAvgVal4"/> 
+    <parameter property="ddTrsmtNoitm5"/> <parameter property="ddErrNoitm5"/> <parameter property="ddRspnsAvgVal5"/> 
+    <parameter property="ddTrsmtNoitm6"/> <parameter property="ddErrNoitm6"/> <parameter property="ddRspnsAvgVal6"/> 
+    <parameter property="ddTrsmtNoitm7"/> <parameter property="ddErrNoitm7"/> <parameter property="ddRspnsAvgVal7"/> 
+    <parameter property="ddTrsmtNoitm8"/> <parameter property="ddErrNoitm8"/> <parameter property="ddRspnsAvgVal8"/> 
+    <parameter property="ddTrsmtNoitm9"/> <parameter property="ddErrNoitm9"/> <parameter property="ddRspnsAvgVal9"/> 
+    <parameter property="ddTrsmtNoitm10"/><parameter property="ddErrNoitm10"/><parameter property="ddRspnsAvgVal10"/>
+    <parameter property="ddTrsmtNoitm11"/><parameter property="ddErrNoitm11"/><parameter property="ddRspnsAvgVal11"/>
+    <parameter property="ddTrsmtNoitm12"/><parameter property="ddErrNoitm12"/><parameter property="ddRspnsAvgVal12"/>
+    <parameter property="ddTrsmtNoitm13"/><parameter property="ddErrNoitm13"/><parameter property="ddRspnsAvgVal13"/>
+    <parameter property="ddTrsmtNoitm14"/><parameter property="ddErrNoitm14"/><parameter property="ddRspnsAvgVal14"/>
+    <parameter property="ddTrsmtNoitm15"/><parameter property="ddErrNoitm15"/><parameter property="ddRspnsAvgVal15"/>
+    <parameter property="ddTrsmtNoitm16"/><parameter property="ddErrNoitm16"/><parameter property="ddRspnsAvgVal16"/>
+    <parameter property="ddTrsmtNoitm17"/><parameter property="ddErrNoitm17"/><parameter property="ddRspnsAvgVal17"/>
+    <parameter property="ddTrsmtNoitm18"/><parameter property="ddErrNoitm18"/><parameter property="ddRspnsAvgVal18"/>
+    <parameter property="ddTrsmtNoitm19"/><parameter property="ddErrNoitm19"/><parameter property="ddRspnsAvgVal19"/>
+    <parameter property="ddTrsmtNoitm20"/><parameter property="ddErrNoitm20"/><parameter property="ddRspnsAvgVal20"/>
+    <parameter property="ddTrsmtNoitm21"/><parameter property="ddErrNoitm21"/><parameter property="ddRspnsAvgVal21"/>
+    <parameter property="ddTrsmtNoitm22"/><parameter property="ddErrNoitm22"/><parameter property="ddRspnsAvgVal22"/>
+    <parameter property="ddTrsmtNoitm23"/><parameter property="ddErrNoitm23"/><parameter property="ddRspnsAvgVal23"/>
+    <parameter property="ddTrsmtNoitm24"/><parameter property="ddErrNoitm24"/><parameter property="ddRspnsAvgVal24"/>
+    <parameter property="ddTrsmtNoitm25"/><parameter property="ddErrNoitm25"/><parameter property="ddRspnsAvgVal25"/>
+    <parameter property="ddTrsmtNoitm26"/><parameter property="ddErrNoitm26"/><parameter property="ddRspnsAvgVal26"/>
+    <parameter property="ddTrsmtNoitm27"/><parameter property="ddErrNoitm27"/><parameter property="ddRspnsAvgVal27"/>
+    <parameter property="ddTrsmtNoitm28"/><parameter property="ddErrNoitm28"/><parameter property="ddRspnsAvgVal28"/>
+    <parameter property="ddTrsmtNoitm29"/><parameter property="ddErrNoitm29"/><parameter property="ddRspnsAvgVal29"/>
+    <parameter property="ddTrsmtNoitm30"/><parameter property="ddErrNoitm30"/><parameter property="ddRspnsAvgVal30"/>
+    <parameter property="ddTrsmtNoitm31"/><parameter property="ddErrNoitm31"/><parameter property="ddRspnsAvgVal31"/>
+  </parameterMap>
+  
+  <statement id="insertMonthlyBackupData" parameterClass="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist03VO" parameterMap="insertMonthlyBackupData-params">
+    INSERT INTO $schemaId$.TSEAIST03 (
+              STATCYM, EAIBZWKDSTCD, EAISVCNAME,
+              INTFACPTRNCD, CHNLMDIADSTCD, LOGPRCSSSERNO,
+              STNDMSGUSEYN,
+              S1DDTRSMTNOITM,  S1DDERRNOITM,  S1DDRSPNSAVGVAL,
+              S2DDTRSMTNOITM,  S2DDERRNOITM,  S2DDRSPNSAVGVAL,
+              S3DDTRSMTNOITM,  S3DDERRNOITM,  S3DDRSPNSAVGVAL,
+              S4DDTRSMTNOITM,  S4DDERRNOITM,  S4DDRSPNSAVGVAL,
+              S5DDTRSMTNOITM,  S5DDERRNOITM,  S5DDRSPNSAVGVAL,
+              S6DDTRSMTNOITM,  S6DDERRNOITM,  S6DDRSPNSAVGVAL,
+              S7DDTRSMTNOITM,  S7DDERRNOITM,  S7DDRSPNSAVGVAL,
+              S8DDTRSMTNOITM,  S8DDERRNOITM,  S8DDRSPNSAVGVAL,
+              S9DDTRSMTNOITM,  S9DDERRNOITM,  S9DDRSPNSAVGVAL,
+              S10DDTRSMTNOITM, S10DDERRNOITM, S10DDRSPNSAVGVAL,
+              S11DDTRSMTNOITM, S11DDERRNOITM, S11DDRSPNSAVGVAL,
+              S12DDTRSMTNOITM, S12DDERRNOITM, S12DDRSPNSAVGVAL,
+              S13DDTRSMTNOITM, S13DDERRNOITM, S13DDRSPNSAVGVAL,
+              S14DDTRSMTNOITM, S14DDERRNOITM, S14DDRSPNSAVGVAL,
+              S15DDTRSMTNOITM, S15DDERRNOITM, S15DDRSPNSAVGVAL,
+              S16DDTRSMTNOITM, S16DDERRNOITM, S16DDRSPNSAVGVAL,
+              S17DDTRSMTNOITM, S17DDERRNOITM, S17DDRSPNSAVGVAL,
+              S18DDTRSMTNOITM, S18DDERRNOITM, S18DDRSPNSAVGVAL,
+              S19DDTRSMTNOITM, S19DDERRNOITM, S19DDRSPNSAVGVAL,
+              S20DDTRSMTNOITM, S20DDERRNOITM, S20DDRSPNSAVGVAL,
+              S21DDTRSMTNOITM, S21DDERRNOITM, S21DDRSPNSAVGVAL,
+              S22DDTRSMTNOITM, S22DDERRNOITM, S22DDRSPNSAVGVAL,
+              S23DDTRSMTNOITM, S23DDERRNOITM, S23DDRSPNSAVGVAL,
+              S24DDTRSMTNOITM, S24DDERRNOITM, S24DDRSPNSAVGVAL,
+              S25DDTRSMTNOITM, S25DDERRNOITM, S25DDRSPNSAVGVAL,
+              S26DDTRSMTNOITM, S26DDERRNOITM, S26DDRSPNSAVGVAL,
+              S27DDTRSMTNOITM, S27DDERRNOITM, S27DDRSPNSAVGVAL,
+              S28DDTRSMTNOITM, S28DDERRNOITM, S28DDRSPNSAVGVAL,
+              S29DDTRSMTNOITM, S29DDERRNOITM, S29DDRSPNSAVGVAL,
+              S30DDTRSMTNOITM, S30DDERRNOITM, S30DDRSPNSAVGVAL,
+              S31DDTRSMTNOITM, S31DDERRNOITM, S31DDRSPNSAVGVAL )
+         VALUES (
+        ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ? )
+  </statement>
+  
+  <statement id="findMonthlyTseaist03" parameterClass="java.util.Map" resultClass="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist03VO"><![CDATA[    
+        SELECT
+            STATCYM AS "STATCYM",
+            EAIBZWKDSTCD AS "EAIBZWKDSTCD",
+            EAISVCNAME AS "EAISVCNAME",
+            INTFACPTRNCD AS "INTFACPTRNCD",
+            CHNLMDIADSTCD AS "CHNLMDIADSTCD",
+            LOGPRCSSSERNO AS "LOGPRCSSSERNO",
+            STNDMSGUSEYN AS "STNDMSGUSEYN",
+              SUM(S1DDTRSMTNOITM)  AS "DDTRSMTNOITM1" ,  SUM(S1DDERRNOITM) AS "DDERRNOITM1" , ROUND(AVG(S1DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL1" ,
+              SUM(S2DDTRSMTNOITM)  AS "DDTRSMTNOITM2" ,  SUM(S2DDERRNOITM) AS "DDERRNOITM2" , ROUND(AVG(S2DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL2" ,
+              SUM(S3DDTRSMTNOITM)  AS "DDTRSMTNOITM3" ,  SUM(S3DDERRNOITM) AS "DDERRNOITM3" , ROUND(AVG(S3DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL3" ,
+              SUM(S4DDTRSMTNOITM)  AS "DDTRSMTNOITM4" ,  SUM(S4DDERRNOITM) AS "DDERRNOITM4" , ROUND(AVG(S4DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL4" ,
+              SUM(S5DDTRSMTNOITM)  AS "DDTRSMTNOITM5" ,  SUM(S5DDERRNOITM) AS "DDERRNOITM5" , ROUND(AVG(S5DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL5" ,
+              SUM(S6DDTRSMTNOITM)  AS "DDTRSMTNOITM6" ,  SUM(S6DDERRNOITM) AS "DDERRNOITM6" , ROUND(AVG(S6DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL6" ,
+              SUM(S7DDTRSMTNOITM)  AS "DDTRSMTNOITM7" ,  SUM(S7DDERRNOITM) AS "DDERRNOITM7" , ROUND(AVG(S7DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL7" ,
+              SUM(S8DDTRSMTNOITM)  AS "DDTRSMTNOITM8" ,  SUM(S8DDERRNOITM) AS "DDERRNOITM8" , ROUND(AVG(S8DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL8" ,
+              SUM(S9DDTRSMTNOITM)  AS "DDTRSMTNOITM9" ,  SUM(S9DDERRNOITM) AS "DDERRNOITM9" , ROUND(AVG(S9DDRSPNSAVGVAL),  3) AS "DDRSPNSAVGVAL9" ,
+              SUM(S10DDTRSMTNOITM) AS "DDTRSMTNOITM10", SUM(S10DDERRNOITM) AS "DDERRNOITM10", ROUND(AVG(S10DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL10",
+              SUM(S11DDTRSMTNOITM) AS "DDTRSMTNOITM11", SUM(S11DDERRNOITM) AS "DDERRNOITM11", ROUND(AVG(S11DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL11",
+              SUM(S12DDTRSMTNOITM) AS "DDTRSMTNOITM12", SUM(S12DDERRNOITM) AS "DDERRNOITM12", ROUND(AVG(S12DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL12",
+              SUM(S13DDTRSMTNOITM) AS "DDTRSMTNOITM13", SUM(S13DDERRNOITM) AS "DDERRNOITM13", ROUND(AVG(S13DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL13",
+              SUM(S14DDTRSMTNOITM) AS "DDTRSMTNOITM14", SUM(S14DDERRNOITM) AS "DDERRNOITM14", ROUND(AVG(S14DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL14",
+              SUM(S15DDTRSMTNOITM) AS "DDTRSMTNOITM15", SUM(S15DDERRNOITM) AS "DDERRNOITM15", ROUND(AVG(S15DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL15",
+              SUM(S16DDTRSMTNOITM) AS "DDTRSMTNOITM16", SUM(S16DDERRNOITM) AS "DDERRNOITM16", ROUND(AVG(S16DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL16",
+              SUM(S17DDTRSMTNOITM) AS "DDTRSMTNOITM17", SUM(S17DDERRNOITM) AS "DDERRNOITM17", ROUND(AVG(S17DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL17",
+              SUM(S18DDTRSMTNOITM) AS "DDTRSMTNOITM18", SUM(S18DDERRNOITM) AS "DDERRNOITM18", ROUND(AVG(S18DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL18",
+              SUM(S19DDTRSMTNOITM) AS "DDTRSMTNOITM19", SUM(S19DDERRNOITM) AS "DDERRNOITM19", ROUND(AVG(S19DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL19",
+              SUM(S20DDTRSMTNOITM) AS "DDTRSMTNOITM20", SUM(S20DDERRNOITM) AS "DDERRNOITM20", ROUND(AVG(S20DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL20",
+              SUM(S21DDTRSMTNOITM) AS "DDTRSMTNOITM21", SUM(S21DDERRNOITM) AS "DDERRNOITM21", ROUND(AVG(S21DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL21",
+              SUM(S22DDTRSMTNOITM) AS "DDTRSMTNOITM22", SUM(S22DDERRNOITM) AS "DDERRNOITM22", ROUND(AVG(S22DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL22",
+              SUM(S23DDTRSMTNOITM) AS "DDTRSMTNOITM23", SUM(S23DDERRNOITM) AS "DDERRNOITM23", ROUND(AVG(S23DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL23",
+              SUM(S24DDTRSMTNOITM) AS "DDTRSMTNOITM24", SUM(S24DDERRNOITM) AS "DDERRNOITM24", ROUND(AVG(S24DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL24",
+              SUM(S25DDTRSMTNOITM) AS "DDTRSMTNOITM25", SUM(S25DDERRNOITM) AS "DDERRNOITM25", ROUND(AVG(S25DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL25",
+              SUM(S26DDTRSMTNOITM) AS "DDTRSMTNOITM26", SUM(S26DDERRNOITM) AS "DDERRNOITM26", ROUND(AVG(S26DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL26",
+              SUM(S27DDTRSMTNOITM) AS "DDTRSMTNOITM27", SUM(S27DDERRNOITM) AS "DDERRNOITM27", ROUND(AVG(S27DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL27",
+              SUM(S28DDTRSMTNOITM) AS "DDTRSMTNOITM28", SUM(S28DDERRNOITM) AS "DDERRNOITM28", ROUND(AVG(S28DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL28",
+              SUM(S29DDTRSMTNOITM) AS "DDTRSMTNOITM29", SUM(S29DDERRNOITM) AS "DDERRNOITM29", ROUND(AVG(S29DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL29",
+              SUM(S30DDTRSMTNOITM) AS "DDTRSMTNOITM30", SUM(S30DDERRNOITM) AS "DDERRNOITM30", ROUND(AVG(S30DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL30",
+              SUM(S31DDTRSMTNOITM) AS "DDTRSMTNOITM31", SUM(S31DDERRNOITM) AS "DDERRNOITM31", ROUND(AVG(S31DDRSPNSAVGVAL), 3) AS "DDRSPNSAVGVAL31"
+        FROM (
+              SELECT
+              STATCYM,
+              EAIBZWKDSTCD,
+              EAISVCNAME,
+              INTFACPTRNCD,
+              CHNLMDIADSTCD,
+              LOGPRCSSSERNO,
+              STNDMSGUSEYN,
+              COALESCE(CASE WHEN DD = '01' THEN PROCCOUNT END, 0) AS S1DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '02' THEN PROCCOUNT END, 0) AS S2DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '03' THEN PROCCOUNT END, 0) AS S3DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '04' THEN PROCCOUNT END, 0) AS S4DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '05' THEN PROCCOUNT END, 0) AS S5DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '06' THEN PROCCOUNT END, 0) AS S6DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '07' THEN PROCCOUNT END, 0) AS S7DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '08' THEN PROCCOUNT END, 0) AS S8DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '09' THEN PROCCOUNT END, 0) AS S9DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '10' THEN PROCCOUNT END, 0) AS S10DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '11' THEN PROCCOUNT END, 0) AS S11DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '12' THEN PROCCOUNT END, 0) AS S12DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '13' THEN PROCCOUNT END, 0) AS S13DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '14' THEN PROCCOUNT END, 0) AS S14DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '15' THEN PROCCOUNT END, 0) AS S15DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '16' THEN PROCCOUNT END, 0) AS S16DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '17' THEN PROCCOUNT END, 0) AS S17DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '18' THEN PROCCOUNT END, 0) AS S18DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '19' THEN PROCCOUNT END, 0) AS S19DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '20' THEN PROCCOUNT END, 0) AS S20DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '21' THEN PROCCOUNT END, 0) AS S21DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '22' THEN PROCCOUNT END, 0) AS S22DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '23' THEN PROCCOUNT END, 0) AS S23DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '24' THEN PROCCOUNT END, 0) AS S24DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '25' THEN PROCCOUNT END, 0) AS S25DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '26' THEN PROCCOUNT END, 0) AS S26DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '27' THEN PROCCOUNT END, 0) AS S27DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '28' THEN PROCCOUNT END, 0) AS S28DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '29' THEN PROCCOUNT END, 0) AS S29DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '30' THEN PROCCOUNT END, 0) AS S30DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '31' THEN PROCCOUNT END, 0) AS S31DDTRSMTNOITM,
+              COALESCE(CASE WHEN DD = '01' THEN ERRCOUNT END, 0) AS S1DDERRNOITM,
+              COALESCE(CASE WHEN DD = '02' THEN ERRCOUNT END, 0) AS S2DDERRNOITM,
+              COALESCE(CASE WHEN DD = '03' THEN ERRCOUNT END, 0) AS S3DDERRNOITM,
+              COALESCE(CASE WHEN DD = '04' THEN ERRCOUNT END, 0) AS S4DDERRNOITM,
+              COALESCE(CASE WHEN DD = '05' THEN ERRCOUNT END, 0) AS S5DDERRNOITM,
+              COALESCE(CASE WHEN DD = '06' THEN ERRCOUNT END, 0) AS S6DDERRNOITM,
+              COALESCE(CASE WHEN DD = '07' THEN ERRCOUNT END, 0) AS S7DDERRNOITM,
+              COALESCE(CASE WHEN DD = '08' THEN ERRCOUNT END, 0) AS S8DDERRNOITM,
+              COALESCE(CASE WHEN DD = '09' THEN ERRCOUNT END, 0) AS S9DDERRNOITM,
+              COALESCE(CASE WHEN DD = '10' THEN ERRCOUNT END, 0) AS S10DDERRNOITM,
+              COALESCE(CASE WHEN DD = '11' THEN ERRCOUNT END, 0) AS S11DDERRNOITM,
+              COALESCE(CASE WHEN DD = '12' THEN ERRCOUNT END, 0) AS S12DDERRNOITM,
+              COALESCE(CASE WHEN DD = '13' THEN ERRCOUNT END, 0) AS S13DDERRNOITM,
+              COALESCE(CASE WHEN DD = '14' THEN ERRCOUNT END, 0) AS S14DDERRNOITM,
+              COALESCE(CASE WHEN DD = '15' THEN ERRCOUNT END, 0) AS S15DDERRNOITM,
+              COALESCE(CASE WHEN DD = '16' THEN ERRCOUNT END, 0) AS S16DDERRNOITM,
+              COALESCE(CASE WHEN DD = '17' THEN ERRCOUNT END, 0) AS S17DDERRNOITM,
+              COALESCE(CASE WHEN DD = '18' THEN ERRCOUNT END, 0) AS S18DDERRNOITM,
+              COALESCE(CASE WHEN DD = '19' THEN ERRCOUNT END, 0) AS S19DDERRNOITM,
+              COALESCE(CASE WHEN DD = '20' THEN ERRCOUNT END, 0) AS S20DDERRNOITM,
+              COALESCE(CASE WHEN DD = '21' THEN ERRCOUNT END, 0) AS S21DDERRNOITM,
+              COALESCE(CASE WHEN DD = '22' THEN ERRCOUNT END, 0) AS S22DDERRNOITM,
+              COALESCE(CASE WHEN DD = '23' THEN ERRCOUNT END, 0) AS S23DDERRNOITM,
+              COALESCE(CASE WHEN DD = '24' THEN ERRCOUNT END, 0) AS S24DDERRNOITM,
+              COALESCE(CASE WHEN DD = '25' THEN ERRCOUNT END, 0) AS S25DDERRNOITM,
+              COALESCE(CASE WHEN DD = '26' THEN ERRCOUNT END, 0) AS S26DDERRNOITM,
+              COALESCE(CASE WHEN DD = '27' THEN ERRCOUNT END, 0) AS S27DDERRNOITM,
+              COALESCE(CASE WHEN DD = '28' THEN ERRCOUNT END, 0) AS S28DDERRNOITM,
+              COALESCE(CASE WHEN DD = '29' THEN ERRCOUNT END, 0) AS S29DDERRNOITM,
+              COALESCE(CASE WHEN DD = '30' THEN ERRCOUNT END, 0) AS S30DDERRNOITM,
+              COALESCE(CASE WHEN DD = '31' THEN ERRCOUNT END, 0) AS S31DDERRNOITM,
+              COALESCE(CASE WHEN DD = '01' THEN RSPNSAVG END, 0) AS S1DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '02' THEN RSPNSAVG END, 0) AS S2DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '03' THEN RSPNSAVG END, 0) AS S3DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '04' THEN RSPNSAVG END, 0) AS S4DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '05' THEN RSPNSAVG END, 0) AS S5DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '06' THEN RSPNSAVG END, 0) AS S6DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '07' THEN RSPNSAVG END, 0) AS S7DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '08' THEN RSPNSAVG END, 0) AS S8DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '09' THEN RSPNSAVG END, 0) AS S9DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '10' THEN RSPNSAVG END, 0) AS S10DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '11' THEN RSPNSAVG END, 0) AS S11DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '12' THEN RSPNSAVG END, 0) AS S12DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '13' THEN RSPNSAVG END, 0) AS S13DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '14' THEN RSPNSAVG END, 0) AS S14DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '15' THEN RSPNSAVG END, 0) AS S15DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '16' THEN RSPNSAVG END, 0) AS S16DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '17' THEN RSPNSAVG END, 0) AS S17DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '18' THEN RSPNSAVG END, 0) AS S18DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '19' THEN RSPNSAVG END, 0) AS S19DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '20' THEN RSPNSAVG END, 0) AS S20DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '21' THEN RSPNSAVG END, 0) AS S21DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '22' THEN RSPNSAVG END, 0) AS S22DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '23' THEN RSPNSAVG END, 0) AS S23DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '24' THEN RSPNSAVG END, 0) AS S24DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '25' THEN RSPNSAVG END, 0) AS S25DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '26' THEN RSPNSAVG END, 0) AS S26DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '27' THEN RSPNSAVG END, 0) AS S27DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '28' THEN RSPNSAVG END, 0) AS S28DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '29' THEN RSPNSAVG END, 0) AS S29DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '30' THEN RSPNSAVG END, 0) AS S30DDRSPNSAVGVAL,
+              COALESCE(CASE WHEN DD = '31' THEN RSPNSAVG END, 0) AS S31DDRSPNSAVGVAL
+        FROM
+            (
+
+                  SELECT
+                    SUBSTR(STATCYMD, 1, 6) AS STATCYM,
+                    SUBSTR(STATCYMD, 7, 2) AS DD,
+                    EAIBZWKDSTCD,
+                    EAISVCNAME,
+                    INTFACPTRNCD,
+                    ' ' AS CHNLMDIADSTCD,
+                    LOGPRCSSSERNO,
+                    STNDMSGUSEYN,
+                      (
+                      S0HHTRSMTNOITM +
+                      S1HHTRSMTNOITM +
+                      S2HHTRSMTNOITM +
+                      S3HHTRSMTNOITM +
+                      S4HHTRSMTNOITM +
+                      S5HHTRSMTNOITM +
+                      S6HHTRSMTNOITM +
+                      S7HHTRSMTNOITM +
+                      S8HHTRSMTNOITM +
+                      S9HHTRSMTNOITM +
+                      S10HHTRSMTNOITM +
+                      S11HHTRSMTNOITM +
+                      S12HHTRSMTNOITM +
+                      S13HHTRSMTNOITM +
+                      S14HHTRSMTNOITM +
+                      S15HHTRSMTNOITM +
+                      S16HHTRSMTNOITM +
+                      S17HHTRSMTNOITM +
+                      S18HHTRSMTNOITM +
+                      S19HHTRSMTNOITM +
+                      S20HHTRSMTNOITM +
+                      S21HHTRSMTNOITM +
+                      S22HHTRSMTNOITM +
+                      S23HHTRSMTNOITM
+                      ) AS PROCCOUNT,
+                      (
+                S0HHERRNOITM +
+                S1HHERRNOITM +
+                S2HHERRNOITM +
+                S3HHERRNOITM +
+                S4HHERRNOITM +
+                S5HHERRNOITM +
+                S6HHERRNOITM +
+                S7HHERRNOITM +
+                S8HHERRNOITM +
+                S9HHERRNOITM +
+                S10HHERRNOITM +
+                S11HHERRNOITM +
+                S12HHERRNOITM +
+                S13HHERRNOITM +
+                S14HHERRNOITM +
+                S15HHERRNOITM +
+                S16HHERRNOITM +
+                S17HHERRNOITM +
+                S18HHERRNOITM +
+                S19HHERRNOITM +
+                S20HHERRNOITM +
+                S21HHERRNOITM +
+                S22HHERRNOITM +
+                S23HHERRNOITM
+              ) AS ERRCOUNT,
+              ROUND((
+                S0HHRSPNSAVGVAL +
+                S1HHRSPNSAVGVAL +
+                S2HHRSPNSAVGVAL +
+                S3HHRSPNSAVGVAL +
+                S4HHRSPNSAVGVAL +
+                S5HHRSPNSAVGVAL +
+                S6HHRSPNSAVGVAL +
+                S7HHRSPNSAVGVAL +
+                S8HHRSPNSAVGVAL +
+                S9HHRSPNSAVGVAL +
+                S10HHRSPNSAVGVAL +
+                S11HHRSPNSAVGVAL +
+                S12HHRSPNSAVGVAL +
+                S13HHRSPNSAVGVAL +
+                S14HHRSPNSAVGVAL +
+                S15HHRSPNSAVGVAL +
+                S16HHRSPNSAVGVAL +
+                S17HHRSPNSAVGVAL +
+                S18HHRSPNSAVGVAL +
+                S19HHRSPNSAVGVAL +
+                S20HHRSPNSAVGVAL +
+                S21HHRSPNSAVGVAL +
+                S22HHRSPNSAVGVAL +
+                S23HHRSPNSAVGVAL
+              )/24, 3) AS RSPNSAVG
+                  FROM $schemaId$.TSEAIST02
+                  WHERE STATCYMD >= #month# ||'00'
+                    AND STATCYMD <= #month# ||'99'
+                ) A
+                ) B
+                  GROUP BY
+                          STATCYM,
+                          EAIBZWKDSTCD,
+                          EAISVCNAME,
+                          CHNLMDIADSTCD,
+                          INTFACPTRNCD,
+                          LOGPRCSSSERNO,
+                          STNDMSGUSEYN
+  ]]>
+  </statement>
+  
+  
+  <statement id="findYearlyTseaist04" parameterClass="java.util.Map" resultClass="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist04VO"><![CDATA[
+    SELECT
+        STATCYM AS "STATCYM",
+              EAIBZWKDSTCD AS "EAIBZWKDSTCD",
+              EAISVCNAME AS "EAISVCNAME",
+              INTFACPTRNCD AS "INTFACPTRNCD",
+              CHNLMDIADSTCD AS "CHNLMDIADSTCD",
+              LOGPRCSSSERNO AS "LOGPRCSSSERNO",
+              STNDMSGUSEYN AS "STNDMSGUSEYN",
+            SUM(COALESCE(CASE WHEN MN = '01' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM1" ,
+            SUM(COALESCE(CASE WHEN MN = '02' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM2" ,
+            SUM(COALESCE(CASE WHEN MN = '03' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM3" ,
+            SUM(COALESCE(CASE WHEN MN = '04' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM4" ,
+            SUM(COALESCE(CASE WHEN MN = '05' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM5" ,
+            SUM(COALESCE(CASE WHEN MN = '06' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM6" ,
+            SUM(COALESCE(CASE WHEN MN = '07' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM7" ,
+            SUM(COALESCE(CASE WHEN MN = '08' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM8" ,
+            SUM(COALESCE(CASE WHEN MN = '09' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM9" ,
+            SUM(COALESCE(CASE WHEN MN = '10' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM10",
+            SUM(COALESCE(CASE WHEN MN = '11' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM11",
+            SUM(COALESCE(CASE WHEN MN = '12' THEN PROCCOUNT END, 0)) AS "MNTRSMTNOITM12",
+
+            SUM(COALESCE(CASE WHEN MN = '01' THEN ERRCOUNT END, 0)) AS "MNERRNOITM1" ,
+            SUM(COALESCE(CASE WHEN MN = '02' THEN ERRCOUNT END, 0)) AS "MNERRNOITM2" ,
+            SUM(COALESCE(CASE WHEN MN = '03' THEN ERRCOUNT END, 0)) AS "MNERRNOITM3" ,
+            SUM(COALESCE(CASE WHEN MN = '04' THEN ERRCOUNT END, 0)) AS "MNERRNOITM4" ,
+            SUM(COALESCE(CASE WHEN MN = '05' THEN ERRCOUNT END, 0)) AS "MNERRNOITM5" ,
+            SUM(COALESCE(CASE WHEN MN = '06' THEN ERRCOUNT END, 0)) AS "MNERRNOITM6" ,
+            SUM(COALESCE(CASE WHEN MN = '07' THEN ERRCOUNT END, 0)) AS "MNERRNOITM7" ,
+            SUM(COALESCE(CASE WHEN MN = '08' THEN ERRCOUNT END, 0)) AS "MNERRNOITM8" ,
+            SUM(COALESCE(CASE WHEN MN = '09' THEN ERRCOUNT END, 0)) AS "MNERRNOITM9" ,
+            SUM(COALESCE(CASE WHEN MN = '10' THEN ERRCOUNT END, 0)) AS "MNERRNOITM10",
+            SUM(COALESCE(CASE WHEN MN = '11' THEN ERRCOUNT END, 0)) AS "MNERRNOITM11",
+            SUM(COALESCE(CASE WHEN MN = '12' THEN ERRCOUNT END, 0)) AS "MNERRNOITM12",
+
+            MAX(COALESCE(CASE WHEN MN = '01' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL1" ,
+            MAX(COALESCE(CASE WHEN MN = '02' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL2" ,
+            MAX(COALESCE(CASE WHEN MN = '03' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL3" ,
+            MAX(COALESCE(CASE WHEN MN = '04' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL4" ,
+            MAX(COALESCE(CASE WHEN MN = '05' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL5" ,
+            MAX(COALESCE(CASE WHEN MN = '06' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL6" ,
+            MAX(COALESCE(CASE WHEN MN = '07' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL7" ,
+            MAX(COALESCE(CASE WHEN MN = '08' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL8" ,
+            MAX(COALESCE(CASE WHEN MN = '09' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL9" ,
+            MAX(COALESCE(CASE WHEN MN = '10' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL10",
+            MAX(COALESCE(CASE WHEN MN = '11' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL11",
+            MAX(COALESCE(CASE WHEN MN = '12' THEN RSPNSAVG END, 0)) AS "MNRSPNSAVGVAL12"
+        FROM
+            (
+            SELECT
+              STATCYM,
+              MN,
+              EAIBZWKDSTCD,
+              EAISVCNAME,
+              INTFACPTRNCD,
+              CHNLMDIADSTCD,
+              LOGPRCSSSERNO,
+              STNDMSGUSEYN,
+              (
+                S1DDTRSMTNOITM +         S2DDTRSMTNOITM +         S3DDTRSMTNOITM +
+                S4DDTRSMTNOITM +         S5DDTRSMTNOITM +         S6DDTRSMTNOITM +
+                S7DDTRSMTNOITM +         S8DDTRSMTNOITM +         S9DDTRSMTNOITM +
+                S10DDTRSMTNOITM +        S11DDTRSMTNOITM +        S12DDTRSMTNOITM +
+                S13DDTRSMTNOITM +        S14DDTRSMTNOITM +        S15DDTRSMTNOITM +
+                S16DDTRSMTNOITM +        S17DDTRSMTNOITM +        S18DDTRSMTNOITM +
+                S19DDTRSMTNOITM +        S20DDTRSMTNOITM +        S21DDTRSMTNOITM +
+                S22DDTRSMTNOITM +        S23DDTRSMTNOITM +        S24DDTRSMTNOITM +
+                S25DDTRSMTNOITM +        S26DDTRSMTNOITM +        S27DDTRSMTNOITM +
+                S28DDTRSMTNOITM +        S29DDTRSMTNOITM +        S30DDTRSMTNOITM +
+                S31DDTRSMTNOITM
+              ) AS PROCCOUNT,
+              (
+                S1DDERRNOITM +    S2DDERRNOITM +  S3DDERRNOITM +
+                S4DDERRNOITM +    S5DDERRNOITM +  S6DDERRNOITM +
+                S7DDERRNOITM +    S8DDERRNOITM +  S9DDERRNOITM +
+                S10DDERRNOITM +   S11DDERRNOITM + S12DDERRNOITM +
+                S13DDERRNOITM +   S14DDERRNOITM + S15DDERRNOITM +
+                S16DDERRNOITM +   S17DDERRNOITM + S18DDERRNOITM +
+                S19DDERRNOITM +   S20DDERRNOITM + S21DDERRNOITM +
+                S22DDERRNOITM +   S23DDERRNOITM + S24DDERRNOITM +
+                S25DDERRNOITM +   S26DDERRNOITM + S27DDERRNOITM +
+                S28DDERRNOITM +   S29DDERRNOITM + S30DDERRNOITM +
+                S31DDERRNOITM
+              ) AS ERRCOUNT,
+              ROUND((
+                S1DDRSPNSAVGVAL  + S2DDRSPNSAVGVAL +   S3DDRSPNSAVGVAL +
+                S4DDRSPNSAVGVAL  + S5DDRSPNSAVGVAL +   S6DDRSPNSAVGVAL +
+                S7DDRSPNSAVGVAL  + S8DDRSPNSAVGVAL +   S9DDRSPNSAVGVAL +
+                S10DDRSPNSAVGVAL + S11DDRSPNSAVGVAL +  S12DDRSPNSAVGVAL +
+                S13DDRSPNSAVGVAL + S14DDRSPNSAVGVAL +  S15DDRSPNSAVGVAL +
+                S16DDRSPNSAVGVAL + S17DDRSPNSAVGVAL +  S18DDRSPNSAVGVAL +
+                S19DDRSPNSAVGVAL + S20DDRSPNSAVGVAL +  S21DDRSPNSAVGVAL +
+                S22DDRSPNSAVGVAL + S23DDRSPNSAVGVAL +  S24DDRSPNSAVGVAL +
+                S25DDRSPNSAVGVAL + S26DDRSPNSAVGVAL +  S27DDRSPNSAVGVAL +
+                S28DDRSPNSAVGVAL + S29DDRSPNSAVGVAL +  S30DDRSPNSAVGVAL +
+                S31DDRSPNSAVGVAL
+              )/31 , 3)AS RSPNSAVG
+            FROM
+                (
+                SELECT
+                    SUBSTR(STATCYM, 1, 4) AS STATCYM,
+                    SUBSTR(STATCYM, 5, 2) AS MN,
+                    EAIBZWKDSTCD, EAISVCNAME,
+                    INTFACPTRNCD, ' ' AS CHNLMDIADSTCD, LOGPRCSSSERNO,
+                    STNDMSGUSEYN,
+                    S1DDTRSMTNOITM,  S1DDERRNOITM,  S1DDRSPNSAVGVAL,
+                    S2DDTRSMTNOITM,  S2DDERRNOITM,  S2DDRSPNSAVGVAL,
+                    S3DDTRSMTNOITM,  S3DDERRNOITM,  S3DDRSPNSAVGVAL,
+                    S4DDTRSMTNOITM,  S4DDERRNOITM,  S4DDRSPNSAVGVAL,
+                    S5DDTRSMTNOITM,  S5DDERRNOITM,  S5DDRSPNSAVGVAL,
+                    S6DDTRSMTNOITM,  S6DDERRNOITM,  S6DDRSPNSAVGVAL,
+                    S7DDTRSMTNOITM,  S7DDERRNOITM,  S7DDRSPNSAVGVAL,
+                    S8DDTRSMTNOITM,  S8DDERRNOITM,  S8DDRSPNSAVGVAL,
+                    S9DDTRSMTNOITM,  S9DDERRNOITM,  S9DDRSPNSAVGVAL,
+                    S10DDTRSMTNOITM, S10DDERRNOITM, S10DDRSPNSAVGVAL,
+                    S11DDTRSMTNOITM, S11DDERRNOITM, S11DDRSPNSAVGVAL,
+                    S12DDTRSMTNOITM, S12DDERRNOITM, S12DDRSPNSAVGVAL,
+                    S13DDTRSMTNOITM, S13DDERRNOITM, S13DDRSPNSAVGVAL,
+                    S14DDTRSMTNOITM, S14DDERRNOITM, S14DDRSPNSAVGVAL,
+                    S15DDTRSMTNOITM, S15DDERRNOITM, S15DDRSPNSAVGVAL,
+                    S16DDTRSMTNOITM, S16DDERRNOITM, S16DDRSPNSAVGVAL,
+                    S17DDTRSMTNOITM, S17DDERRNOITM, S17DDRSPNSAVGVAL,
+                    S18DDTRSMTNOITM, S18DDERRNOITM, S18DDRSPNSAVGVAL,
+                    S19DDTRSMTNOITM, S19DDERRNOITM, S19DDRSPNSAVGVAL,
+                    S20DDTRSMTNOITM, S20DDERRNOITM, S20DDRSPNSAVGVAL,
+                    S21DDTRSMTNOITM, S21DDERRNOITM, S21DDRSPNSAVGVAL,
+                    S22DDTRSMTNOITM, S22DDERRNOITM, S22DDRSPNSAVGVAL,
+                    S23DDTRSMTNOITM, S23DDERRNOITM, S23DDRSPNSAVGVAL,
+                    S24DDTRSMTNOITM, S24DDERRNOITM, S24DDRSPNSAVGVAL,
+                    S25DDTRSMTNOITM, S25DDERRNOITM, S25DDRSPNSAVGVAL,
+                    S26DDTRSMTNOITM, S26DDERRNOITM, S26DDRSPNSAVGVAL,
+                    S27DDTRSMTNOITM, S27DDERRNOITM, S27DDRSPNSAVGVAL,
+                    S28DDTRSMTNOITM, S28DDERRNOITM, S28DDRSPNSAVGVAL,
+                    S29DDTRSMTNOITM, S29DDERRNOITM, S29DDRSPNSAVGVAL,
+                    S30DDTRSMTNOITM, S30DDERRNOITM, S30DDRSPNSAVGVAL,
+                    S31DDTRSMTNOITM, S31DDERRNOITM, S31DDRSPNSAVGVAL
+                    FROM $schemaId$.TSEAIST03
+                    WHERE STATCYM >= #year# || '0000'
+                      AND STATCYM <= #year# || '9999'
+                ) A
+            ) B
+        GROUP BY
+              STATCYM,
+              EAIBZWKDSTCD,
+              EAISVCNAME,
+              INTFACPTRNCD,
+              CHNLMDIADSTCD,
+              LOGPRCSSSERNO,
+              STNDMSGUSEYN
+    ]]>
+  </statement>
+  
+  
+  <statement id="deleteTseaist04" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+    DELETE FROM $schemaId$.TSEAIST04 WHERE STATCYM LIKE #year#||'%'
+  </statement>
+    
+  <parameterMap class="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist04VO" id="insertYearlyTseaist04-params">
+    <parameter property="statcYm"/>
+    <parameter property="eaiBzwkDstcd"/>
+    <parameter property="eaiSvcName"/>
+    <parameter property="intfacPtrnCd"/>
+    <parameter property="chnlMdiaDstcd"/>
+    <parameter property="logPrcssSerno"/>
+    <parameter property="stndMsgUseYn"/>
+    <parameter property="mnTrsmtNoitm1"/> <parameter property="mnErrNoitm1"/> <parameter property="mnRspnsAvgVal1"/> 
+    <parameter property="mnTrsmtNoitm2"/> <parameter property="mnErrNoitm2"/> <parameter property="mnRspnsAvgVal2"/> 
+    <parameter property="mnTrsmtNoitm3"/> <parameter property="mnErrNoitm3"/> <parameter property="mnRspnsAvgVal3"/> 
+    <parameter property="mnTrsmtNoitm4"/> <parameter property="mnErrNoitm4"/> <parameter property="mnRspnsAvgVal4"/> 
+    <parameter property="mnTrsmtNoitm5"/> <parameter property="mnErrNoitm5"/> <parameter property="mnRspnsAvgVal5"/> 
+    <parameter property="mnTrsmtNoitm6"/> <parameter property="mnErrNoitm6"/> <parameter property="mnRspnsAvgVal6"/> 
+    <parameter property="mnTrsmtNoitm7"/> <parameter property="mnErrNoitm7"/> <parameter property="mnRspnsAvgVal7"/> 
+    <parameter property="mnTrsmtNoitm8"/> <parameter property="mnErrNoitm8"/> <parameter property="mnRspnsAvgVal8"/> 
+    <parameter property="mnTrsmtNoitm9"/> <parameter property="mnErrNoitm9"/> <parameter property="mnRspnsAvgVal9"/> 
+    <parameter property="mnTrsmtNoitm10"/><parameter property="mnErrNoitm10"/><parameter property="mnRspnsAvgVal10"/>
+    <parameter property="mnTrsmtNoitm11"/><parameter property="mnErrNoitm11"/><parameter property="mnRspnsAvgVal11"/>
+    <parameter property="mnTrsmtNoitm12"/><parameter property="mnErrNoitm12"/><parameter property="mnRspnsAvgVal12"/>
+  </parameterMap>
+  
+  <statement id="insertYearlyTseaist04" parameterClass="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist04VO" parameterMap="insertYearlyTseaist04-params">
+    INSERT INTO $schemaId$.TSEAIST04
+          (
+           STATCYM, EAIBZWKDSTCD, EAISVCNAME, INTFACPTRNCD, CHNLMDIADSTCD, LOGPRCSSSERNO, STNDMSGUSEYN,
+           S1MNTRSMTNOITM,  S1MNERRNOITM,  S1MNRSPNSAVGVAL,
+           S2MNTRSMTNOITM,  S2MNERRNOITM,  S2MNRSPNSAVGVAL,
+           S3MNTRSMTNOITM,  S3MNERRNOITM,  S3MNRSPNSAVGVAL,
+           S4MNTRSMTNOITM,  S4MNERRNOITM,  S4MNRSPNSAVGVAL,
+           S5MNTRSMTNOITM,  S5MNERRNOITM,  S5MNRSPNSAVGVAL,
+           S6MNTRSMTNOITM,  S6MNERRNOITM,  S6MNRSPNSAVGVAL,
+           S7MNTRSMTNOITM,  S7MNERRNOITM,  S7MNRSPNSAVGVAL,
+           S8MNTRSMTNOITM,  S8MNERRNOITM,  S8MNRSPNSAVGVAL,
+           S9MNTRSMTNOITM,  S9MNERRNOITM,  S9MNRSPNSAVGVAL,
+           S10MNTRSMTNOITM, S10MNERRNOITM, S10MNRSPNSAVGVAL,
+           S11MNTRSMTNOITM, S11MNERRNOITM, S11MNRSPNSAVGVAL,
+           S12MNTRSMTNOITM, S12MNERRNOITM, S12MNRSPNSAVGVAL
+        )
+        VALUES(
+        ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?
+        )
+  </statement>
+</sqlMap>

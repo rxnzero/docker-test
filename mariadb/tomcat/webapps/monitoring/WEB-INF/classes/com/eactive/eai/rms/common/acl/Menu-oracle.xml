@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Menu">
+	
+<!-- 	SELECT level - 1 "level" -->
+<!-- 		     , T01.MENUID "id" -->
+<!-- 		     , T01.PARENTMENUID "parent" -->
+<!--              , 'true' "expanded" -->
+<!--              , DECODE(CONNECT_BY_ISLEAF,1,'true','false') "isLeaf" -->
+<!-- 		     , T01.MENUID -->
+<!-- 		     , T01.PARENTMENUID  -->
+<!-- 		     , T01.SORTORDER -->
+<!-- 		     , T01.MENUNAME -->
+<!-- 		     , T01.MENUURL -->
+<!-- 		     , T01.MENUIMAGE -->
+<!-- 		     , T01.DISPLAYYN -->
+<!-- 		     , T01.USEYN -->
+<!-- 		     , T01.APPPATH -->
+<!-- 		     , T01.APPCODE -->
+<!-- 		  FROM $schemaId$.TSEAIRM01 T01 -->
+<!-- 		  <dynamic prepend="WHERE"> -->
+<!-- 				<isNotEmpty prepend="AND" property="searchName"> -->
+<!-- 				MENUID in (select MENUID -->
+<!--                     from $schemaId$.TSEAIRM01 -->
+<!--                     connect by prior PARENTMENUID = MENUID -->
+<!--                     start with MENUID in (select MENUID from $schemaId$.tseairm01 where MenuName like '%'||#searchName#||'%') -->
+<!--              	) -->
+<!-- 				</isNotEmpty>		  	 -->
+<!-- 		  </dynamic> -->
+<!-- 	    connect by prior MENUID  = PARENTMENUID  -->
+<!-- 		start with PARENTMENUID = 'ROOT_DEV' -->
+<!--            order siblings by sortOrder -->
+    <!--  MenuServiceImpl compute level -->       
+	<statement id="selectTree" resultClass="java.util.HashMap">
+		SELECT 0 "level"
+		     , T01.MENUID "id"
+		     , T01.PARENTMENUID "parent"
+             , 'true' AS "expanded"
+             , CASE (select count(MENUID) from $schemaId$.TSEAIRM01 where PARENTMENUID = T01.MENUID) WHEN 0 then 'true' ELSE 'false' END AS "isLeaf"
+		     , T01.MENUID
+		     , T01.PARENTMENUID 
+		     , T01.SORTORDER
+		     , T01.MENUNAME
+		     , T01.MENUURL
+		     , T01.MENUIMAGE
+		     , T01.DISPLAYYN
+		     , T01.USEYN
+		     , T01.APPPATH
+		     , T01.APPCODE
+		  FROM $schemaId$.TSEAIRM01 T01
+		  <dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchName">
+				MENUID in (select MENUID
+                    from $schemaId$.TSEAIRM01
+                    connect by prior PARENTMENUID = MENUID
+                    start with MENUID in (select MENUID from $schemaId$.tseairm01 where MenuName like '%'||#searchName#||'%')
+             	)
+				</isNotEmpty>		  	
+		  </dynamic>
+           order by MENUID, SORTORDER
+	</statement>
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	UPDATE 	$schemaId$.TSEAIRM01 SET 
+	 			PARENTMENUID = #parentMenuId#, 
+	 		<isNotEmpty property="menuImg">
+	 			MENUIMAGE = #menuImage:VARCHAR#,
+	 		</isNotEmpty>
+	 			SORTORDER = #sortOrder#, MENUNAME = #menuName#,
+	 			MenuURL = #menuUrl#, DISPLAYYN = #displayYn#,
+	 		<isNotEmpty property="appPath">	
+	 			APPPATH = #appPath#,
+	 		</isNotEmpty>	
+	 		<isNotEmpty property="appCode">	
+	 			APPCODE = #appCode#,
+	 		</isNotEmpty>	
+	 			USEYN = #useYn#
+	 	WHERE 	MENUID = #menuId#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIRM01(
+				MENUID, PARENTMENUID, SORTORDER, 
+				MENUNAME, MenuURL, 
+				<isNotEmpty property="menuImage">
+				MENUIMAGE, 
+				</isNotEmpty>
+				DISPLAYYN, USEYN
+				<isNotEmpty property="appPath">
+				,APPPATH
+				</isNotEmpty>
+				<isNotEmpty property="appCode">
+				,APPCODE
+				</isNotEmpty>
+				)
+		VALUES	(#menuId#, #parentMenuId#, #sortOrder#, 
+				#menuName#, #menuUrl#, 
+				<isNotEmpty property="menuImage">
+				#menuImage#, 
+				</isNotEmpty>
+				#displayYn#, #useYn#
+				<isNotEmpty property="appPath">
+				, #appPath#
+				</isNotEmpty>
+				<isNotEmpty property="appCode">
+				, #appCode#
+				</isNotEmpty>
+				)		
+	</statement>
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE  FROM $schemaId$.TSEAIRM01 WHERE MENUID in(
+            SELECT MENUID 
+              FROM $schemaId$.TSEAIRM01 T01 
+           connect by prior MENUID  = PARENTMENUID  
+              start with MENUID = #menuId#
+        )
+    </statement>
+</sqlMap>

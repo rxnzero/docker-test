@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BapSchedule">
+    <statement id="selectList" resultClass="java.util.HashMap">
+        SELECT *
+        FROM (
+            SELECT
+                A.BJOBMSGSCHEID      ,
+                A.BJOBMSGDSTCD       ,
+                A.OSIDINSTIDSTCD     ,
+                A.SNDRCVSTARTHMS     ,
+                A.SNDRCVENDHMS       ,
+                A.MSGSNDRID          ,
+                A.SCHEFRSTREGIHMS    ,
+                A.THISMSGUSEYN       ,
+                A.THISMSGSCHEDESC    ,
+                B.BJOBBZWKDSTCD      ,
+                B.BJOBTRANDSTCDNAME  ,
+                C.BJOBBZWKNAME       ,
+                D.OSIDINSTINAME      ,
+                B.BJOBMSGDSTICNAME   ,
+                A.BJOBPTRNDSTCD      ,
+                B.GROUPCOCD          ,
+                @NO := @NO + 1 AS ROWNO
+            FROM $schemaId$.TSEAIBS01 A,
+                 $schemaId$.TSEAIBJ01 B,
+                 $schemaId$.TSEAIBJ02 C,
+                 $schemaId$.TSEAIBJ06 D,
+                 (SELECT @NO := 0) R
+            WHERE A.BjobMsgDstcd = B.BjobMsgDstcd
+            AND   B.BjobBzwkDstcd = C.BjobBzwkDstcd
+            AND   B.BjobBzwkDstcd = D.BjobBzwkDstcd
+            AND   A.OsidInstiDstcd = D.OsidInstiDstcd
+            <dynamic>
+                <isNotEmpty prepend="AND" property="searchBjobBzwkName">
+                    C.BjobBzwkName LIKE CONCAT('%'  ,  #searchBjobBzwkName#  ,  '%') 
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchOsidInstiName">
+                    D.OsidInstiName LIKE CONCAT( '%'  ,  #searchOsidInstiName#  ,  '%')
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobTranDstcdName">
+                    B.BjobTranDstcdName LIKE CONCAT( '%'  ,  #searchBjobTranDstcdName#  ,  '%')
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobMsgDsticName">
+                     B.BjobMsgDsticName LIKE CONCAT( '%'  ,  #searchBjobMsgDsticName#  ,  '%')
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobPtrnDstcd">
+                     A.BjobPtrnDstcd = #searchBjobPtrnDstcd#
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchGroupCoCd">
+                     B.GroupCoCd = #searchGroupCoCd#
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchStartHMS">
+                     A.SndrcvStartHMS BETWEEN #searchStartHMS# AND #searchEndHMS#
+                </isNotEmpty>
+            </dynamic>
+             ORDER BY C.BJOBBZWKNAME, D.OSIDINSTINAME, B.BJOBTRANDSTCDNAME ) TMP
+        WHERE ROWNO BETWEEN #startNum# AND #endNum# ORDER BY ROWNO
+    </statement>
+
+    <statement id="selectListCount" resultClass="java.lang.Integer">
+        SELECT COUNT(*) AS TotalCount
+        FROM (
+            SELECT *
+            FROM (
+                SELECT
+                    A.BJOBMSGSCHEID
+                FROM $schemaId$.TSEAIBS01 A,
+                     $schemaId$.TSEAIBJ01 B,
+                     $schemaId$.TSEAIBJ02 C,
+                     $schemaId$.TSEAIBJ06 D
+                WHERE A.BjobMsgDstcd   = B.BjobMsgDstcd
+                AND   B.BjobBzwkDstcd  = C.BjobBzwkDstcd
+                AND   B.BjobBzwkDstcd  = D.BjobBzwkDstcd
+                AND   A.OsidInstiDstcd = D.OsidInstiDstcd
+            <dynamic>
+				<isNotEmpty prepend="AND" property="searchBjobBzwkName">
+                    C.BjobBzwkName LIKE CONCAT('%'  ,  #searchBjobBzwkName#  ,  '%') 
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchOsidInstiName">
+                    D.OsidInstiName LIKE CONCAT( '%'  ,  #searchOsidInstiName#  ,  '%')
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobTranDstcdName">
+                    B.BjobTranDstcdName LIKE CONCAT( '%'  ,  #searchBjobTranDstcdName#  ,  '%')
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobMsgDsticName">
+                     B.BjobMsgDsticName LIKE CONCAT( '%'  ,  #searchBjobMsgDsticName#  ,  '%')
+                </isNotEmpty>
+                
+                <isNotEmpty prepend="AND" property="searchBjobPtrnDstcd">
+                     A.BjobPtrnDstcd = #searchBjobPtrnDstcd#
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchGroupCoCd">
+                     B.GroupCoCd = #searchGroupCoCd#
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchStartHMS">
+                     A.SndrcvStartHMS BETWEEN #searchStartHMS# AND #searchEndHMS#
+                </isNotEmpty>
+            </dynamic>
+           )  TMP ) T
+    </statement>
+
+    <statement id="selectDetail" resultClass="java.util.HashMap">
+        SELECT
+            BS01.BJOBMSGSCHEID           ,
+            BJ01.BJOBBZWKDSTCD           ,
+            BS01.BJOBMSGDSTCD            ,
+            BS01.OSIDINSTIDSTCD          ,
+            BS01.BJOBPTRNDSTCD           ,
+            CONCAT( SUBSTR(BS01.SNDRCVSTARTHMS,0,2) , ':' , SUBSTR(BS01.SNDRCVSTARTHMS,3,2) ) AS SNDRCVSTARTHMS1,
+            CONCAT( SUBSTR(BS01.SNDRCVENDHMS,0,2) , ':' , SUBSTR(BS01.SNDRCVENDHMS,3,2) ) AS SNDRCVENDHMS1,
+            RTRIM(BS01.SNDRCVSTARTHMS) AS SNDRCVSTARTHMS,
+            RTRIM(BS01.SNDRCVENDHMS) AS SNDRCVENDHMS,
+            BS01.STARTDLAYNODAY          ,
+            BS01.ENDDLAYNODAY            ,
+            BS01.RQSTRECVRETRALCNT       ,
+            BS01.RQSTRECVRETRALUSEYN     ,
+            BS01.RQSTRECVRETRALINTVALTTM ,
+            BS01.HOLDYPRCSSDSTCD         ,
+            BS01.RPTTYN                  ,
+            BS01.THISMSGUSEYN            ,
+            BS01.SCHEFRSTREGIHMS         ,
+            BS01.MSGSNDRID               
+        FROM  $schemaId$.TSEAIBS01 BS01 ,
+              $schemaId$.TSEAIBJ01 BJ01
+        WHERE BS01.BjobMsgDstcd   = BJ01.BjobMsgDstcd
+        AND   RTRIM(BS01.BjobMsgScheID) = RTRIM(#bJobMsgScheId#)
+    </statement>
+
+    <statement id="checkCount" resultClass="java.lang.Integer">
+        SELECT COUNT(BjobMsgScheID)
+        FROM   $schemaId$.TSEAIBS01
+        WHERE  LTRIM(RTRIM(BjobMsgScheID)) = #bjobMsgScheID#
+    </statement>
+
+    <statement id="selectBjobMsgDstcd" resultClass="java.util.HashMap">
+        SELECT
+            BjobMsgDstcd        AS CODE,
+           CONCAT(   '[' , BjobTranDstcdName , '] ' , BjobMsgDsticName) AS NAME
+        FROM $schemaId$.TSEAIBJ01
+        WHERE LTRIM(RTRIM(BjobBzwkDstcd)) = #bjobBzwkDstcd#
+        ORDER BY BjobTranDstcdName
+    </statement>
+
+    <statement id="selectOsidInstiDstcd" resultClass="java.util.HashMap">
+        SELECT
+            OsidInstiDstcd        AS CODE,
+           CONCAT( '[' , OsidInstiDstcd , '] ' , OsidInstiName ) AS NAME
+        FROM $schemaId$.TSEAIBJ06
+        WHERE LTRIM(RTRIM(BjobBzwkDstcd)) = #bjobBzwkDstcd#
+        ORDER BY OsidInstiDstcd
+    </statement>
+
+    <statement id="selectBjobPtrnDstcd" resultClass="java.util.HashMap">
+        SELECT  'RS'    AS CODE,
+                '송신'    AS NAME
+        FROM    $schemaId$.TSEAIBJ01
+        WHERE   EAIFileSendUseYn = '1'
+        AND     BjobMsgDstcd = #bjobMsgDstcd#
+        UNION
+        SELECT  'RR'    AS CODE,
+                '수신'    AS NAME
+        FROM    $schemaId$.TSEAIBJ01
+        WHERE   EAIFileRecvUseYn = '1'
+        AND     BjobMsgDstcd = #bjobMsgDstcd#
+        ORDER BY NAME
+    </statement>
+
+    <statement id="generatePK" resultClass="java.lang.String">
+        SELECT CONCAT(BjobBzwkDstcd ,  #bjobPtrnDstcd#  , BjobTranDstcdName , 
+				(
+					SELECT
+		        		   CASE LENGTH(
+										CAST(
+											CAST(
+												IFNULL(
+													MAX(
+														SUBSTR(RTRIM(BjobMsgScheID), LENGTH(RTRIM(BjobMsgScheID))-2, 3)
+													), '0'
+												)
+											AS UNSIGNED)
+											+ 1
+										AS CHAR)
+									)
+								WHEN 1
+									THEN CONCAT( '00' ,
+										 	CAST( CAST( IFNULL( MAX(SUBSTR(RTRIM(BjobMsgScheID), LENGTH(RTRIM(BjobMsgScheID))-2, 3)), '0') AS UNSIGNED) + 1 AS CHAR)
+										 )
+								WHEN 2                 
+									THEN CONCAT( '0' ,
+									 	CAST( CAST( IFNULL( MAX(SUBSTR(RTRIM(BjobMsgScheID), LENGTH(RTRIM(BjobMsgScheID))-2, 3)), '0') AS UNSIGNED) + 1 AS CHAR)
+									 )
+								WHEN 3
+									THEN CAST( CAST( IFNULL( MAX(SUBSTR(RTRIM(BjobMsgScheID), LENGTH(RTRIM(BjobMsgScheID))-2, 3)), '0') AS UNSIGNED) + 1 AS CHAR)
+							END
+                FROM $schemaId$.TSEAIBS01
+                WHERE BjobMsgDstcd = #bjobMsgDstcd#
+            ) LEFTCODE
+        FROM $schemaId$.TSEAIBJ01
+        WHERE BjobMsgDstcd = #bjobMsgDstcd#
+    </statement>
+
+    <statement id="update" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAIBS01
+        SET
+            SndrcvStartHMS                = REPLACE(#sndrcvStartHMS#,':', '' ) ,
+            SndrcvEndHMS                  = REPLACE(#sndrcvEndHMS#,':', '' )   ,
+            RqstRecvReTralCnt             = #rqstRecvReTralCnt#            ,
+            RqstRecvReTralUseYn           = #rqstRecvReTralUseYn#          ,
+            RqstRecvReTralIntvalTtm       = #rqstRecvReTralIntvalTtm#      ,
+            StartDlayNoday                = #startDlayNoday#               ,
+            EndDlayNoday                  = #endDlayNoday#                 ,
+            HoldyPrcssDstcd               = #holdyPrcssDstcd#              ,
+            RpttYn                        = #rpttYn#                       ,
+            ThisMsgUseYn                  = #thisMsgUseYn#                 ,
+            ThisMsgAmndrID                = #userid#               ,
+            ThisMsgAmndHMS                = SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+        WHERE RTRIM(BjobMsgScheID) = RTRIM(#bJobMsgScheId#)
+    </statement>
+
+    <statement id="insert" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAIBS01 (
+             BjobMsgScheID            ,
+             BjobMsgDstcd             ,
+             BjobPtrnDstcd            ,
+             OsidInstiDstcd           ,
+             SndrcvStartHMS           ,
+             SndrcvEndHMS             ,
+             MsgSndrID                ,
+             ScheFrstRegiHMS          ,
+             RqstRecvReTralCnt        ,
+             RqstRecvReTralUseYn      ,
+             RqstRecvReTralIntvalTtm  ,
+             RqstRecvFileStorgDirName ,
+             StartDlayNoday           ,
+             EndDlayNoday             ,
+             HoldyPrcssDstcd          ,
+             RpttYn                   ,
+             ThisMsgUseYn             ,
+             ThisMsgScheDesc          ,
+             ThisMsgRegsntID          ,
+             ThisMsgRegiHMS           ,
+             ThisMsgAmndrID           ,
+             ThisMsgAmndHMS )
+        VALUES (
+             #bjobMsgScheID#                             ,
+             #bjobMsgDstcd#                              ,
+             #bjobPtrnDstcd#                             ,
+             #osidInstiDstcd#                            ,
+             REPLACE(#sndrcvStartHMS#, ':', '')          ,
+             REPLACE(#sndrcvEndHMS#, ':', '')            ,
+             #msgSndrID#                                 ,
+             SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ) ,
+             #rqstRecvReTralCnt#                         ,
+             #rqstRecvReTralUseYn#                       ,
+             #rqstRecvReTralIntvalTtm#                   ,
+             ' '                                         ,
+             #startDlayNoday#                            ,
+             #endDlayNoday#                              ,
+             #holdyPrcssDstcd#                           ,
+             #rpttYn#                                    ,
+             #thisMsgUseYn#                              ,
+             ' '                                         ,
+             #userid#                                    ,
+             SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ) ,
+             #userid#                                    ,
+             SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+        )
+    </statement>
+
+</sqlMap>

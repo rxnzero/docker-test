@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapAdapter">
+	<statement id="updateAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBA01 SET                       
+	           AdptrCd            = #adptrCd#,                        
+	           AdptrUseYn         = #adptrUseYn#,                  
+	           AdptrBzwkGroupDesc = #adptrBzwkGroupDesc#   
+     	WHERE  AdptrBzwkGroupName = #adptrBzwkGroupName#
+	</statement>
+	
+	<statement id="updateAdapter" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBA02 SET
+			   LstnerClsName      = #lstnerClsName#,
+			   PrptyGroupName     = #prptyGroupName#,
+			   AdptrDesc          = #adptrDesc#
+		WHERE  AdptrBzwkGroupName = #adptrBzwkGroupName#
+		AND    AdptrBzwkName      = #adptrBzwkName#
+	</statement>
+
+	<statement id="insertAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBA01 (
+			AdptrBzwkGroupName, 
+		    AdptrCd, 
+		    AdptrUseYn, 
+		    AdptrBzwkGroupDesc )
+		VALUES (
+			#adptrBzwkGroupName#,
+		    #adptrCd#,          
+		    #adptrUseYn#,       
+		    #adptrBzwkGroupDesc#
+		)
+	</statement>
+
+	<statement id="insertAdapter" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBA02 (
+			AdptrBzwkGroupName,
+			AdptrBzwkName,
+			LstnerClsName,
+			PrptyGroupName,
+			AdptrDesc)
+		VALUES (
+			#adptrBzwkGroupName#,
+			#adptrBzwkName#,
+			#lstnerClsName#,
+			#prptyGroupName#,
+			#adptrDesc# 
+		)
+	</statement>
+	
+	<statement id="deleteAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBA01 WHERE AdptrBzwkGroupName = #adptrBzwkGroupName#
+	</statement>
+
+	<statement id="deleteAdapter" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBA02 
+        WHERE AdptrBzwkGroupName=#adptrBzwkGroupName#
+	</statement>
+
+</sqlMap>

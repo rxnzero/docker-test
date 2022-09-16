@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatSchedule">
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		 	 SELECT SUBSTR(BJOBMSGSCHEID, 3,3 ) AS "WORKGRPCD",
+				BJOBMSGSCHEID     AS "BJOBMSGSCHEID",
+				BATCHTYPE         AS "BATCHTYPE",
+				THISMSGSCHEDESC   AS "THISMSGSCHEDESC",
+				SNDRCVSTARTHMS    AS "SNDRCVSTARTHMS",
+				SNDRCVENDHMS      AS "SNDRCVENDHMS",
+				DAYCYCLETIME      AS "DAYCYCLETIME",
+				SCHEKIND          AS "SCHEKIND",
+				THISMSGUSEYN      AS "THISMSGUSEYN",
+				THISMSGREGSNTID   AS "THISMSGREGSNTID",
+				THISMSGREGIHMS    AS "THISMSGREGIHMS",
+				THISMSGAMNDRID    AS "THISMSGAMNDRID",
+				THISMSGAMNDHMS    AS "THISMSGAMNDHMS"
+		 	 FROM	$schemaId$.TSEAIES07
+		 	 WHERE  BjobMsgScheID  =#bjobMsgScheID#
+	</statement>
+
+	<statement id="scheduleInterfaceList" resultClass="java.util.HashMap">
+	    SELECT A.INTFID AS "INTFID" ,
+	           B.INTFNAME AS "INTFNAME"   
+	    FROM   $schemaId$.TSEAIES09 A,
+	           $schemaId$.TSEAIEA04 B
+	    WHERE  A.IntfId =B.IntfId 
+	    AND    A.BjobMsgScheID  =#bjobMsgScheID#
+        ORDER BY A.IntfId
+	</statement> 
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE	FROM $schemaId$.TSEAIES07 WHERE BjobMsgScheID =#bjobMsgScheID#
+	</statement>
+
+	<statement id="deleteInterface" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE	FROM $schemaId$.TSEAIES09 WHERE bjobMsgScheID =#bjobMsgScheID#
+	</statement>
+	 
+</sqlMap>

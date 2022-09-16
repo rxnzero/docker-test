@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatInterfaceFile">
+
+	<statement id="selectDetailCombo" resultClass="java.util.HashMap">
+		SELECT intfId		AS "CODE"
+			 , intfName		AS "NAME"
+			 , workGrpCd	AS "WORKGRPCD"
+		  FROM $schemaId$.TSEAIEA04
+		 WHERE DELYN = '1'
+		   AND workGrpCd IN ( SELECT eaiBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE USERID = #loginId#  )
+	</statement>
+	
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT COUNT(intfId) AS TOTALCOUNT
+		  FROM $schemaId$.TSEAIEA06
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT   A.INTFID        AS "INTFID" 
+			, A.FILENAMEPTRN  AS "FILENAMEPTRN"
+			, A.TRANSFREQ     AS "TRANSFREQ"
+			, A.SIZEONCE      AS "SIZEONCE"
+			, A.PROCTERM      AS "PROCTERM"
+			, A.REQCHGR       AS "REQCHGR"
+			, A.REQCHGRTLNO   AS "REQCHGRTLNO"
+			, A.RESCHGR       AS "RESCHGR"
+			, A.RESCHGRTLNO   AS "RESCHGRTLNO"
+			, A.DELYN         AS "DELYN"
+			, B.WORKGRPCD     AS "WORKGRPCD"
+		  FROM $schemaId$.TSEAIEA06 A
+		     , $schemaId$.TSEAIEA04 B
+		 WHERE A.intfId 		= B.intfId
+		   AND A.intfId			= #intfId#
+		   AND A.fileNamePtrn	= #fileNamePtrn#
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIEA06 
+		 WHERE intfId		= #intfId#
+		   AND fileNamePtrn	= #fileNamePtrn#
+	</statement>
+	 
+</sqlMap>

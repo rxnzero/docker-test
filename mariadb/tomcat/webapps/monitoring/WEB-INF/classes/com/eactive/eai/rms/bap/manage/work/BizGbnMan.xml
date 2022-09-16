@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapBizGbn">
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TOTALCOUNT"
+		FROM $schemaId$.TSEAIBJ02
+	    <dynamic prepend="WHERE">
+		    <isNotEmpty prepend="AND" property="searchbjobBzwkDstcd">
+				BjobBzwkDstcd LIKE #searchbjobBzwkDstcd#
+			</isNotEmpty>
+		    <isNotEmpty prepend="AND" property="searchbjobBzwkName">
+				BjobBzwkName LIKE #searchbjobBzwkName#
+			</isNotEmpty> 
+		</dynamic> 			
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	
+			BJOBBZWKDSTCD  AS "BJOBBZWKDSTCD",  
+			BJOBBZWKNAME   AS "BJOBBZWKNAME",  
+			THISMSGUSEYN   AS "THISMSGUSEYN",  
+			THISMSGREGSNTID AS "THISMSGREGSNTID",  
+			THISMSGREGIHMS AS "THISMSGREGIHMS",  
+			THISMSGAMNDRID AS "THISMSGAMNDRID",  
+			THISMSGAMNDHMS AS "THISMSGAMNDHMS" 
+        FROM $schemaId$.TSEAIBJ02
+	    WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+	</statement>  
+	<statement id="jobpropinfo" resultClass="java.util.HashMap">
+		SELECT 	
+			BjobBzwkDstcd AS "BJOBBZWKDSTCD",
+			PrptyName AS "PRPTYNAME" ,
+			PrptyDesc AS "PRPTYDESC" ,
+			PrptyTypDstcd AS "PRPTYTYPDSTCD"
+        FROM $schemaId$.TSEAIBP06
+	    WHERE LTRIM(RTRIM(BjobBzwkDstcd)) = #bjobBzwkDstcd#
+	    ORDER BY PrptyTypDstcd
+	</statement>  
+	
+	<statement id="insertPropInfo" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBP06 (
+			BjobBzwkDstcd, 
+			PrptyName,
+			PrptyDesc,
+			PrptyTypDstcd )
+		VALUES (
+			#bjobBzwkDstcd# ,
+			#prptyName#,
+			#prptyDesc#,
+			#prptyTypDstcd#
+		)
+	</statement>
+
+	<statement id="delete" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBJ02 
+        WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+	</statement>
+	
+    <statement id="deletePropInfo" resultClass="java.lang.Integer">
+        DELETE FROM   $schemaId$.TSEAIBP06
+        WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+    </statement>
+
+    <statement id="checkCount" resultClass="java.lang.Integer">
+        SELECT COUNT(BjobBzwkDstcd)
+        FROM   $schemaId$.TSEAIBJ02
+        WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+    </statement>
+    
+    <statement id="chcekPropInfo" resultClass="java.lang.Integer">
+        SELECT COUNT(BjobBzwkDstcd)
+        FROM   $schemaId$.TSEAIBP06
+        WHERE jobBzwkDstcd = #bjobBzwkDstcd#
+    </statement>
+
+</sqlMap>

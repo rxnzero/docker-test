@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="ClassInfo">
+	<statement id="detail"  resultClass="java.util.HashMap">
+		SELECT 	
+			TELGMCLSNAME AS "TELGMCLSNAME",
+			TELGMCLSDESC AS "TELGMCLSDESC"
+        FROM $schemaId$.TSEAIBR01
+	    WHERE TelgmClsName = #telgmClsName#
+	</statement>  
+	
+	<statement id="update"  resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBR01 
+		SET
+			 TelgmClsDesc = #telgmClsDesc#
+		WHERE TelgmClsName = #telgmClsName#
+	</statement>
+	
+	<statement id="insert"  resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBR01 (
+			 TelgmClsName,
+			 TelgmClsDesc )
+		VALUES (
+			#telgmClsName# ,
+			#telgmClsDesc#
+		)
+	</statement>
+	
+	<statement id="delete"  resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBR01 
+        WHERE TelgmClsName = #telgmClsName#
+	</statement>
+	
+	<!--  Check count -->
+    <statement id="checkCount"  resultClass="java.lang.Integer">
+        SELECT COUNT(TelgmClsName)
+        FROM   $schemaId$.TSEAIBR01
+        WHERE TelgmClsName = #telgmClsName#
+    </statement>
+    
+</sqlMap>

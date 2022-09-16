@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Loader">
+  <!-- layout -->
+  <statement id="insertTSEAITR01" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAITR01 ( CNVSNNAME, CNVSNDESC, LASTAMNDHMS, CREATEBY, UPDATEBY )    
+	                       VALUES    ( #CNVSNNAME#, #CNVSNDESC#, #LASTAMNDHMS#, #CREATEBY#, #UPDATEBY# )  
+  </statement>
+  <statement id="insertTSEAITR02" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAITR02 (CNVSNNAME, LOUTNAME, SOURCRSULTDSTCD)    
+	                       VALUES    ( #CNVSNNAME#, #LOUTNAME#, #SOURCRSULTDSTCD#) 
+  </statement>
+  <statement id="insertTSEAITR03" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAITR03 (CNVSNNAME, CNVSNRSULTITEMPATHNAME, CNVSNCMDNAME, CNVSNITEMBASCVAL, CNVSNITEMSERNO )    
+	                      VALUES    ( #CNVSNNAME#, #CNVSNRSULTITEMPATHNAME#, #CNVSNCMDNAME#, #CNVSNITEMBASCVAL#, #CNVSNITEMSERNO# ) 
+  </statement>
+  <statement id="deleteTSEAITR01" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAITR01 WHERE CNVSNNAME = #CNVSNNAME#
+  </statement>
+  
+  <statement id="deleteTSEAITR02" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAITR02 WHERE CNVSNNAME = #CNVSNNAME#
+  </statement>
+  <statement id="deleteTSEAITR03" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAITR03 WHERE CNVSNNAME = #CNVSNNAME#
+  </statement>  
+  <!-- layout -->
+  
+  
+  <!-- transform -->
+  <statement id="insertTSEAITR07" parameterClass="java.util.HashMap">
+    INSERT INTO $schemaId$.TSEAITR07 (LOUTNAME,LOUTPTRNNAME,LOUTDESC, LASTAMNDHMS, EAIBZWKDSTCD, UAPPLNAME, SYSINTFACNAME, CREATEBY, UPDATEBY )
+    VALUES                           (#LOUTNAME#,#LOUTPTRNNAME#,#LOUTDESC#, #LASTAMNDHMS#, #EAIBZWKDSTCD#, #UAPPLNAME#, #SYSINTFACNAME#, #CREATEBY#, #UPDATEBY# )
+  </statement>
+  <statement id="insertTSEAITR08" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAITR08 (LOUTNAME,LOUTITEMNAME,LOUTITEMSERNO,LOUTITEMIDNAME,PARNTLOUTITEMIDNAME,LOUTITEMDESC,LOUTITEMNODEPTRNIDNAME,LOUTITEMPTRNIDNAME,LOUTITEMPATHNAME,LOUTITEMLENCNT,LOUTITEMREFINFO,LOUTITEMREFINFO2,LOUTITEMOCCURPTRNDSTCD,LOUTITEMMAXOCCURNOITM,LOUTITEMMINOCCURNOITM,LOUTITEMBASCVAL,LOUTITEMMSKYN,LYOUTDPTCNT,DECPTLENCNT,LYOUTITEMREFPTRNIDNAME )    
+	VALUES                           (#LOUTNAME#,#LOUTITEMNAME#,#LOUTITEMSERNO#,#LOUTITEMIDNAME#,#PARNTLOUTITEMIDNAME#,#LOUTITEMDESC#,#LOUTITEMNODEPTRNIDNAME#,#LOUTITEMPTRNIDNAME#,#LOUTITEMPATHNAME#,#LOUTITEMLENCNT#,#LOUTITEMREFINFO#,#LOUTITEMREFINFO2#,#LOUTITEMOCCURPTRNDSTCD#,#LOUTITEMMAXOCCURNOITM#,#LOUTITEMMINOCCURNOITM#,#LOUTITEMBASCVAL#,#LOUTITEMMSKYN#,#LYOUTDPTCNT#,#DECPTLENCNT#,#LYOUTITEMREFPTRNIDNAME# )
+  </statement>
+  <statement id="deleteTSEAITR07" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAITR07 WHERE LOUTNAME = #LOUTNAME#
+  </statement>
+
+  <statement id="deleteTSEAITR08" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAITR08 WHERE LOUTNAME = #LOUTNAME#
+  </statement>  
+  <!-- transform -->
+  
+  
+  <!-- interface -->
+  <statement id="insertTSEAIHE01" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIHE01 (EAISVCNAME, EAIBZWKDSTCD, SVCHMSEONOT, SVCMOTIVUSEDSTCD, SVCPRCESDSTICNAME, FLOWCTRLROUTNAME, INTGRADSTICNAME, SVCBFCLMNLOGYN, GSTATSYSADPTRBZWKGROUPNAME, SEVRLOGLVELNO, SVCLOGLVELNO, ERREAISVCNAME, DMNDERRCHNGIDNAME, DMNDERRFLDNAME, RSPNSERRCHNGIDNAME, RSPNSERRFLDNAME, EAISVCDESC, SIMYN, CREATEBY, UPDATEBY, DEVUSERID, BANKUSERID,CREATEON,UPDATEON )    
+	VALUES                           (#EAISVCNAME#, #EAIBZWKDSTCD#, #SVCHMSEONOT#, #SVCMOTIVUSEDSTCD#, #SVCPRCESDSTICNAME#, #FLOWCTRLROUTNAME#, #INTGRADSTICNAME#, #SVCBFCLMNLOGYN#, #GSTATSYSADPTRBZWKGROUPNAME#, #SEVRLOGLVELNO#, #SVCLOGLVELNO#, #ERREAISVCNAME#, #DMNDERRCHNGIDNAME#, #DMNDERRFLDNAME#, #RSPNSERRCHNGIDNAME#, #RSPNSERRFLDNAME#, #EAISVCDESC#, 'N'    , #CREATEBY#, #UPDATEBY#, #DEVUSERID#, #BANKUSERID#,#CREATEON#,#UPDATEON# )
+  </statement>
+
+  <statement id="insertTSEAIHE02" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIHE02 (EAISVCNAME, SVCPRCSSNO, PSVINTFACDSTICNAME, PSVSYSBZWKDSTCD, PSVSYSIDNAME, PSVSYSSVCDSTICNAME, PSVSYSADPTRBZWKGROUPNAME, FLOVRYN, CHNGEONOT, CHNGMSGIDNAME, BASCRSPNSMSGCMPRCTNT, BASCRSPNSCHNGEONOT, BASCRSPNSCHNGMSGIDNAME, ERRRSPNSMSGCMPRCTNT, ERRRSPNSCHNGEONOT, ERRRSPNSCHNGMSGIDNAME, NEXTSVCPRCSSNO, OUTBNDROUTNAME, TOUTVAL, CMPENSVCPRCSSDSTICNAME, SUPPLDELYN, HDRCTRLDSTCD, HDRREFCLSNAME )    
+	VALUES                           (#EAISVCNAME#, #SVCPRCSSNO#, #PSVINTFACDSTICNAME#, #PSVSYSBZWKDSTCD#, #PSVSYSIDNAME#, #PSVSYSSVCDSTICNAME#, #PSVSYSADPTRBZWKGROUPNAME#, #FLOVRYN#, #CHNGEONOT#, #CHNGMSGIDNAME#, #BASCRSPNSMSGCMPRCTNT#, #BASCRSPNSCHNGEONOT#, #BASCRSPNSCHNGMSGIDNAME#, #ERRRSPNSMSGCMPRCTNT#, #ERRRSPNSCHNGEONOT#, #ERRRSPNSCHNGMSGIDNAME#, #NEXTSVCPRCSSNO#, #OUTBNDROUTNAME#, #TOUTVAL#, #CMPENSVCPRCSSDSTICNAME#, #SUPPLDELYN#, #HDRCTRLDSTCD#, #HDRREFCLSNAME# )
+  </statement>
+  <statement id="insertTSEAIMS02" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIMS02 (EAISVCNAME, SVCPRCSSNO, REFMSGIDNO, REFMSGIDNAME )    
+	VALUES                           ( #EAISVCNAME#, #SVCPRCSSNO#, #REFMSGIDNO#, #REFMSGIDNAME#)
+  </statement>
+  <statement id="insertTSEAIFR01" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIFR01 (EAISVCNAME, SVCPRCSSNO, RULESERNO, RSULTPRCSSNO, RULEFLDGROUPNAME, RULEFLDNAME, CMPRCTNT )    
+	VALUES                           (#EAISVCNAME#, #SVCPRCSSNO#, #RULESERNO#, #RSULTPRCSSNO#, #RULEFLDGROUPNAME#, #RULEFLDNAME#, #CMPRCTNT#)
+  </statement>
+  <statement id="insertTSEAIFR03" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIFR03 (EAISVCNAME, ETRACTDSTCD, FLDPRCSSNO, MSGDSTCD, BZWKFLDNAME, MSGFLDSTARTSITUVAL, MSGFLDLEN )    
+	VALUES                           (#EAISVCNAME#, #ETRACTDSTCD#, #FLDPRCSSNO#, #MSGDSTCD#, #BZWKFLDNAME#, #MSGFLDSTARTSITUVAL#, #MSGFLDLEN# )
+  </statement>
+  <!-- statement id="insertTSEAIHS01" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIHS01 (BZWKSVCKEYNAME, SPLIZDMNDDSTCD, GROUPCONO, RECVTRANNAME, PRCSSRSULTRECVTRANNO, SCRENDSTICIDNFR, OSIDINSTINO, OGTRANRSTRYN, SYSOPEREVIRNDSTCD, EAITRANNAME, STNDTELGMWTINEXTNLDSTCD, TRANBRNCD, USEREMPID, CHNLDVDSTCD, CHNLDSTCD)    
+	VALUES                           (#BZWKSVCKEYNAME#, #SPLIZDMNDDSTCD#, #GROUPCONO#, #RECVTRANNAME#, #PRCSSRSULTRECVTRANNO#, #SCRENDSTICIDNFR#, #OSIDINSTINO#, #OGTRANRSTRYN#, #SYSOPEREVIRNDSTCD#, #EAITRANNAME#, #STNDTELGMWTINEXTNLDSTCD#, #TRANBRNCD#, #USEREMPID#, #CHNLDVDSTCD#, #CHNLDSTCD#)
+  </statement-->
+  
+  <statement id="insertTSEAIHS04" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIHS04 (BZWKSVCKEYNAME, EAISVCNAME)    
+	VALUES                           (#BZWKSVCKEYNAME#, #EAISVCNAME#)
+  </statement>
+  <statement id="insertTSEAIHS05" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIHS05 (BZWKSVCKEYNAME, COLUMNNAME, COLUMNVALUE)    
+	VALUES                           (#BZWKSVCKEYNAME#, #COLUMNNAME#, #COLUMNVALUE#)
+  </statement>
+
+  <statement id="deleteTSEAIHE01" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHE01 WHERE EAISVCNAME = #EAISVCNAME#
+  </statement>
+    
+  <statement id="deleteTSEAIHE02" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHE02 WHERE EAISVCNAME = #EAISVCNAME#
+  </statement>
+
+  <statement id="deleteTSEAIMS02" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIMS02 WHERE EAISVCNAME = #EAISVCNAME#
+  </statement>
+
+  <statement id="deleteTSEAIFR01" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIFR01 WHERE EAISVCNAME = #EAISVCNAME#
+  </statement>
+
+  <statement id="deleteTSEAIFR03" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIFR03 WHERE EAISVCNAME = #EAISVCNAME#
+  </statement>
+  
+  <!-- statement id="deleteTSEAIHS01" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHS01 WHERE BZWKSVCKEYNAME = #BZWKSVCKEYNAME#
+  </statement-->
+    
+  <statement id="deleteTSEAIHS04" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHS04 WHERE EAISVCNAME = #EAISVCNAME#
+  </statement>  
+  <statement id="deleteTSEAIHS05" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHS05 WHERE BZWKSVCKEYNAME IN (SELECT BZWKSVCKEYNAME FROM $schemaId$.TSEAIHS04 WHERE EAISVCNAME = #EAISVCNAME# ) 
+  </statement>  
+
+  <!-- statement id="deleteTSEAIHS01old" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHS01 WHERE EAITRANNAME||SPLIZDMNDDSTCD||STNDTELGMWTINEXTNLDSTCD = #EAISVCNAME#
+  </statement-->  
+  <!-- interface -->
+  
+  <!-- adapter -->
+  <statement id="insertTSEAIAD01" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIAD01 (ADPTRBZWKGROUPNAME, ADPTRMSGPTRNCD, EAIBZWKDSTCD, ADPTRCD, ADPTRMSGDSTCD, ADPTRIODSTCD, REFCLSNAME, SNDRCVHMSLOGYN, ADPTRUSEYN, SPCFCLUUSEYN, ADPTRBZWKGROUPDESC, OSIDINSTINO, USEREMPID, REALTIMEGROUPNAME, REALTIMEBZWKYN,
+										  FILTERCLASS, ERROREAISVCNAME, ERRORLAYOUTNAME, ERRORVALUE, SESSIONYN,TARGETADAPTERYN)
+	VALUES                           (#ADPTRBZWKGROUPNAME#, #ADPTRMSGPTRNCD#, #EAIBZWKDSTCD#, #ADPTRCD#, #ADPTRMSGDSTCD#, #ADPTRIODSTCD#, #REFCLSNAME#, #SNDRCVHMSLOGYN#, #ADPTRUSEYN#, #SPCFCLUUSEYN#, #ADPTRBZWKGROUPDESC#, #OSIDINSTINO#, #USEREMPID#, #REALTIMEGROUPNAME#, #REALTIMEBZWKYN#,
+										#FILTERCLASS#,	#ERROREAISVCNAME#,	#ERRORLAYOUTNAME#,	#ERRORVALUE#,	#SESSIONYN#,	#TARGETADAPTERYN#
+	)
+  </statement>
+
+  <statement id="insertTSEAIAD02" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIAD02 (ADPTRBZWKGROUPNAME, ADPTRBZWKNAME, EAISEVRINSTNCNAME, LSTNERCLSNAME, TESTCLSNAME, PRPTYGROUPNAME, ADPTRDESC)    
+	VALUES                           (#ADPTRBZWKGROUPNAME#, #ADPTRBZWKNAME#, #EAISEVRINSTNCNAME#, #LSTNERCLSNAME#, #TESTCLSNAME#, #PRPTYGROUPNAME#, #ADPTRDESC#)
+  </statement>
+  <statement id="insertTSEAIAD14" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIAD14 (PRPTYGROUPNAME, PRPTYGROUPDESC)    
+	VALUES                           (#PRPTYGROUPNAME#, #PRPTYGROUPDESC#)
+  </statement>
+
+  <statement id="insertTSEAIAD15" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIAD15 (PRPTYGROUPNAME, PRPTYNAME, PRPTY2VAL)    
+	VALUES                           (#PRPTYGROUPNAME#, #PRPTYNAME#, #PRPTY2VAL#)
+  </statement>
+
+  <statement id="insertTSEAIFR04" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.TSEAIFR04 (ADPTRBZWKGROUPNAME, MSGDSTCD, IODSTCD, FLDPRCSSNO, BZWKFLDNAME, CLSNAME, MSGFLDSTARTSITUVAL, MSGFLDLEN, NOMALPRCSSCTNT, GROUPINORNO )    
+	VALUES                           (#ADPTRBZWKGROUPNAME#, #MSGDSTCD#, #IODSTCD#, #FLDPRCSSNO#, #BZWKFLDNAME#, #CLSNAME#, #MSGFLDSTARTSITUVAL#, #MSGFLDLEN#, #NOMALPRCSSCTNT#, #GROUPINORNO# )
+  </statement>
+  <statement id="deleteTSEAIAD01" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIAD01 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement>
+
+  <statement id="deleteTSEAIAD02" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIAD02 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement>
+
+  <statement id="deleteTSEAIAD14" parameterClass="java.util.HashMap">
+	DELETE
+	  FROM $schemaId$.TSEAIAD14
+	 WHERE PRPTYGROUPNAME IN (SELECT PRPTYGROUPNAME FROM $schemaId$.TSEAIAD02 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#)
+    
+  </statement>
+  <statement id="deleteTSEAIAD15" parameterClass="java.util.HashMap">
+	DELETE
+	  FROM $schemaId$.TSEAIAD15
+	 WHERE PRPTYGROUPNAME IN (SELECT PRPTYGROUPNAME FROM $schemaId$.TSEAIAD02 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#)
+  </statement>
+
+  <statement id="deleteTSEAIFR04" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIFR04 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement>  
+
+  <statement id="selectTable" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+        SELECT * FROM $schemaId$.$tableName$
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="value1">
+              $key1$ = #value1#
+            </isNotEmpty>
+        </dynamic> 
+        ORDER BY 1,2       
+ </statement>
+ 
+  <statement id="deleteTable" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.$tableName$
+    
+  </statement>
+  <statement id="insertTable" parameterClass="java.util.HashMap">
+	INSERT INTO $schemaId$.$tableName$ 
+	<iterate close=")" conjunction="," open="(" prepend="" property="columnList">
+		$COLUMNLIST[]$
+	</iterate>
+	VALUES    
+	<iterate close=")" conjunction="," open="(" prepend="" property="valueList">
+		#VALUELIST[]#
+	</iterate>
+  </statement>
+
+  <statement id="updateNode" parameterClass="java.util.HashMap">
+    UPDATE $schemaId$.TSEAICM03 SET PRPTY2VAL = #instName# WHERE PRPTYGROUPNAME = 'TRAN_BLOCK'
+  </statement>
+  
+  <statement id="updateInst" parameterClass="java.util.HashMap">
+    UPDATE $schemaId$.TSEAICM03 SET PRPTY2VAL = #value# WHERE PRPTYGROUPNAME = 'TRAN_BLOCK' AND PRPTYNAME = #type#
+  </statement>
+  
+    <statement id="selectTableData" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap" remapResults="true">
+      SELECT * FROM $schemaId$.$tableName$
+      <dynamic prepend="WHERE">
+          <isNotEmpty prepend="AND" property="param1">
+            $key1$ = #param1#
+          </isNotEmpty>
+      </dynamic> 
+      ORDER BY 1,2       
+  </statement>
+  
+    <statement id="selectTableDataLike" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap" remapResults="true">
+        SELECT * FROM $schemaId$.$tableName$
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="param1">
+              $key1$ LIKE #param1#
+            </isNotEmpty>
+        </dynamic> 
+        ORDER BY 1,2       
+    </statement>
+
+    <statement id="selectTableDataMain" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap"  remapResults="true">
+	    SELECT MAIN.* 
+	      FROM $schemaId$.$tableName$ MAIN
+			 , $schemaId$.TSEAIAD02 SUB
+		 WHERE MAIN.PRPTYGROUPNAME = SUB.PRPTYGROUPNAME
+            <isNotEmpty prepend="AND" property="param1">
+              $key1$ = #param1#
+            </isNotEmpty>
+        ORDER BY 1        
+    </statement>
+</sqlMap>

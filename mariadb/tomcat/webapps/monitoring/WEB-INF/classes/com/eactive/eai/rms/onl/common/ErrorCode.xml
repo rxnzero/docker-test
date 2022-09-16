@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ErrorCode">
+
+<!-- 	<statement id="selectList" resultClass="java.util.HashMap"> -->
+<!-- 		SELECT * -->
+<!-- 		FROM ( -->
+<!--                 SELECT  ROW_NUMBER() OVER(ORDER BY MSG) ROWNO,  -->
+<!-- 						MSG , MSGCTNT , TREATMATRCTNT  -->
+<!-- 						FROM $schemaId$.TSEAIMS01 -->
+<!-- 			<dynamic prepend="WHERE"> -->
+<!-- 				<isNotEmpty prepend="AND" property="searchMsg"> -->
+<!-- 					UPPER(MSG) LIKE '%' || #searchMsg# || '%' -->
+<!-- 				</isNotEmpty> -->
+<!-- 			</dynamic>						 -->
+<!-- 			) ORGTABLE -->
+<!-- 		WHERE ROWNO BETWEEN #startNum# AND #endNum# -->
+<!-- 	</statement>	 -->
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TOTALCOUNT"
+			FROM $schemaId$.TSEAIMS01
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchMsg">
+				UPPER(MSG) LIKE '%' || #searchMsg# || '%'
+			</isNotEmpty>
+		</dynamic>				
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	MSG AS "MSG", MSGCTNT AS "MSGCTNT" , TREATMATRCTNT AS "TREATMATRCTNT"  
+	            FROM $schemaId$.TSEAIMS01   
+	    WHERE MSG = #msg#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIMS01 
+				SET MSGCTNT = #msgCtnt#, TREATMATRCTNT = #treatMatrCtnt# 
+		WHERE 	MSG = #msg#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIMS01(
+				MSG, MSGCTNT, TREATMATRCTNT) 
+				VALUES(#msg# ,#msgCtnt#, #treatMatrCtnt#)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIMS01 WHERE MSG = #msg#
+	</statement>
+	
+</sqlMap>

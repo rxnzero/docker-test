@@ -1,0 +1,19 @@
+docker pull ibmcom/db2
+start : docker run -itd --name mydb2 --privileged=true -p 50000:50000 -e LICENSE=accept -e DB2INST1_PASSWORD=<choose an instance password> -e DBNAME=testdb -v <db storage dir>:/database ibmcom/db2
+docker run -itd --name testdb --privileged=true -p 50000:50000 -e LICENSE=accept -e DB2INST1_PASSWORD=db2inst1 -e DBNAME=testdb -v d:\db2\storage:/database ibmcom/db2
+
+docker logs -f testdb
+docker exec -ti testdb bash -c "su - db2inst1"
+
+db2 create database DSEADT
+db2 create database DSEAIT
+db2 connect to DSEADT
+db2 create schema INST1
+db2 create schema INST2
+db2 create schema INST3
+
+-- database list
+list database directory
+
+-- table list 
+list tables for schema inst1

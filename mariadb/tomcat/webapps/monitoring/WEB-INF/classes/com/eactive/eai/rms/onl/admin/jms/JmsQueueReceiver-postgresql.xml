@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="JmsQueueReceiver">
+	<!--   전체 목록수 얻기 -->
+	<statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+            SELECT COUNT(QUERCVERNAME)
+            FROM $schemaId$.TSEAIQM02
+            <isNotEmpty prepend="WHERE" property="searchQueRcverName">
+	             QUERCVERNAME LIKE '%' || #searchQueRcverName# || '%'
+	         </isNotEmpty>
+	</statement>
+	
+	<!--  목록 조회  -->
+	<statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT * FROM (
+							<!-- SELECT ROW_NUMBER() OVER (ORDER BY QUERCVERNAME) ROWNUM, -->
+							SELECT ROW_NUMBER() OVER (ORDER BY QUERCVERNAME) "ROWNO",
+							        QUERCVERNAME                 AS "QUERCVERNAME" ,
+									NONSYNCZTRANQUENAME          AS "NONSYNCZTRANQUENAME" ,
+									NONSYNCZTRANOBSTCLQUENAME    AS "NONSYNCZTRANOBSTCLQUENAME" ,
+									QUEMSGSELCTCTNT              AS "QUEMSGSELCTCTNT" ,
+									SENDDLAYTTMVAL               AS "SENDDLAYTTMVAL" ,
+									SENDRETRALNOTMS              AS "SENDRETRALNOTMS" ,
+									QUERCVERCNT                  AS "QUERCVERCNT" ,
+									QUERCVERDTALSCTNT            AS "QUERCVERDTALSCTNT" ,
+									BASCQUERCVERYN               AS "BASCQUERCVERYN",
+									CASE WHEN BASCQUERCVERYN = '1' THEN '예' ELSE '아니요' END  AS "BASCQUERCVERYNNAME",
+									EAISEVRINSTNCNAME            AS "SEVRINSTNCNAME" 
+							FROM $schemaId$.TSEAIQM02
+                            <isNotEmpty prepend="WHERE" property="searchQueRcverName">
+                                QUERCVERNAME LIKE '%' || #searchQueRcverName# || '%'
+                            </isNotEmpty>
+			) ORGTABLE
+			WHERE "ROWNO" BETWEEN #startNum# AND #endNum#
+	</statement>
+
+    <!--   Queue 목록 얻기 -->
+	<statement id="selectQueList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+            SELECT NONSYNCZTRANQUENAME AS "CODE"
+            	 , NONSYNCZTRANQUENAME AS "NAME"
+            FROM $schemaId$.TSEAIQM01
+            WHERE QUEUSAGDSTCD IN ('1', '2')
+            AND EAISEVRINSTNCNAME = COALESCE(#instance#,'fepOnlSvr11')
+            ORDER BY NONSYNCZTRANQUENAME
+	</statement>
+	
+	<!--   Error Queue 목록 얻기 -->
+	<statement id="selectErrQueList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+          SELECT NONSYNCZTRANQUENAME AS "CODE"
+          	 , NONSYNCZTRANQUENAME AS "NAME"
+          FROM $schemaId$.TSEAIQM01
+          WHERE QUEUSAGDSTCD IN ('3', '4')
+          AND EAISEVRINSTNCNAME = COALESCE(#instance#,'fepOnlSvr11')
+          ORDER BY NONSYNCZTRANQUENAME
+	</statement>
+	
+    <!--  Insert-->
+    <statement id="insert" parameterClass="java.util.HashMap">
+        INSERT INTO $schemaId$.TSEAIQM02 ( 
+            QUERCVERNAME              ,
+            NONSYNCZTRANQUENAME       ,
+            NONSYNCZTRANOBSTCLQUENAME ,
+            QUEMSGSELCTCTNT           ,
+            SENDDLAYTTMVAL            ,
+            SENDRETRALNOTMS           ,
+            QUERCVERCNT               ,
+            QUERCVERDTALSCTNT         ,
+            BASCQUERCVERYN            ,
+            EAISEVRINSTNCNAME
+        ) VALUES ( #queRcverName#, #nonSynczTranQueName#, #nonSynczTranObstclQueName#, 
+        #queMsgSelctCtnt#, CAST(#sendDlayTtmVal#  AS NUMERIC), CAST(#sendReTralNotms# AS NUMERIC),
+        CAST(#queRcverCnt#     AS NUMERIC), #queRcverDtalsCtnt#, #bascQueRcverYn#, #sevrInstncName# ) 
+    </statement>  
+
+    <!--  Update-->
+    <statement id="update" parameterClass="java.util.HashMap">
+       UPDATE  $schemaId$.TSEAIQM02 
+       SET
+        NONSYNCZTRANQUENAME       = #nonSynczTranQueName#             ,
+        NONSYNCZTRANOBSTCLQUENAME = #nonSynczTranObstclQueName#       ,
+        QUEMSGSELCTCTNT           = #queMsgSelctCtnt#                 ,
+        SENDDLAYTTMVAL            = CAST(#sendDlayTtmVal#  AS NUMERIC),
+        SENDRETRALNOTMS           = CAST(#sendReTralNotms# AS NUMERIC),
+        QUERCVERCNT               = CAST(#queRcverCnt#     AS NUMERIC),
+        QUERCVERDTALSCTNT         = #queRcverDtalsCtnt#               ,
+        BASCQUERCVERYN            = #bascQueRcverYn#                  ,
+        EAISEVRINSTNCNAME         = #sevrInstncName#                  
+       WHERE QUERCVERNAME = #queRcverName#
+    </statement>
+</sqlMap>

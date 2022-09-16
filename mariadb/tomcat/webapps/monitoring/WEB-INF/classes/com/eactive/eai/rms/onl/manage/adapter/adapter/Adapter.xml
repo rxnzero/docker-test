@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Adapter">
+  <statement id="selectListAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+     SELECT   ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME"
+		, ADPTRMSGPTRNCD     AS "ADPTRMSGPTRNCD"
+		, EAIBZWKDSTCD       AS "EAIBZWKDSTCD"
+		, ADPTRCD            AS "ADPTRCD"
+		, ADPTRMSGDSTCD      AS "ADPTRMSGDSTCD"
+		, ADPTRIODSTCD       AS "ADPTRIODSTCD"
+		, REFCLSNAME         AS "REFCLSNAME"
+		, SNDRCVHMSLOGYN     AS "SNDRCVHMSLOGYN"
+		, ADPTRUSEYN         AS "ADPTRUSEYN"
+		, SPCFCLUUSEYN       AS "SPCFCLUUSEYN"
+		, ADPTRBZWKGROUPDESC AS "ADPTRBZWKGROUPDESC"
+		, OSIDINSTINO        AS "OSIDINSTINO"
+		, USEREMPID          AS "USEREMPID"
+	   FROM $schemaId$.TSEAIAD01
+	 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement>  
+    
+ 
+  
+  <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    INSERT INTO $schemaId$.TSEAIAD01 ( 
+		      ADPTRBZWKGROUPNAME
+			, ADPTRBZWKGROUPDESC
+			, ADPTRMSGDSTCD     
+			, ADPTRMSGPTRNCD    
+			, EAIBZWKDSTCD      
+			, ADPTRCD           
+			, ADPTRUSEYN        
+			, ADPTRIODSTCD      
+			, REFCLSNAME        
+			, SNDRCVHMSLOGYN    
+			, SPCFCLUUSEYN      
+			, OSIDINSTINO       
+			, USEREMPID         
+			, REALTIMEBZWKYN    
+			, REALTIMEGROUPNAME 
+            , FILTERCLASS
+            , ERROREAISVCNAME
+            , ERRORLAYOUTNAME
+            , ERRORVALUE
+            , SESSIONYN
+            , TARGETADAPTERYN
+
+		 ) VALUES ( 
+		      #ADPTRBZWKGROUPNAME#
+			, #ADPTRBZWKGROUPDESC#
+			, #ADPTRMSGDSTCD#
+			, #ADPTRMSGPTRNCD#
+			, #EAIBZWKDSTCD#
+			, #ADPTRCD#
+			, #ADPTRUSEYN#
+			, #ADPTRIODSTCD#
+			, #REFCLSNAME#
+			, #SNDRCVHMSLOGYN#
+			, #SPCFCLUUSEYN#
+			, #OSIDINSTINO#
+			, #USEREMPID#
+			, #REALTIMEBZWKYN#
+			, #REALTIMEGROUPNAME#
+            , #FILTERCLASS#
+            , #ERROREAISVCNAME#
+            , #ERRORLAYOUTNAME#
+            , #ERRORVALUE#
+            , #SESSIONYN#
+            , #TARGETADAPTERYN#
+			
+		 )
+  </statement>
+  <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    UPDATE $schemaId$.TSEAIAD01 
+    SET     ADPTRBZWKGROUPDESC = #ADPTRBZWKGROUPDESC#
+		 ,	ADPTRMSGDSTCD      = #ADPTRMSGDSTCD#
+		 ,	ADPTRMSGPTRNCD     = #ADPTRMSGPTRNCD#
+		 ,	EAIBZWKDSTCD       = #EAIBZWKDSTCD#
+		 ,	ADPTRCD            = #ADPTRCD#
+		 ,	ADPTRUSEYN         = #ADPTRUSEYN#
+		 ,	ADPTRIODSTCD       = #ADPTRIODSTCD#
+		 ,	REFCLSNAME         = #REFCLSNAME#
+		 ,	SNDRCVHMSLOGYN     = #SNDRCVHMSLOGYN#
+		 ,	SPCFCLUUSEYN       = #SPCFCLUUSEYN#
+		 ,	OSIDINSTINO        = #OSIDINSTINO#
+		 ,	USEREMPID          = #USEREMPID#
+		 ,	REALTIMEBZWKYN     = #REALTIMEBZWKYN#
+		 ,	REALTIMEGROUPNAME  = #REALTIMEGROUPNAME#
+         ,  FILTERCLASS        = #FILTERCLASS#
+         ,  ERROREAISVCNAME    = #ERROREAISVCNAME#
+         ,  ERRORLAYOUTNAME    = #ERRORLAYOUTNAME#
+         ,  ERRORVALUE         = #ERRORVALUE#
+         ,  SESSIONYN          = #SESSIONYN#
+         ,  TARGETADAPTERYN    = #TARGETADAPTERYN#
+		 
+     WHERE  ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement> 
+  
+  <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM $schemaId$.TSEAIAD01 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement>  
+  
+  <statement id="checkAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) 
+		  FROM $schemaId$.TSEAIAD01
+	   WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement>
+
+  <statement id="selectListAdapter" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+     SELECT   ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME"
+			, ADPTRBZWKNAME      AS "ADPTRBZWKNAME"
+			, EAISEVRINSTNCNAME  AS "EAISEVRINSTNCNAME"
+			, LSTNERCLSNAME      AS "LSTNERCLSNAME"
+			, TESTCLSNAME        AS "TESTCLSNAME"
+			, PRPTYGROUPNAME     AS "PRPTYGROUPNAME"
+			, ADPTRDESC          AS "ADPTRDESC"
+	   FROM $schemaId$.TSEAIAD02
+	 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+	 ORDER BY PRPTYGROUPNAME
+  </statement>     
+  
+  <statement id="insertAdapter" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIAD02 ( 
+		     ADPTRBZWKGROUPNAME, ADPTRBZWKNAME, EAISEVRINSTNCNAME, LSTNERCLSNAME, 
+		     TESTCLSNAME, PRPTYGROUPNAME, ADPTRDESC 
+		 ) VALUES ( 
+		     #ADPTRBZWKGROUPNAME#, #ADPTRBZWKNAME#, #EAISEVRINSTNCNAME#, #LSTNERCLSNAME#, 
+		     #TESTCLSNAME#, #PRPTYGROUPNAME#, #ADPTRDESC#
+		 )		    
+  </statement>
+
+   
+  <statement id="deleteAdapterForAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM $schemaId$.TSEAIAD02 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement>
+
+    <statement id="selectListAll" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	  SELECT 
+		  ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME"
+		, ADPTRBZWKGROUPDESC AS "ADPTRBZWKGROUPDESC"
+		, ADPTRMSGDSTCD      AS "ADPTRMSGDSTCD"
+		, ADPTRMSGPTRNCD     AS "ADPTRMSGPTRNCD"
+		, EAIBZWKDSTCD       AS "EAIBZWKDSTCD"
+		, ADPTRCD            AS "ADPTRCD"
+		, ADPTRUSEYN         AS "ADPTRUSEYN"
+		, ADPTRIODSTCD       AS "ADPTRIODSTCD"
+		, REFCLSNAME         AS "REFCLSNAME"
+		, SNDRCVHMSLOGYN     AS "SNDRCVHMSLOGYN"
+		, SPCFCLUUSEYN       AS "SPCFCLUUSEYN"
+		, OSIDINSTINO        AS "OSIDINSTINO"
+		, USEREMPID          AS "USEREMPID"
+		, REALTIMEBZWKYN     AS "REALTIMEBZWKYN"
+		, REALTIMEGROUPNAME  AS "REALTIMEGROUPNAME"
+		, FILTERCLASS        AS "FILTERCLASS"
+		, ERROREAISVCNAME    AS "ERROREAISVCNAME"
+		, ERRORLAYOUTNAME    AS "ERRORLAYOUTNAME"
+		, ERRORVALUE         AS "ERRORVALUE"
+		, SESSIONYN          AS "SESSIONYN"
+		, TARGETADAPTERYN    AS "TARGETADAPTERYN"
+	  FROM $schemaId$.TSEAIAD01
+  </statement>
+  
+  <statement id="selectChannelList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT HE01.EAIBZWKDSTCD AS "EAIBZWKDSTCD" 
+		      , CM01.BZWKDSTICNAME AS "BZWKDSTICNAME" 
+		      , SUBSTR(HE01.EAISVCNAME,1,3) AS "CHANNEL"
+		  FROM $schemaId$.TSEAIHE01 HE01, $schemaId$.TSEAICM01 CM01
+		 WHERE HE01.EAIBZWKDSTCD = CM01.EAIBZWKDSTCD
+		   AND HE01.EAIBZWKDSTCD = #eaiBzwkDstcd#
+		 GROUP BY HE01.EAIBZWKDSTCD
+		      , CM01.BZWKDSTICNAME
+		      , SUBSTR(HE01.EAISVCNAME,1,3)
+		 ORDER BY HE01.EAIBZWKDSTCD , SUBSTR(HE01.EAISVCNAME,1,3)
+  </statement>
+  
+      <statement id="selectSocketAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+  		SELECT ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME",
+  			ADPTRBZWKGROUPDESC AS "ADPTRBZWKGROUPDESC"
+  		FROM   $schemaId$.TSEAIAD01
+  		WHERE  ADPTRCD IN ($adptrCdIn$)
+  		order by ADPTRBZWKGROUPNAME
+    </statement>
+</sqlMap>

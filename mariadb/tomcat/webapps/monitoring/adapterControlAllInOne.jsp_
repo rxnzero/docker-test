@@ -1,0 +1,512 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page
+	import="java.io.*, 
+java.util.*,
+javax.xml.parsers.*,
+org.w3c.dom.*,
+javax.xml.xpath.*,
+java.sql.*,
+javax.sql.*,
+javax.naming.*,
+com.eactive.eai.agent.adapter.*,
+com.eactive.eai.agent.command.*,
+com.eactive.eai.agent.*,
+com.eactive.eai.rms.onl.common.util.*,
+com.eactive.eai.rms.onl.common.service.OnlAgentUtilServiceImpl,
+com.eactive.eai.agent.AgentUtil,
+org.apache.commons.httpclient.NameValuePair,
+com.eactive.eai.agent.eaimessage.*,
+org.apache.commons.logging.Log,
+org.apache.commons.logging.LogFactory,
+
+java.util.concurrent.ExecutorService,
+java.util.concurrent.Executors,
+java.util.concurrent.TimeUnit,
+java.util.concurrent.Future,
+java.util.concurrent.Callable
+"%>
+
+<%!
+	/*
+	어뎁터를 일괄적으로 On/Off 하는 기능	
+	
+	file을 읽어 해당 리스트에 대해 컨트롤한다.
+	
+	입력값 : controlType : 0(Off)/ 1(On)
+		- OFF일 경우 dev/Qa 모두, On 일경우 serviceType을  입력받는다.
+	결과값 : 성공리스트, 에러리스트(개발), 에러리스트(QA)
+	*/
+
+
+	private static final Log logger = LogFactory.getLog("adapterControlAllInOne.jsp");
+	//개발 DB
+	private String dev_url       = "jdbc:oracle:thin:@172.31.32.103:1527/DCHN";
+	private String dev_driver    = "oracle.jdbc.OracleDriver";
+	private String dev_fep_user      = "fep";
+	private String dev_fep_pwd       = "fep123!";
+	private String dev_eai_user      = "eai";
+	private String dev_eai_pwd       = "eai123!";
+	//검증 DB
+	private String test_url      = "jdbc:oracle:thin:@172.31.33.103:1527/QCHN";
+	private String test_driver   = "oracle.jdbc.OracleDriver";
+	private String test_fep_user     = "fep";
+	private String test_fep_pwd      = "dusrP123!";
+	private String test_eai_user     = "eai";
+	private String test_eai_pwd      = "dusrP123!";	
+
+
+	private String dev_call_url = "http://172.31.32.111:10220/monitoring/adapterStatus.jsp?";
+	private String test_call_url = "http://172.31.33.111:10420/monitoring/adapterStatus.jsp?";
+	private String   NEW_LINE    = "\n";
+	
+	//private String defaultPath = "";
+	//private String defaultPath = "/home/eaiadm/adapterControl/adapterList.txt";
+	
+	public String[] execute(String controlType,String filePath, ServletRequest request) throws Exception {
+		StringBuffer resultSb = new StringBuffer();
+		List<String> adapters = new ArrayList();
+		List<HashMap> eList = new ArrayList();
+ 		//1. getFileList		
+		long startTime = System.currentTimeMillis();
+		adapters = getFileNamesFromFile(filePath);
+		for(int i =0; i<adapters.size(); i++){
+        	String[] name = adapters.get(i).split(";");
+			if(name.length < 2){
+				logger.info("Format Error : [adapterName:serverType] ex) [_SIM_IN_HTT_AsS;qa{;description}]");
+				resultSb.append("Format Error : [adapterName:serverType] ex) [_SIM_IN_HTT_AsS;qa{;description}]").append(NEW_LINE);
+				throw new Exception();	//포맷 잘못되면 정지
+				
+			}
+		} 
+		ExecutorService executor = Executors.newFixedThreadPool(10);
+		//2. 
+		if("0".equals(controlType)){		//shutdown
+				//개발과 QA 둘다			
+			resultSb.append("--EXECUTE SHUTDOWN ADAPTERS --").append(NEW_LINE);	
+			List<Future> resultList = new ArrayList();
+			resultSb.append("-----------------------------------------------D E V----------------------------------------------").append(NEW_LINE);
+	      	for(int i =0; i<adapters.size(); i++){
+	      		String adapterName = adapters.get(i).split(";")[0];	
+	    		Future future = executor.submit(new AdapterControlThread("dev",controlType,adapterName));
+	    		resultList.add(future);
+	
+	    	}
+	       	for(Future task: resultList){	
+	       		
+	       		HashMap ret =(HashMap)task.get();	     		
+	       		try {
+					String result =(String)ret.get("result");
+					if("false".equals(result)){
+						throw new Exception();
+					}
+					logger.info("adapterControl ] Shutdown Adapter of DEV : " + ret.get("adapterName"));
+					resultSb.append("adapterControl ] Shutdown Adapter of DEV : " + ret.get("adapterName")).append(NEW_LINE);
+	       		} catch (Exception e) {				
+					logger.info("adapterControl ] Failed to Shutdown the Adapter  at DEV : " + ret.get("adapterName"));
+					resultSb.append("adapterControl ] Failed to Shutdown the Adapter at DEV : " + ret.get("adapterName")).append(NEW_LINE);
+					HashMap hm = new HashMap();
+					hm.put("serverType","dev");
+					hm.put("adapterName",ret.get("adapterName"));
+					eList.add(hm);
+				}
+		    }
+		    resultSb.append(NEW_LINE);
+		    resultSb.append("-----------------------------------------------Q A--------------------------------------------------").append(NEW_LINE);
+		    resultList = new ArrayList();
+	      	for(int i =0; i<adapters.size(); i++){
+	      		String adapterName = adapters.get(i).split(";")[0];	
+	    		Future future = executor.submit(new AdapterControlThread("qa",controlType,adapterName));
+	    		resultList.add(future);
+	
+	    	}	    	
+	       	for(Future task: resultList){
+	       		HashMap ret =(HashMap)task.get();	       		
+	       		try {
+					String result = (String)ret.get("result");
+					if("false".equals(result)){
+						throw new Exception();
+					}
+					logger.info("adapterControl ] Shutdown Adapter of QA : " + ret.get("adapterName"));
+					resultSb.append("adapterControl ] Shutdown Adapter of QA : " + ret.get("adapterName")).append(NEW_LINE);
+	       		} catch (Exception e) {				
+					logger.info("adapterControl ] Failed to Shutdown the Adapter at QA : " + ret.get("adapterName"));
+					resultSb.append("adapterControl ] Failed to Shutdown the Adapter at QA : " + ret.get("adapterName")).append(NEW_LINE);
+					HashMap hm = new HashMap();
+					hm.put("serverType","qa");
+					hm.put("adapterName",ret.get("adapterName"));
+					eList.add(hm);
+				}
+	       	}	       					
+			executor.shutdown();
+			try {
+				executor.awaitTermination(Integer.MAX_VALUE,TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			}else if("1".equals(controlType)){	//init
+				resultSb.append("--EXECUTE INITIATING ADAPTERS --").append(NEW_LINE);
+				List<Future> resultList = new ArrayList();				
+		      	for(int i =0; i<adapters.size(); i++){
+		      		String[] adapter = adapters.get(i).split(";");	
+		    		Future future = executor.submit(new AdapterControlThread(adapter[1],controlType,adapter[0]));
+		    		resultList.add(future);
+		
+		    	}
+		       	for(Future task: resultList){	
+		       		
+		       		HashMap ret =(HashMap)task.get();	     		
+		       		try {
+						String result =(String)ret.get("result");
+						if("false".equals(result)){
+							throw new Exception();
+						}
+						logger.info("adapterControl ] Init Adapter of "+ ret.get("serverType") +" : " + ret.get("adapterName"));
+						resultSb.append("adapterControl ] Init Adapter of "+ ret.get("serverType") +" : " + ret.get("adapterName")).append(NEW_LINE);
+		       		} catch (Exception e) {				
+						logger.info("adapterControl ] Failed to Init the Adapter at "+ ret.get("serverType") +" : " + ret.get("adapterName"));
+						resultSb.append("adapterControl ] Failed to init the Adapter at "+ ret.get("serverType") +" : " + ret.get("adapterName")).append(NEW_LINE);
+						HashMap hm = new HashMap();
+						hm.put("serverType", ret.get("serverType"));
+						hm.put("adapterName",ret.get("adapterName"));
+						eList.add(hm);
+					}
+			    }
+				executor.shutdown();
+				try {
+					executor.awaitTermination(Integer.MAX_VALUE,TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}								
+
+			}
+		String errorDev = "";
+		String errorQa = "";
+		for(HashMap hm : eList){
+			if("dev".equals(hm.get("serverType"))){
+				errorDev += (String)hm.get("adapterName") +",";
+			}
+		}	
+		for(HashMap hm : eList){
+			if("qa".equals(hm.get("serverType"))){
+				errorQa += (String)hm.get("adapterName") + ",";
+			}
+		}		
+		String errorType = "";
+		if("0".equals(controlType)){
+			errorType ="Shutdown";
+		}else{
+			errorType ="Initiating";
+		}
+		if(eList.size() > 0){
+			logger.info("adapterControl ] "+errorType  + " error List(Dev) : [" + errorDev +" ]");	
+			logger.info("adapterControl ] "+errorType + " error List(QA) : [" + errorQa + " ]");	
+		}
+		String[] result  =new String[3];
+		result[0] = resultSb.toString();
+		result[1] =  " "+errorType  + " error List(Dev) : [" + errorDev +" ]";
+		result[2] =  " "+errorType + " error List(QA) : [" + errorQa + " ]";
+		long endTime = System.currentTimeMillis();
+		System.out.println("Process Time : " + (endTime-startTime));
+
+		return result;
+
+	}
+
+	public List getFileNamesFromFile(String path) throws IOException{
+		//String iomapPath = monitoringContext.getStringProperty(MonitoringContext.IOMAP_UPLOAD_PATH);
+		
+
+		List adapters = new ArrayList();
+		BufferedReader in = new BufferedReader(new FileReader(path));
+
+		String line = "";
+		while((line= in.readLine()) != null){
+			if(!line.startsWith("#")) //주석처리
+				adapters.add(line);		
+		}
+		in.close();	
+		return adapters;
+	}
+	
+
+public class AdapterControlThread implements Callable{
+	private String serverType;
+	private String controlType;
+	private String adapterName;
+	
+	public AdapterControlThread(String serverType, String controlType, String adapterName){
+		this.serverType = serverType;
+		this.controlType= controlType;
+		this.adapterName = adapterName;
+	
+	}
+	
+	public HashMap call() throws Exception{
+			HashMap retMap = new HashMap();
+			retMap.put("serverType", serverType);
+			retMap.put("controlType", controlType);
+			retMap.put("adapterName", adapterName);
+
+		try{
+			adapterControl(serverType, controlType, adapterName);
+		}catch(Exception e){
+			retMap.put("result", "false");
+			return retMap;
+		}
+		retMap.put("result", "success");
+		return retMap;
+	}
+public Vector<String[]> getSqlSelect(String sql,boolean isDev ) throws Exception {
+	Connection conn = null;
+	Statement stmt = null;
+	ResultSet rs = null;
+	int rownum = 0;
+	String user = null;
+	String pwd = null;
+
+	if(isDev){
+		user = dev_fep_user;
+		pwd = dev_fep_pwd;
+	}else{
+		user = test_fep_user;
+		pwd = test_fep_pwd;
+	}
+	try	{
+    	if (isDev){
+			Class.forName(dev_driver);
+			conn = DriverManager.getConnection(dev_url, user, pwd);
+    	}else{
+			Class.forName(test_driver);
+			conn = DriverManager.getConnection(test_url, user, pwd);
+    	}
+		stmt = conn.createStatement();
+  		stmt.execute(sql);
+  		rs = stmt.getResultSet();
+  		Vector<String[]> vt = new Vector<String[]>();
+  		int maxColumn = rs.getMetaData().getColumnCount();
+        while(rs.next()) {
+        	String[] row = new String[maxColumn];
+        	for (int i=0;i<maxColumn;i++){
+				row[i] = rs.getString(i+1);
+        	}    	
+        	vt.add(row);
+		}               
+		return vt;
+	}
+	catch(Exception e) {
+		logger.error(e.getMessage(),e);
+		throw e;
+	}
+	finally {
+		try {
+			if(rs != null)	 rs.close();
+			if(stmt != null) stmt.close();
+			if(conn != null) conn.close();
+		}
+		catch (SQLException sqle) {
+			logger.error("SQLException was thrown: " + sqle.getMessage());
+		}
+	}
+}	
+/*
+ *  update 쿼리 로직
+ *
+ */
+ 
+
+public int getSqlUpdate(String sql,boolean isDev ) throws Exception {
+	Connection conn = null;
+	Statement stmt = null;
+	ResultSet rs = null;
+	int rownum = 0;
+	String user = null;
+	String pwd = null;
+
+	if(isDev){
+		user = dev_fep_user;
+		pwd = dev_fep_pwd;
+	}else{
+		user = test_fep_user;
+		pwd = test_fep_pwd;
+	}
+	
+	try	{
+    	if (isDev){
+			Class.forName(dev_driver);
+			conn = DriverManager.getConnection(dev_url, user, pwd);
+    	}else{
+			Class.forName(test_driver);
+			conn = DriverManager.getConnection(test_url, user, pwd);
+    	}
+		stmt = conn.createStatement();
+  		return stmt.executeUpdate(sql);
+	}
+	catch(Exception e) {
+		logger.error(e.getMessage(),e);
+		throw e;
+	}
+	finally {
+		try {
+			if(stmt != null) stmt.close();
+			if(conn != null) conn.close();
+		}
+		catch (SQLException sqle) {
+			logger.error("SQLException was thrown: " + sqle.getMessage());
+		}
+	}
+}	
+// Adapter PropertyGroupList 조회
+public Vector getAdptrPrptyGroupList(boolean isDev, String adapterGroupName) throws Exception{
+	StringBuffer sb = new StringBuffer();
+	sb.append(" select PrptyGroupName, PrptyGroupDesc ").append(NEW_LINE);
+	sb.append(" from tseaiad14                        ").append(NEW_LINE);
+	sb.append(" where PrptyGroupName in (select prptygroupname from tseaiad02 where adptrbzwkgroupname = '").append(adapterGroupName).append("') ").append(NEW_LINE);
+	
+	return getSqlSelect(sb.toString(), isDev);
+}
+
+public int setAdapterUseYn(String controlType, String adapterName , boolean isDev) throws Exception{
+	StringBuffer sb = new StringBuffer();
+	sb.append(" update tseaiad01 set  AdptrUseYn = '").append(controlType).append("' where AdptrBzwkGroupName ='").append(adapterName).append("' ").append(NEW_LINE);
+	return getSqlUpdate(sb.toString(),isDev);
+}
+
+public Vector getServerUrl( boolean isDev) throws Exception {
+	StringBuffer sb = new StringBuffer();
+	sb.append("select EAISevrInstncName, 'http://' || EAISevrIP || ':' || SevrLsnPortName||'/ONLWeb/WebAgent' url from TSEAISY02 where EAISevrInstncName <> 'ALL' ").append(NEW_LINE);
+	return getSqlSelect(sb.toString(),isDev);
+
+}
+
+/*
+ *	Adapter 메모리 동기화
+ *	
+ */
+public void adapterSync(Vector table, String adapterGroupName) throws Exception {
+	OnlAgentUtilServiceImpl	agentUtilService = new OnlAgentUtilServiceImpl();
+
+	CommonCommand command = new CommonCommand("com.eactive.eai.agent.adapter.ReloadAdapterGroupCommand",adapterGroupName);
+
+   String[] result = new String[table.size()];
+    for(int i=0; i < table.size();i++) {
+    	String[] array = (String[])table.get(i);
+   		HashMap res = agentUtilService.broadcast(array[0], array[1], command);
+   		result[i] = res.toString();
+       	logger.debug("---- 어댑터리로드("+adapterGroupName+") : " + array[0] + " : " + array[1]);
+    }
+
+
+		
+}
+
+/*
+ *	Adapter Property 메모리 동기화
+ *	
+ */
+public void adapterPrptySync(Vector table,String adapterGroupName, String controlType, boolean isDev) throws Exception {
+	OnlAgentUtilServiceImpl	agentUtilService = new OnlAgentUtilServiceImpl();
+	
+	int index = 0;
+	Vector<String[]> adptrPrptyGroupList = getAdptrPrptyGroupList(isDev, adapterGroupName);//개발 From Db
+	
+	for(String[] arrPrptyGroupName : adptrPrptyGroupList)
+	{
+		CommonCommand command = new CommonCommand("com.eactive.eai.agent.adapter.ReloadAdapterPropGroupCommand", arrPrptyGroupName[0]);
+		
+		String[] result = new String[table.size()];
+		
+	    for(int i=0; i < table.size();i++) {
+	    	String[] array = (String[])table.get(i);
+	   		HashMap res = agentUtilService.broadcast(array[0], array[1], command);
+	   		result[i] = res.toString();
+	       	logger.debug("---- 어댑터 프라퍼티 리로드("+arrPrptyGroupName[0]+") : " + array[0] + " : " + array[1]);
+	    }
+	}
+}
+
+public String adapterControl(String serverType, String controlType, String adapterName) throws Exception {
+	int result =0;
+	Vector v ;
+	if ("dev".equals(serverType)){
+		//개발
+		//1. db변경
+		result = setAdapterUseYn(controlType, adapterName, true );
+		if(result == 0){
+			//logger.info("adapterControl ] Failed to Update Adapter State at DB of DEV : " + adapterName);
+			throw new Exception();
+		}
+		v = getServerUrl(true);
+		// 2. 메모리 변경
+		// 2-1. 어댑터 프라퍼티 메모리 변경 
+		// ○(On) Button Click 했을 때만 Property Reload
+		if("1".equals(controlType))
+			adapterPrptySync(v,adapterName, controlType, true);
+		
+		// 2-2. 어댑터 메모리 변경
+		adapterSync(v, adapterName);
+	}else if ("qa".equals(serverType)){
+		//검증
+		//1. db변경
+		result = setAdapterUseYn(controlType, adapterName, false );
+		if(result == 0){
+			//logger.info("adapterControl ] Failed to Update Adapter State at DB of QA: " + adapterName);
+			throw new Exception();
+		}
+		v = getServerUrl(false);
+		// 2. 메모리 변경
+		// 2-1. 어댑터 프라퍼티 메모리 변경
+		// ○(On) Button Click 했을 때만 Property Reload
+		if("1".equals(controlType))
+			adapterPrptySync(v,adapterName, controlType, false);
+			
+		// 2-2. 어댑터 메모리 변경
+		adapterSync(v, adapterName);
+	}
+	
+
+	return null;
+
+	
+}	
+}
+%>
+
+
+<%
+	response.setHeader("Pragma", "No-cache");
+	response.setHeader("Cache-Control", "no-cache");
+	response.setHeader("Expires", "0");
+%>
+
+<%
+	request.setCharacterEncoding("euc-kr");
+	String controlType = request.getParameter("controlType");
+	String filePath = request.getParameter("filePath");
+	String serviceType = request.getParameter("serviceType");
+
+	if (controlType == null) controlType = "";
+
+
+	String[] result =new String[3];
+	if (!"".equals(controlType) ){
+		 result = execute(controlType, filePath, request);
+
+	}
+
+	
+%>
+<result>
+<%=result[0]%>
+</result>
+<br>
+<result>
+<%=result[1]%>
+</result>
+<result>
+<%=result[2]%>
+</result>
+
+

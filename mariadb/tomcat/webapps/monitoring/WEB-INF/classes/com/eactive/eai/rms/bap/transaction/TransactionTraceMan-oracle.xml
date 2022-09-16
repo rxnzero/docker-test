@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+    
+<sqlMap namespace="BapTransactionTrace">
+	<sql id="traceFrom">
+			(
+		<isGreaterEqual property="searchFrameWorkGb" compareValue="1">
+			SELECT '대외' AS FrameWorkGb,
+			        BjobTranDstcdName AS BjobTranDstcdName,
+					SndrcvFileName AS SndrcvFileName,
+					ThisStgePrcssRsultCd AS ThisStgePrcssRsultCd,
+					FileTrsmtStartHMS AS FileTrsmtStartHMS,
+					FileTrsmtEndHMS AS FileTrsmtEndHMS,
+					BjobDmndMsgID AS BjobDmndMsgID,
+					BjobDmndSubMsgID AS BjobDmndSubMsgID,
+					' ' AS FileTrsmtLogID,
+					BjobBzwkDstcd,
+					OsidInstiDstcd,
+					SndrcvFileSize,
+					SUBSTR(BjobPtrnDstcd, 2, 1) AS SndRcv,
+					EAIObstclOccurCausCtnt
+			FROM $schemaId$.TSEAIBJ08
+			<isNotEqual prepend="WHERE" property="searchSndRcv" compareValue="A">
+				SUBSTR(BjobPtrnDstcd, 2, 1) = #searchSndRcv#
+			</isNotEqual>
+	    </isGreaterEqual>
+		<isEqual property="searchFrameWorkGb" compareValue="2">
+			UNION 
+		</isEqual>
+		<isNotEqual property="searchFrameWorkGb" compareValue="1">
+				SELECT  '내부(' || FileTrsmtStartPtrnDstcd||')' AS FrameWorkGb,
+				        RTRIM(BjobMsgDstcd) AS BjobTranDstcdName,
+						TrsmtFileName AS SndrcvFileName,
+						ThisStgePrcssRsultCd,
+						FileTrsmtStartHMS AS FileTrsmtStartHMS,
+						FileTrsmtEndHMS AS FileTrsmtEndHMS,
+						' ' AS BjobDmndMsgID,
+						' ' AS BjobDmndSubMsgID,
+						FileTrsmtLogID AS FileTrsmtLogID,
+						BjobBzwkDstcd,
+						OsidInstiDstcd,
+						FileTrsmtSize AS SndrcvFileSize,
+						SendRecvYn AS SndRcv,
+						ObstclOccurCausCtnt AS EAIObstclOccurCausCtnt
+				FROM $schemaId$.TSEAIBU03
+		</isNotEqual>
+			) A LEFT OUTER JOIN $schemaId$.TSEAIBJ02 B 
+					ON A.BjobBzwkDstcd = B.BjobBzwkDstcd   
+				LEFT OUTER JOIN $schemaId$.TSEAIBJ06 C 
+					ON A.BjobBzwkDstcd = C.BjobBzwkDstcd    
+					AND A.OsidInstiDstcd = C.OsidInstiDstcd
+				LEFT OUTER JOIN $schemaId$.TSEAIBJ01 D 
+					ON A.BjobBzwkDstcd = D.BjobBzwkDstcd
+					AND A.BjobTranDstcdName = D.BjobTranDstcdName
+	</sql>
+
+	<sql id="traceWhere">
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchGroupCoCd">
+				( D.GroupCoCd    =  #searchGroupCoCd#
+				<isEqual property="searchGroupCoCd" compareValue="   ">
+				  OR D.GroupCoCd IS NULL
+				</isEqual>
+				) 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchSndrcvFileName">
+				A.SndrcvFileName    LIKE '%' || #searchSndrcvFileName# || '%'
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchOsidInstiName">
+				C.OsidInstiName     LIKE '%' || #searchOsidInstiName# || '%'
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+				A.BjobBzwkDstcd      =  #searchBjobBzwkDstcd# 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchStartTime">
+				A.FileTrsmtEndHMS  &gt; #searchStartTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchEndTime">
+				A.FileTrsmtEndHMS    &lt; #searchEndTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchThisStgePrcssRsultCd">
+				A.ThisStgePrcssRsultCd = #searchThisStgePrcssRsultCd#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT ROWNO AS "ROWNUMBER", 
+				   A.FrameWorkGb AS "FRAMEWORKGB",
+				   COALESCE(D.GroupCoCd, ' ' ) AS "GROUPCOCD",
+			       A.SndrcvFileName AS "SNDRCVFILENAME",
+			       B.BjobBzwkName AS "BJOBBZWKNAME",
+			       C.OsidInstiName AS "OSIDINSTINAME",
+			       A.ThisStgePrcssRsultCd AS "THISSTGEPRCSSRSULTCD",
+			       A.FileTrsmtStartHMS AS "FILETRSMTSTARTHMS",
+			       A.FileTrsmtEndHMS AS "FILETRSMTENDHMS",
+			       A.BjobDmndMsgID AS "BJOBDMNDMSGID",
+			       A.BjobDmndSubMsgID AS "BJOBDMNDSUBMSGID",
+			       A.FileTrsmtLogID AS "FILETRSMTLOGID",
+			       A.SndrcvFileSize AS "SNDRCVFILESIZE",
+			       A.SndRcv AS "SNDRCV",
+			       A.EAIObstclOccurCausCtnt AS "EAIOBSTCLOCCURCAUSCTNT"
+		FROM (
+			SELECT ROW_NUMBER() OVER (ORDER BY A.FileTrsmtStartHMS DESC) ROWNO, 
+				   A.FrameWorkGb,
+				   COALESCE(D.GroupCoCd, ' ' ) AS GroupCoCd,
+			       A.SndrcvFileName,
+			       B.BjobBzwkName,
+			       C.OsidInstiName,
+			       A.ThisStgePrcssRsultCd,
+			       A.FileTrsmtStartHMS,
+			       A.FileTrsmtEndHMS,
+			       A.BjobDmndMsgID,
+			       A.BjobDmndSubMsgID,
+			       A.FileTrsmtLogID,
+			       A.SndrcvFileSize,
+			       A.SndRcv,
+			       A.EAIObstclOccurCausCtnt
+			FROM
+			<include refid="traceFrom"/>
+			<include refid="traceWhere"/>
+		) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TotalCount"
+		FROM
+		<include refid="traceFrom"/>
+		<include refid="traceWhere"/>
+	</statement>    
+</sqlMap>

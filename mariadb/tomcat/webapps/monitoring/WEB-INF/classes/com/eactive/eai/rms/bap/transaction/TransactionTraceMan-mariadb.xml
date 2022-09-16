@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+    
+<sqlMap namespace="BapTransactionTrace">
+	<sql id="traceFrom">
+			(
+		<isGreaterEqual property="searchFrameWorkGb" compareValue="1">
+			SELECT '대외' AS FRAMEWORKGB,
+			        BJOBTRANDSTCDNAME AS BJOBTRANDSTCDNAME,
+					SNDRCVFILENAME AS SNDRCVFILENAME,
+					THISSTGEPRCSSRSULTCD AS THISSTGEPRCSSRSULTCD,
+					FILETRSMTSTARTHMS AS FILETRSMTSTARTHMS,
+					FILETRSMTENDHMS AS FILETRSMTENDHMS,
+					BJOBDMNDMSGID AS BJOBDMNDMSGID,
+					BJOBDMNDSUBMSGID AS BJOBDMNDSUBMSGID,
+					' ' AS FILETRSMTLOGID,
+					BJOBBZWKDSTCD,
+					OSIDINSTIDSTCD,
+					SNDRCVFILESIZE,
+					SUBSTR(BJOBPTRNDSTCD, 2, 1) AS SNDRCV,
+					EAIOBSTCLOCCURCAUSCTNT
+			FROM $schemaId$.TSEAIBJ08
+			<isNotEqual prepend="WHERE" property="searchSndRcv" compareValue="A">
+				SUBSTR(BjobPtrnDstcd, 2, 1) = #searchSndRcv#
+			</isNotEqual>
+	    </isGreaterEqual>
+		<isEqual property="searchFrameWorkGb" compareValue="2">
+			UNION 
+		</isEqual>
+		<isNotEqual property="searchFrameWorkGb" compareValue="1">
+				SELECT  CONCAT( '내부(' , FILETRSMTSTARTPTRNDSTCD , ')' ) AS FRAMEWORKGB,
+				        RTRIM(BJOBMSGDSTCD) AS BJOBTRANDSTCDNAME,
+						TRSMTFILENAME AS SNDRCVFILENAME,
+						THISSTGEPRCSSRSULTCD,
+						FILETRSMTSTARTHMS AS FILETRSMTSTARTHMS,
+						FILETRSMTENDHMS AS FILETRSMTENDHMS,
+						' ' AS BJOBDMNDMSGID,
+						' ' AS BJOBDMNDSUBMSGID,
+						FILETRSMTLOGID AS FILETRSMTLOGID,
+						BJOBBZWKDSTCD,
+						OSIDINSTIDSTCD,
+						FILETRSMTSIZE AS SNDRCVFILESIZE,
+						SENDRECVYN AS SNDRCV,
+						OBSTCLOCCURCAUSCTNT AS EAIOBSTCLOCCURCAUSCTNT
+				FROM $schemaId$.TSEAIBU03
+		</isNotEqual>
+			) A LEFT OUTER JOIN $schemaId$.TSEAIBJ02 B 
+					ON A.BjobBzwkDstcd = B.BjobBzwkDstcd   
+				LEFT OUTER JOIN $schemaId$.TSEAIBJ06 C 
+					ON A.BjobBzwkDstcd = C.BjobBzwkDstcd    
+					AND A.OsidInstiDstcd = C.OsidInstiDstcd
+				LEFT OUTER JOIN $schemaId$.TSEAIBJ01 D 
+					ON A.BjobBzwkDstcd = D.BjobBzwkDstcd
+					AND A.BjobTranDstcdName = D.BjobTranDstcdName
+	</sql>
+
+	<sql id="traceWhere">
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchGroupCoCd">
+				( D.GroupCoCd    =  #searchGroupCoCd#
+				<isEqual property="searchGroupCoCd" compareValue="   ">
+				  OR D.GroupCoCd IS NULL
+				</isEqual>
+				) 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchSndrcvFileName">
+				A.SndrcvFileName    LIKE CONCAT( '%' , #searchSndrcvFileName# , '%')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchOsidInstiName">
+				C.OsidInstiName     LIKE CONCAT( '%' , #searchOsidInstiName# , '%')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+				A.BjobBzwkDstcd      =  #searchBjobBzwkDstcd# 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchStartTime">
+				A.FileTrsmtEndHMS  &gt; #searchStartTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchEndTime">
+				A.FileTrsmtEndHMS    &lt; #searchEndTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchThisStgePrcssRsultCd">
+				A.ThisStgePrcssRsultCd = #searchThisStgePrcssRsultCd#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+			SELECT @NO := @NO + 1 AS ROWNUMBER,			
+				   A.FRAMEWORKGB,
+				   COALESCE(D.GROUPCOCD, ' ' ) AS GROUPCOCD,
+			       A.SNDRCVFILENAME,
+			       B.BJOBBZWKNAME,
+			       C.OSIDINSTINAME,
+			       A.THISSTGEPRCSSRSULTCD,
+			       A.FILETRSMTSTARTHMS,
+			       A.FILETRSMTENDHMS,
+			       A.BJOBDMNDMSGID,
+			       A.BJOBDMNDSUBMSGID,
+			       A.FILETRSMTLOGID,
+			       A.SNDRCVFILESIZE,
+			       A.SNDRCV,
+			       A.EAIOBSTCLOCCURCAUSCTNT
+			FROM (SELECT @NO := 0) R,
+			<include refid="traceFrom"/>
+			<include refid="traceWhere"/>
+		) ORGTABLE
+		WHERE ROWNUMBER BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TotalCount"
+		FROM
+		<include refid="traceFrom"/>
+		<include refid="traceWhere"/>
+	</statement>    
+</sqlMap>

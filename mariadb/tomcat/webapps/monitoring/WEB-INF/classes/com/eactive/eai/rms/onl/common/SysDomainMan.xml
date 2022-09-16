@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="SysDomain">
+
+<!-- 	<statement id="selectList" resultClass="java.util.HashMap"> -->
+<!-- 		SELECT * -->
+<!-- 		FROM ( -->
+<!--                 SELECT  ROWNUM AS ROWNO,  -->
+<!-- 						SYSDOMNNAME , SYSDOMNDESC -->
+<!-- 						FROM $schemaId$.TSEAISY01 -->
+<!-- 			<dynamic prepend="WHERE"> -->
+<!-- 				<isNotEmpty prepend="AND" property="searchSysDomnName"> -->
+<!-- 					SYSDOMNNAME LIKE UPPER('%' || #searchSysDomnName# || '%') -->
+<!-- 				</isNotEmpty> -->
+<!-- 			</dynamic>						 -->
+<!-- 			) ORGTABLE -->
+<!-- 		WHERE ROWNO BETWEEN #startNum# AND #endNum# -->
+<!-- 	</statement>	 -->
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TOTALCOUNT"
+			FROM $schemaId$.TSEAISY01
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchSysDomnName">
+					SYSDOMNNAME LIKE UPPER('%' || #searchSysDomnName# || '%')
+				</isNotEmpty>
+			</dynamic>
+	</statement>
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	SYSDOMNNAME AS "SYSDOMNNAME" , SYSDOMNDESC AS "SYSDOMNDESC"
+	            FROM $schemaId$.TSEAISY01   
+	    WHERE SYSDOMNNAME = #sysDomnName#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap" >
+		UPDATE 	$schemaId$.TSEAISY01 
+				SET SYSDOMNDESC = #sysDomnDesc#
+		WHERE 	SYSDOMNNAME = #sysDomnName#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" >
+		INSERT 	INTO $schemaId$.TSEAISY01(
+				SYSDOMNNAME, SYSDOMNDESC) 
+				VALUES(#sysDomnName# ,#sysDomnDesc#)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" >
+		DELETE 	FROM $schemaId$.TSEAISY01 WHERE SYSDOMNNAME = #sysDomnName#
+	</statement>
+	
+</sqlMap>

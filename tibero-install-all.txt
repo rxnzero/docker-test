@@ -1,0 +1,778 @@
+Welcome to Ubuntu 20.04 LTS (GNU/Linux 4.19.128-microsoft-standard x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Thu Jun  2 14:13:45 KST 2022
+
+  System load:  0.11               Processes:             13
+  Usage of /:   1.1% of 250.98GB   Users logged in:       0
+  Memory usage: 6%                 IPv4 address for eth0: 172.30.118.63
+  Swap usage:   0%
+
+
+33 updates can be applied immediately.
+4 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+
+
+This message is shown once a day. To disable it please create the
+/home/eactive/.hushlogin file.
+eactive@DESKTOP-NF2S1OK:~$ docker pull dimensigon/tibero
+Using default tag: latest
+latest: Pulling from dimensigon/tibero
+2d473b07cdd5: Pull complete
+8a289c65aa4f: Pull complete
+7cf63f456e86: Pull complete
+Digest: sha256:ca1793e2bec1046e46f6b0a7e0557a65764afa9f1156d7ae6d902380cf21084d
+Status: Downloaded newer image for dimensigon/tibero:latest
+docker.io/dimensigon/tibero:latest
+eactive@DESKTOP-NF2S1OK:~$ docker ps
+CONTAINER ID   IMAGE                    COMMAND                  CREATED       STATUS       PORTS                    NAMES
+2a220883d0e1   provectuslabs/kafka-ui   "/bin/sh -c 'java $J・"   3 weeks ago   Up 5 hours   0.0.0.0:8080->8080/tcp   kafka-ui
+eactive@DESKTOP-NF2S1OK:~$ docker ls
+docker: 'ls' is not a docker command.
+See 'docker --help'
+eactive@DESKTOP-NF2S1OK:~$ docker images
+REPOSITORY               TAG        IMAGE ID       CREATED         SIZE
+provectuslabs/kafka-ui   latest     4d2e8774cb8e   4 weeks ago     290MB
+tomcat                   8.5.onl1   d5d011438cab   2 months ago    679MB
+tomcat                   8.5.rms    90bb90598ab0   2 months ago    679MB
+tomcat                   8.5        43e5d28b1648   2 months ago    679MB
+mariadb                  10         6e0162b44a5f   2 months ago    414MB
+noderedis_nodeapp        latest     e78ae1d11859   2 months ago    650MB
+centos                   latest     5d0da3dc9764   8 months ago    231MB
+dimensigon/tibero        latest     59c86c1e4794   10 months ago   2.21GB
+ibmcom/db2               latest     e304e217603b   14 months ago   2.78GB
+docker101tutorial        latest     0d28c825aba9   16 months ago   27.7MB
+alpine/git               latest     ed0ba0fc6585   17 months ago   28.4MB
+redis                    3          87856cc39862   3 years ago     76MB
+node                     5          12b4a63115bc   5 years ago     648MB
+brunotaboada/tuxedo12c   latest     2a8d6d6c3a28   6 years ago     2.1GB
+eactive@DESKTOP-NF2S1OK:~$ docker start dimensigon/tibero
+Error response from daemon: No such container: dimensigon/tibero
+Error: failed to start containers: dimensigon/tibero
+eactive@DESKTOP-NF2S1OK:~$ docker start
+"docker start" requires at least 1 argument.
+See 'docker start --help'.
+
+Usage:  docker start [OPTIONS] CONTAINER [CONTAINER...]
+
+Start one or more stopped containers
+eactive@DESKTOP-NF2S1OK:~$ docker container run -t -p 8629:8629 dimensigon/tibero:latest
+202206020521:15:942289600:--- Executing TB_CONFIG/gen_tip.sh ---
+Using TB_SID "tibero"
+/home/tibero/tibero6/config/tibero.tip generated
+/home/tibero/tibero6/config/psm_commands generated
+/home/tibero/tibero6/client/config/tbdsn.tbr generated.
+Running client/config/gen_esql_cfg.sh
+Done.
+202206020521:15:967831200:--- Creating the Database with TB_HOME/bin/tb_create_db.sh ---
+  *************************************************************************
+* ERROR: Mismatch host id!!
+* (5) Check the license file - /home/tibero/tibero6/license/license.xml
+  *************************************************************************
+eactive@DESKTOP-NF2S1OK:~$ docker ps
+CONTAINER ID   IMAGE                    COMMAND                  CREATED       STATUS       PORTS                    NAMES
+2a220883d0e1   provectuslabs/kafka-ui   "/bin/sh -c 'java $J・"   3 weeks ago   Up 5 hours   0.0.0.0:8080->8080/tcp   kafka-ui
+eactive@DESKTOP-NF2S1OK:~$ docker ps -a
+CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS                      PORTS                    NAMES
+c42511ba4eac   dimensigon/tibero:latest   "/bin/sh -c 'su - ti・"   38 seconds ago   Exited (1) 36 seconds ago
+                 silly_wozniak
+2a220883d0e1   provectuslabs/kafka-ui     "/bin/sh -c 'java $J・"   3 weeks ago      Up 5 hours                  0.0.0.0:8080->8080/tcp   kafka-ui
+a66575028a1f   noderedis_nodeapp          "node app.js"            2 months ago     Exited (1) 2 months ago
+                 nodeapp
+9db6b749c67a   redis:3                    "docker-entrypoint.s・"   2 months ago     Exited (0) 2 months ago
+                 noderedis
+6d15fbd6d10a   ibmcom/db2                 "/var/db2_setup/lib/・"   3 months ago     Exited (137) 3 weeks ago
+                 testdb
+eactive@DESKTOP-NF2S1OK:~$ docker container run -t -p 8629:8629 dimensigon/tibero:latest
+202206020524:33:322514600:--- Executing TB_CONFIG/gen_tip.sh ---
+Using TB_SID "tibero"
+/home/tibero/tibero6/config/tibero.tip generated
+/home/tibero/tibero6/config/psm_commands generated
+/home/tibero/tibero6/client/config/tbdsn.tbr generated.
+Running client/config/gen_esql_cfg.sh
+Done.
+202206020524:33:349609000:--- Creating the Database with TB_HOME/bin/tb_create_db.sh ---
+  *************************************************************************
+* ERROR: Mismatch host id!!
+* (5) Check the license file - /home/tibero/tibero6/license/license.xml
+  *************************************************************************
+eactive@DESKTOP-NF2S1OK:~$ docker container run -it -p 8629:8629 dimensigon/tibero:latest
+202206020526:45:398208100:--- Executing TB_CONFIG/gen_tip.sh ---
+Using TB_SID "tibero"
+/home/tibero/tibero6/config/tibero.tip generated
+/home/tibero/tibero6/config/psm_commands generated
+/home/tibero/tibero6/client/config/tbdsn.tbr generated.
+Running client/config/gen_esql_cfg.sh
+Done.
+202206020526:45:425130300:--- Creating the Database with TB_HOME/bin/tb_create_db.sh ---
+  *************************************************************************
+* ERROR: Mismatch host id!!
+* (5) Check the license file - /home/tibero/tibero6/license/license.xml
+  *************************************************************************
+eactive@DESKTOP-NF2S1OK:~$ docker ps
+CONTAINER ID   IMAGE                    COMMAND                  CREATED       STATUS       PORTS                    NAMES
+2a220883d0e1   provectuslabs/kafka-ui   "/bin/sh -c 'java $J・"   3 weeks ago   Up 5 hours   0.0.0.0:8080->8080/tcp   kafka-ui
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$ docker images ls
+REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
+eactive@DESKTOP-NF2S1OK:~$ docker images
+REPOSITORY               TAG        IMAGE ID       CREATED         SIZE
+provectuslabs/kafka-ui   latest     4d2e8774cb8e   4 weeks ago     290MB
+tomcat                   8.5.onl1   d5d011438cab   2 months ago    679MB
+tomcat                   8.5.rms    90bb90598ab0   2 months ago    679MB
+tomcat                   8.5        43e5d28b1648   2 months ago    679MB
+mariadb                  10         6e0162b44a5f   2 months ago    414MB
+noderedis_nodeapp        latest     e78ae1d11859   2 months ago    650MB
+centos                   latest     5d0da3dc9764   8 months ago    231MB
+dimensigon/tibero        latest     59c86c1e4794   10 months ago   2.21GB
+ibmcom/db2               latest     e304e217603b   14 months ago   2.78GB
+docker101tutorial        latest     0d28c825aba9   16 months ago   27.7MB
+alpine/git               latest     ed0ba0fc6585   17 months ago   28.4MB
+redis                    3          87856cc39862   3 years ago     76MB
+node                     5          12b4a63115bc   5 years ago     648MB
+brunotaboada/tuxedo12c   latest     2a8d6d6c3a28   6 years ago     2.1GB
+eactive@DESKTOP-NF2S1OK:~$ docker rmi
+"docker rmi" requires at least 1 argument.
+See 'docker rmi --help'.
+
+Usage:  docker rmi [OPTIONS] IMAGE [IMAGE...]
+
+Remove one or more images
+eactive@DESKTOP-NF2S1OK:~$ docker rmi dimensigon/tibero
+Error response from daemon: conflict: unable to remove repository reference "dimensigon/tibero" (must force) - container c42511ba4eac is using its referenced image 59c86c1e4794
+eactive@DESKTOP-NF2S1OK:~$ docker containers
+docker: 'containers' is not a docker command.
+See 'docker --help'
+eactive@DESKTOP-NF2S1OK:~$ docker images ls
+REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
+eactive@DESKTOP-NF2S1OK:~$ docker images
+REPOSITORY               TAG        IMAGE ID       CREATED         SIZE
+provectuslabs/kafka-ui   latest     4d2e8774cb8e   4 weeks ago     290MB
+tomcat                   8.5.onl1   d5d011438cab   2 months ago    679MB
+tomcat                   8.5.rms    90bb90598ab0   2 months ago    679MB
+tomcat                   8.5        43e5d28b1648   2 months ago    679MB
+mariadb                  10         6e0162b44a5f   2 months ago    414MB
+noderedis_nodeapp        latest     e78ae1d11859   2 months ago    650MB
+centos                   latest     5d0da3dc9764   8 months ago    231MB
+dimensigon/tibero        latest     59c86c1e4794   10 months ago   2.21GB
+ibmcom/db2               latest     e304e217603b   14 months ago   2.78GB
+docker101tutorial        latest     0d28c825aba9   16 months ago   27.7MB
+alpine/git               latest     ed0ba0fc6585   17 months ago   28.4MB
+redis                    3          87856cc39862   3 years ago     76MB
+node                     5          12b4a63115bc   5 years ago     648MB
+brunotaboada/tuxedo12c   latest     2a8d6d6c3a28   6 years ago     2.1GB
+eactive@DESKTOP-NF2S1OK:~$ docker images ls -a
+REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
+eactive@DESKTOP-NF2S1OK:~$ docker images
+REPOSITORY               TAG        IMAGE ID       CREATED         SIZE
+provectuslabs/kafka-ui   latest     4d2e8774cb8e   4 weeks ago     290MB
+tomcat                   8.5.onl1   d5d011438cab   2 months ago    679MB
+tomcat                   8.5.rms    90bb90598ab0   2 months ago    679MB
+tomcat                   8.5        43e5d28b1648   2 months ago    679MB
+mariadb                  10         6e0162b44a5f   2 months ago    414MB
+noderedis_nodeapp        latest     e78ae1d11859   2 months ago    650MB
+centos                   latest     5d0da3dc9764   8 months ago    231MB
+dimensigon/tibero        latest     59c86c1e4794   10 months ago   2.21GB
+ibmcom/db2               latest     e304e217603b   14 months ago   2.78GB
+docker101tutorial        latest     0d28c825aba9   16 months ago   27.7MB
+alpine/git               latest     ed0ba0fc6585   17 months ago   28.4MB
+redis                    3          87856cc39862   3 years ago     76MB
+node                     5          12b4a63115bc   5 years ago     648MB
+brunotaboada/tuxedo12c   latest     2a8d6d6c3a28   6 years ago     2.1GB
+eactive@DESKTOP-NF2S1OK:~$ docker
+
+Usage:  docker [OPTIONS] COMMAND
+
+A self-sufficient runtime for containers
+
+Options:
+      --config string      Location of client config files (default "/home/eactive/.docker")
+  -c, --context string     Name of the context to use to connect to the daemon (overrides DOCKER_HOST env var and
+                           default context set with "docker context use")
+  -D, --debug              Enable debug mode
+  -H, --host list          Daemon socket(s) to connect to
+  -l, --log-level string   Set the logging level ("debug"|"info"|"warn"|"error"|"fatal") (default "info")
+      --tls                Use TLS; implied by --tlsverify
+      --tlscacert string   Trust certs signed only by this CA (default "/home/eactive/.docker/ca.pem")
+      --tlscert string     Path to TLS certificate file (default "/home/eactive/.docker/cert.pem")
+      --tlskey string      Path to TLS key file (default "/home/eactive/.docker/key.pem")
+      --tlsverify          Use TLS and verify the remote
+  -v, --version            Print version information and quit
+
+Management Commands:
+  builder     Manage builds
+  buildx*     Docker Buildx (Docker Inc., v0.8.1)
+  compose*    Docker Compose (Docker Inc., v2.3.3)
+  config      Manage Docker configs
+  container   Manage containers
+  context     Manage contexts
+  image       Manage images
+  manifest    Manage Docker image manifests and manifest lists
+  network     Manage networks
+  node        Manage Swarm nodes
+  plugin      Manage plugins
+  scan*       Docker Scan (Docker Inc., v0.17.0)
+  secret      Manage Docker secrets
+  service     Manage services
+  stack       Manage Docker stacks
+  swarm       Manage Swarm
+  system      Manage Docker
+  trust       Manage trust on Docker images
+  volume      Manage volumes
+
+Commands:
+  attach      Attach local standard input, output, and error streams to a running container
+  build       Build an image from a Dockerfile
+  commit      Create a new image from a container's changes
+  cp          Copy files/folders between a container and the local filesystem
+  create      Create a new container
+  diff        Inspect changes to files or directories on a container's filesystem
+  events      Get real time events from the server
+  exec        Run a command in a running container
+  export      Export a container's filesystem as a tar archive
+  history     Show the history of an image
+  images      List images
+  import      Import the contents from a tarball to create a filesystem image
+  info        Display system-wide information
+  inspect     Return low-level information on Docker objects
+  kill        Kill one or more running containers
+  load        Load an image from a tar archive or STDIN
+  login       Log in to a Docker registry
+  logout      Log out from a Docker registry
+  logs        Fetch the logs of a container
+  pause       Pause all processes within one or more containers
+  port        List port mappings or a specific mapping for the container
+  ps          List containers
+  pull        Pull an image or a repository from a registry
+  push        Push an image or a repository to a registry
+  rename      Rename a container
+  restart     Restart one or more containers
+  rm          Remove one or more containers
+  rmi         Remove one or more images
+  run         Run a command in a new container
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+  search      Search the Docker Hub for images
+  start       Start one or more stopped containers
+  stats       Display a live stream of container(s) resource usage statistics
+  stop        Stop one or more running containers
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+  top         Display the running processes of a container
+  unpause     Unpause all processes within one or more containers
+  update      Update configuration of one or more containers
+  version     Show the Docker version information
+  wait        Block until one or more containers stop, then print their exit codes
+
+Run 'docker COMMAND --help' for more information on a command.
+
+To get more help with docker, check out our guides at https://docs.docker.com/go/guides/
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$ docker ps
+CONTAINER ID   IMAGE                    COMMAND                  CREATED       STATUS       PORTS                    NAMES
+2a220883d0e1   provectuslabs/kafka-ui   "/bin/sh -c 'java $J・"   3 weeks ago   Up 5 hours   0.0.0.0:8080->8080/tcp   kafka-ui
+eactive@DESKTOP-NF2S1OK:~$ docker ps -a
+CONTAINER ID   IMAGE                      COMMAND                  CREATED         STATUS                     PORTS                    NAMES
+aa6b12a38a1e   dimensigon/tibero:latest   "/bin/sh -c 'su - ti・"   2 minutes ago   Exited (1) 2 minutes ago
+               great_germain
+90115fcc4e78   dimensigon/tibero:latest   "/bin/sh -c 'su - ti・"   4 minutes ago   Exited (1) 4 minutes ago
+               eloquent_engelbart
+c42511ba4eac   dimensigon/tibero:latest   "/bin/sh -c 'su - ti・"   7 minutes ago   Exited (1) 7 minutes ago
+               silly_wozniak
+2a220883d0e1   provectuslabs/kafka-ui     "/bin/sh -c 'java $J・"   3 weeks ago     Up 5 hours                 0.0.0.0:8080->8080/tcp   kafka-ui
+a66575028a1f   noderedis_nodeapp          "node app.js"            2 months ago    Exited (1) 2 months ago
+               nodeapp
+9db6b749c67a   redis:3                    "docker-entrypoint.s・"   2 months ago    Exited (0) 2 months ago
+               noderedis
+6d15fbd6d10a   ibmcom/db2                 "/var/db2_setup/lib/・"   3 months ago    Exited (137) 3 weeks ago
+               testdb
+eactive@DESKTOP-NF2S1OK:~$ docker rm c42511ba4eac
+c42511ba4eac
+eactive@DESKTOP-NF2S1OK:~$ docker rm 90115fcc4e78 aa6b12a38a1e
+90115fcc4e78
+aa6b12a38a1e
+eactive@DESKTOP-NF2S1OK:~$ docker ps -a
+CONTAINER ID   IMAGE                    COMMAND                  CREATED        STATUS                     PORTS                    NAMES
+2a220883d0e1   provectuslabs/kafka-ui   "/bin/sh -c 'java $J・"   3 weeks ago    Up 5 hours                 0.0.0.0:8080->8080/tcp   kafka-ui
+a66575028a1f   noderedis_nodeapp        "node app.js"            2 months ago   Exited (1) 2 months ago
+            nodeapp
+9db6b749c67a   redis:3                  "docker-entrypoint.s・"   2 months ago   Exited (0) 2 months ago
+            noderedis
+6d15fbd6d10a   ibmcom/db2               "/var/db2_setup/lib/・"   3 months ago   Exited (137) 3 weeks ago
+            testdb
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$ docker images | grep tibero
+dimensigon/tibero        latest     59c86c1e4794   10 months ago   2.21GB
+eactive@DESKTOP-NF2S1OK:~$ docker volume create tibero6
+tibero6
+eactive@DESKTOP-NF2S1OK:~$ docker run -idt --name tibero6 -p 8629:8629 -v tibero6:/home/tibero/tibero6/:z --restart=always dimensigon/tibero
+d4abb90a052586df57bdde22635b344976c1d3a180d20c545f575d4bc75a9d1a
+eactive@DESKTOP-NF2S1OK:~$ docker ps | grep tibero6
+d4abb90a0525   dimensigon/tibero        "/bin/sh -c 'su - ti・"   28 seconds ago   Up 15 seconds   0.0.0.0:8629->8629/tcp, 8630-8649/tcp   tibero6
+eactive@DESKTOP-NF2S1OK:~$
+eactive@DESKTOP-NF2S1OK:~$ docker ps | grep tibero6
+d4abb90a0525   dimensigon/tibero        "/bin/sh -c 'su - ti・"   About a minute ago   Up 50 seconds   0.0.0.0:8629->8629/tcp, 8630-8649/tcp   tibero6
+eactive@DESKTOP-NF2S1OK:~$ docker exec -it tibero6 bash
+[root@d4abb90a0525 /]# bash /root/prepare.bash
+202206020552:20:041545500:--- Installing OS Packages ---
+Package libibverbs-22.4-6.el7_9.x86_64 already installed and latest version
+Package net-tools-2.0-0.25.20131004git.el7.x86_64 already installed and latest version
+Package ntp-4.2.6p5-29.el7.centos.2.x86_64 already installed and latest version
+Package gcc-4.8.5-44.el7.x86_64 already installed and latest version
+Package gcc-c++-4.8.5-44.el7.x86_64 already installed and latest version
+Package libstdc++-devel-4.8.5-44.el7.x86_64 already installed and latest version
+Package libaio-0.3.109-13.el7.x86_64 already installed and latest version
+Package libaio-0.3.109-13.el7.x86_64 already installed and latest version
+Package libaio-devel-0.3.109-13.el7.x86_64 already installed and latest version
+Package net-tools-2.0-0.25.20131004git.el7.x86_64 already installed and latest version
+Package 4:perl-5.16.3-299.el7_9.x86_64 already installed and latest version
+Package 1:make-3.82-24.el7.x86_64 already installed and latest version
+Package tree-1.6.0-10.el7.x86_64 already installed and latest version
+Package wget-1.14-18.el7_6.1.x86_64 already installed and latest version
+Package curl-7.29.0-59.el7_9.1.x86_64 already installed and latest version
+Delta RPMs disabled because /usr/bin/applydeltarpm not installed.
+Failed to get D-Bus connection: Operation not permitted
+warning: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.332.b09-1.el7_9.x86_64/jre/lib/security/java.security created as /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.332.b09-1.el7_9.x86_64/jre/lib/security/java.security.rpmnew
+restored /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.332.b09-1.el7_9.x86_64/jre/lib/security/java.security.rpmnew to /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.332.b09-1.el7_9.x86_64/jre/lib/security/java.security
+202206020555:27:571394500:--- Creating Users and Groups ---
+groupadd: group 'dba' already exists
+useradd: user 'tibero' already exists
+202206020555:27:576304700:--- Downloading Tibero Database Software via WGET ---
+202206020555:28:320515700:--- Untar Tibero Software ---
+tar: This does not look like a tar archive
+
+gzip: stdin: unexpected end of file
+tar: Child returned status 1
+tar: Error is not recoverable: exiting now
+202206020555:28:357505400:--- Creating Users and Groups ---
+202206020555:29:023431400:--- Cleanup files: Tibero Software ---
+202206020555:29:025870900:--- Downloading necessary files to run ---
+--2022-06-02 05:55:29--  https://docs.google.com/uc?export=download&confirm=&id=1LFYNBGrU7u48DMhBsks_HF1K3CP4ka3S
+Resolving docs.google.com (docs.google.com)... 142.250.206.206, 2404:6800:400a:80b::200e
+Connecting to docs.google.com (docs.google.com)|142.250.206.206|:443... connected.
+HTTP request sent, awaiting response... 404 Not Found
+2022-06-02 05:55:29 ERROR 404: Not Found.
+
+202206020555:29:789681900:--- ENTRYPOINT start.bash to tibero HOME  ---
+202206020555:30:436425900:--- Finished!  ---
+[root@d4abb90a0525 /]# . ./.bash_profile
+bash: ./.bash_profile: No such file or directory
+[root@d4abb90a0525 /]# ls
+anaconda-post.log  bin  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+[root@d4abb90a0525 /]# ls -al
+total 84
+drwxr-xr-x   1 root root  4096 Jun  2 05:50 .
+drwxr-xr-x   1 root root  4096 Jun  2 05:50 ..
+-rw-r--r--   1 root root 12114 Nov 13  2020 anaconda-post.log
+lrwxrwxrwx   1 root root     7 Nov 13  2020 bin -> usr/bin
+drwxr-xr-x   5 root root   360 Jun  2 05:50 dev
+-rwxr-xr-x   1 root root     0 Jun  2 05:50 .dockerenv
+drwxr-xr-x   1 root root  4096 Jun  2 05:55 etc
+drwxr-xr-x   1 root root  4096 Jul 19  2021 home
+lrwxrwxrwx   1 root root     7 Nov 13  2020 lib -> usr/lib
+lrwxrwxrwx   1 root root     9 Nov 13  2020 lib64 -> usr/lib64
+drwxr-xr-x   2 root root  4096 Apr 11  2018 media
+drwxr-xr-x   2 root root  4096 Apr 11  2018 mnt
+drwxr-xr-x   2 root root  4096 Apr 11  2018 opt
+dr-xr-xr-x 185 root root     0 Jun  2 05:50 proc
+dr-xr-x---   1 root root  4096 Jul 19  2021 root
+drwxr-xr-x   1 root root  4096 Jun  2 05:55 run
+lrwxrwxrwx   1 root root     8 Nov 13  2020 sbin -> usr/sbin
+drwxr-xr-x   2 root root  4096 Apr 11  2018 srv
+dr-xr-xr-x  11 root root     0 Jun  2 05:50 sys
+drwxrwxrwt   1 root root  4096 Jun  2 05:55 tmp
+drwxr-xr-x   1 root root  4096 Nov 13  2020 usr
+drwxr-xr-x   1 root root  4096 Nov 13  2020 var
+[root@d4abb90a0525 /]# cd /home/tibero
+[root@d4abb90a0525 tibero]# . ./.bash_profile
+[SID=tibero root@d4abb90a0525:/home/tibero]$ cd $TB_HOME/config
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/config]$ ./gen_tip.sh
+Using TB_SID "tibero"
+There's already /home/tibero/tibero6/config/tibero.tip!!  Nothing has changed!!
+Already exists /home/tibero/tibero6/config/psm_commands!! Nothing has changed
+There's already /home/tibero/tibero6/client/config/tbdsn.tbr!!
+Client config file already contains SID "tibero":
+    please check if port number equals 8629...
+> #-------------------------------------------------
+> # /home/tibero/tibero6/client/config/tbdsn.tbr
+> # Network Configuration File.
+> # Generated by gen_tip.sh at Thu Jun  2 05:50:49 UTC 2022
+> tibero=(
+>     (INSTANCE=(HOST=localhost)
+>               (PORT=8629)
+>               (DB_NAME=tibero)
+>     )
+> )
+Running client/config/gen_esql_cfg.sh
+Done.
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/config]$ cat /home/tibero/tibero6/license/license.xml
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<tmax_license>
+        <license version="1.0">
+                <product version="6">Tibero</product>
+                <serial_ID>1654149261</serial_ID>
+                <issue_date>2022/06/02</issue_date>
+                <licensee>d4abb90a0525</licensee>
+                <edition>standard</edition>
+                <type>demo</type>
+                <demo_duration>183</demo_duration>
+                <identified_by_host>d4abb90a0525</identified_by_host>
+                <signature>IrL4xpY1eUEr4RE2fKh5FISqrCHbQ6WxuVHzJwQetUI=</signature>
+        </license>
+</tmax_license>
+
+
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/config]$ tbboot nomount
+Listener port = 8629
+
+Tibero 6
+
+TmaxData Corporation Copyright (c) 2008-. All rights reserved.
+Tibero instance started up (NOMOUNT mode).
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/config]$ tbsql sys/tibero
+
+tbSQL 6
+
+TmaxData Corporation Copyright (c) 2008-. All rights reserved.
+
+Connected to Tibero.
+
+SQL> create database "tibero"
+   2 user sys identified by tibero
+maxinstances 8
+maxdatafiles 100
+ch   3    4    5 aracter set MSWIN949
+nation   6 al character set UTF16
+logfil   7 e
+group    8 1 'log001.log' size 100M,
+group   9  2 'log002.log' size 100M,
+group 3 'log  10 003.log' size 100M
+maxl  11 oggroups 255
+max  12 logmembers 8
+noarchivelo  13 g
+datafi  14 le 'system001.dtf' size 100M autoextend on next 100M maxsize unlimited
+default  15  temporary tablespace TEMP
+t  16 empfile 'temp001.dtf' size 100M autoextend on next 100M maxsize unlimited
+exte  17 nt management local autoallocate
+undo ta  18 blespace UNDO
+datafile 'undo  19 001.dtf' size 100M autoextend on next 100M maxsize unlimited
+extent ma  20 nagement local autoallocate;
+
+Database created.
+
+SQL> quit
+Disconnected.
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/config]$ tbboot
+Listener port = 8629
+
+Tibero 6
+
+TmaxData Corporation Copyright (c) 2008-. All rights reserved.
+Tibero instance started up (NORMAL mode).
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/config]$ tbsql sys/tibero
+
+tbSQL 6
+
+TmaxData Corporation Copyright (c) 2008-. All rights reserved.
+
+Connected to Tibero.
+
+SQL> desc dba_users
+TBR-8033: Specified schema object was not found.
+at line 1, column 59 of null:
+SELECT OBJECT_TYPE, DECODE(STATUS, 'VALID', 1, 0)   FROM ALL_OBJECTS WHERE OWNER
+                                                         ^
+
+SQL> quit
+Disconnected.
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/config]$ cd ..
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6]$ ls
+bin  client  config  database  instance  lib  license  nls  scripts
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6]$ cd scripts
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/scripts]$ ls
+catalogview_sod.sql              iparam_desc_gen.sql       systbl_server_alert.sql
+catalogview.sql                  japanese_lexer_epa.sql    sys_tbl_sod.sql
+ckpt_on_create.sql               mview_remote_install.sql  sys_tbl.sql
+client_policy.sql                odci.sql                  systbl_tpm.sql
+cm_boot_cmd_repl.sh              outln.sql                 systbl_tsn_timestamp.sql
+cm_boot_cmd.sh                   pkg                       systbl_workspacemanager.sql
+cm_down_cmd.sh                   pkgbody_install.sh        system.sh
+cm_hacmp_check_cmd_aix.sh        pkgspec_install.sh        system_users_sod.sql
+cm_if_check_cmd_aix.sh           plan_table.sql            system_users.sql
+cm_import_res_from_file.sh       plustrace.sql             tb_cert_viewer.sh
+cm_probe_cmd.sh                  revalidate_viewnsyn.sql   tbl_columns_recovery_FS01_or_less.sql
+cm_rc_gen.sh                     rewrite_table.sql         tbl_columns_recovery_FS02.sql
+cm_runlevel_check_cmd.sh         rmgr_cm_check.sh          tbl_columns_redef_FS01_or_less.sql
+cm_standby_cmd.sh                sod_setting.sql           tbl_columns_redef_FS02.sql
+cm_stat.sh                       sph_create_obj.sh         tpr_check_status.sql
+create_dba_gen.sql               sph_create_obj.sql        tpr_create_obj.sh
+create_dba_sod_gen.sql           stat_hist.sql             tpr_create_obj.sql
+create_gis.sql                   sv_dict.sql               tpr_drop.sql
+create_seq.sql                   svr_set.sh                tpr_replenish.sql
+create_translation_profiles.sql  svr_thread_monitor.sh     tpr.sql
+crypto_system.sql                sys_job.sql               tpr_start.sql
+crypto_system_zero.sql           sys_profile.sql           tpr_stop.sql
+dd_sql_gen.sql                   systbl_create_agent.sql   tudi.sql
+dpv_dict.sql                     systbl_drop_agent.sql     vt_create_gen.sql
+dpv.sql                          systbl_gen.sql            vt_drop_gen.sql
+dpvx.sql                         systbl_job.sql            vt_dual.sql
+drop_stat_hist.sql               systbl_lock.sql           wizard_create_pkg_linux.properties
+example_users.sql                systbl_rsrc.sql           wizard_create_pkg.properties
+internal_svr_env.sh              systbl_scheduler.sql      wizard_create_pkg_windows.properties
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/scripts]$ system.sh
+bash: system.sh: command not found
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/scripts]$ ./system.sh
+Enter SYS password:
+
+Enter SYSCAT password:
+
+Dropping agent table...
+Creating text packages table ...
+Creating the role DBA...
+Create default system users & roles?(Y/N):
+Y
+
+Creating system users & roles...
+Creating example users...
+Creating virtual tables(1)...
+Creating virtual tables(2)...
+Granting public access to _VT_DUAL...
+Creating the system generated sequences...
+Creating internal dynamic performance views...
+Creating outline table...
+Creating system tables related to dbms_job...
+Creating system tables related to dbms_lock...
+Creating system tables related to scheduler...
+Creating system tables related to server_alert...
+Creating system tables related to tpm...
+Creating system tables related to tsn and timestamp...
+Creating system tables related to rsrc...
+Creating system tables related to workspacemanager...
+Creating system tables related to statistics...
+Creating system tables related to mview...
+Creating system package specifications:
+    Running /home/tibero/tibero6/scripts/pkg/pkg_standard.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_standard_extension.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_clobxmlinterface.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_udt_meta.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_seaf.sql...
+    Running /home/tibero/tibero6/scripts/pkg/anydata.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_standard.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_db2_standard.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_application_info.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_aq.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_aq_utl.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_aqadm.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_assert.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_crypto.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_db2_translator.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_db_version.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_ddl.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_debug.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_debug_jdwp.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_errlog.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_expression.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_fga.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_flashback.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_geom.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_java.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_job.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_lob.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_lock.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_metadata.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_mssql_translator.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_mview.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_mview_refresh_util.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_mview_util.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_obfuscation.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_output.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_pipe.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_random.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_redefinition.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_redefinition_stats.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_repair.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_result_cache.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_rls.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_rowid.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_rsrc.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_scheduler.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_session.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_space.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_space_admin.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_sph.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_sql.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_sql_analyze.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_sql_translator.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_sqltune.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_stats.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_stats_util.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_system.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_transaction.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_types.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_utility.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_utl_tb.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_verify.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_xmldom.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_xmlgen.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_xmlquery.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_xplan.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dg_cipher.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_htf.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_htp.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_psm_sql_result_cache.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_sys_util.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_tb_utility.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_text.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_tudiconst.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_encode.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_file.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_tcp.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_http.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_url.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_i18n.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_match.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_raw.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_smtp.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_str.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_compress.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_text_japanese_lexer.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_tpm.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_recomp.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_monitor.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_server_alert.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_ctx_ddl.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_odci.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_ref.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_owa_util.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_alert.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_client_internal.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_xslprocessor.sql...
+    Running /home/tibero/tibero6/scripts/pkg/uda_wm_concat.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_diutil.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_xmlsave.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_xmlparser.sql...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_utl_of.sql...
+Creating auxiliary tables used in static views...
+Create system tables related to profile?(Y/N):
+Y
+
+Creating system tables related to profile...
+Creating internal system tables...
+Check TPR status..
+Stop TPR
+Create TPR tables?(Y/N):
+Y
+
+Dropping tables used in TPR...
+Creating auxiliary tables used in TPR...
+Creating static views...
+Creating static view descriptions...
+Creating objects for sph:
+    Running /home/tibero/tibero6/scripts/iparam_desc_gen.sql...
+Creating dynamic performance views...
+Creating dynamic performance view descriptions...
+Creating package bodies:
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_db2_standard.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_aq.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_aq_utl.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_aqadm.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_assert.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_db2_translator.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_errlog.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_metadata.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_mssql_translator.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_mview.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_mview_refresh_util.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_mview_util.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_redefinition_stats.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_rsrc.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_scheduler.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_session.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_sph.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_sql_analyze.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_sql_translator.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_sqltune.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_stats.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_stats_util.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_utility.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_utl_tb.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_verify.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_workspacemanager.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_xmlgen.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_xplan.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dg_cipher.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_htf.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_htp.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_text.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_utl_http.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_utl_url.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_utl_i18n.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_utl_smtp.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_text_japanese_lexer.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_tpm.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_utl_recomp.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_server_alert.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_xslprocessor.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_uda_wm_concat.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_xmlparser.tbw...
+Creating public synonyms for system packages...
+Creating remaining public synonyms for system packages...
+Register dbms_stats job to Job Scheduler?(Y/N):
+
+
+Skip registering dbms_stats job to Job Scheduler
+Creating audit event pacakge...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_audit_event.tbw...
+Creating packages for TPR...
+    Running /home/tibero/tibero6/scripts/pkg/pkg_dbms_tpr.sql...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_tpr.tbw...
+    Running /home/tibero/tibero6/scripts/pkg/_pkg_dbms_apm.tbw...
+Start TPR
+Create tudi interface
+    Running /home/tibero/tibero6/scripts/odci.sql...
+Creating spatial meta tables and views ...
+Creating internal system jobs...
+Creating Japanese Lexer epa source ...
+Creating internal system notice queue ...
+Creating sql translator profiles ...
+Creating agent table...
+Done.
+For details, check /home/tibero/tibero6/instance/tibero/log/system_init.log.
+[SID=tibero root@d4abb90a0525:/home/tibero/tibero6/scripts]$ tbsql sys/tibero
+
+tbSQL 6
+
+TmaxData Corporation Copyright (c) 2008-. All rights reserved.
+
+Connected to Tibero.
+
+SQL> desc dba_users;
+
+COLUMN_NAME                              TYPE               CONSTRAINT
+---------------------------------------- ------------------ --------------------
+USERNAME                                 VARCHAR(128)
+USER_ID                                  NUMBER
+PASSWORD                                 VARCHAR(24)
+ACCOUNT_STATUS                           VARCHAR(30)
+LOCK_DATE                                DATE
+EXPIRY_DATE                              DATE
+DEFAULT_TABLESPACE                       VARCHAR(128)
+CREATED                                  DATE
+PROFILE                                  VARCHAR(255)
+DEFAULT_TEMP_TABLESPACE                  VARCHAR(128)
+AUTHENTICATION_TYPE                      VARCHAR(8)
+
+SQL>

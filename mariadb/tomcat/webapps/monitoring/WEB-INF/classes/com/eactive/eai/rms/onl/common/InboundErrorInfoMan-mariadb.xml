@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="InboundErrorInfoMan">
+	
+	<!-- Inbound 에러 목록 조회  -->
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT ROWNO, EAISVCSERNO, ADPTRBZWKGROUPNAME, EAIERRDSTCD, EAIERRCD, 
+		       EAIERRCTNT, ERROCCURHMS, BZWKDATACTNT, EAISEVRINSTNCNAME 
+		FROM ( 
+            SELECT @NO := @NO + 1 AS ROWNO,
+		    	EAISVCSERNO, ADPTRBZWKGROUPNAME, EAIERRDSTCD, EAIERRCD, 
+		        EAIERRCTNT, ERROCCURHMS, BZWKDATACTNT, EAISEVRINSTNCNAME 
+		    FROM ( 
+		    	SELECT EAISVCSERNO, ADPTRBZWKGROUPNAME, EAIERRDSTCD, EAIERRCD, EAIERRCTNT, 
+		        	    ERROCCURHMS,
+		            BZWKDATACTNT, EAISEVRINSTNCNAME 
+		        FROM $schemaId$.TSEAICM04 		        
+		        <dynamic prepend="WHERE">
+					<isNotEmpty prepend="AND" property="searchEaiSvcSerNo">
+						EAISVCSERNO LIKE UPPER(CONCAT( '%', #searchEaiSvcSerNo# , '%') )
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+						ADPTRBZWKGROUPNAME = #searchAdptrBzwkGroupName#
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchEaiErrCd">
+						EAIERRCD LIKE UPPER( CONCAT( '%' , #searchEaiErrCd# , '%') )
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchEaiSevrInstncName">
+						EAISEVRINSTNCNAME LIKE UPPER( CONCAT( '%' , #searchEaiSevrInstncName# , '%') )
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchEndDate">
+						ERROCCURHMS BETWEEN CONCAT( #searchStartDate# , '00000000' ) AND CONCAT( #searchEndDate# , '23595999' )
+					</isNotEmpty>
+				</dynamic>
+					ORDER BY ERROCCURHMS DESC 
+		        ) TMP1,  (SELECT @NO := 0) R
+		    ) TMP2 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+		    
+	</statement>	
+	
+	<!-- Inbound 에러 목록수 -->
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+    	SELECT COUNT(*) AS TOTALCOUNT
+        FROM $schemaId$.TSEAICM04 		        
+        <dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchEaiSvcSerNo">
+				UPPER(EAISVCSERNO) LIKE CONCAT( '%' , #searchEaiSvcSerNo# , '%' )
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+				ADPTRBZWKGROUPNAME = #searchAdptrBzwkGroupName#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchEaiErrCd">
+				EAIERRCD LIKE UPPER( CONCAT( '%' , #searchEaiErrCd# , '%') )
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchEaiSevrInstncName">
+				EAISEVRINSTNCNAME LIKE UPPER( CONCAT( '%' , #searchEaiSevrInstncName# , '%') )
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchEndDate">
+				ERROCCURHMS BETWEEN CONCAT( #searchStartDate# , '00000000' ) AND CONCAT( #searchEndDate# , '23595999' )
+			</isNotEmpty>
+		</dynamic>
+	</statement>
+	
+	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT EAISVCSERNO, ADPTRBZWKGROUPNAME, EAIERRDSTCD, EAIERRCD, EAIERRCTNT, 
+			 CONCAT(
+				DATE_FORMAT( STR_TO_DATE(SUBSTR(ERROCCURHMS,1,14), '%Y%m%d%H%i%s'), '%Y-%m-%d %H:%i:%s')
+				, '.' 
+				, SUBSTR(ERROCCURHMS,15,2) ) AS ERROCCURHMS,
+			ERROCCURHMS,
+			BZWKDATACTNT, EAISEVRINSTNCNAME 
+		FROM $schemaId$.TSEAICM04 
+		WHERE EAISVCSERNO = #eaiSvcSerno#
+	</statement>
+</sqlMap>

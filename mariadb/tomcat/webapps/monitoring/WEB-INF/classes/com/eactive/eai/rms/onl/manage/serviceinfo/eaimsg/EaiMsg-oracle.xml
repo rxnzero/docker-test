@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="EaiMsg">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+ 		SELECT COUNT(*) 
+ 		  FROM $schemaId$.TSEAIHE01 
+ 		 WHERE EAIBZWKDSTCD IN ( select EAIBZWKDSTCD from $schemaId$.tseairm06 where USERID =#loginId#)
+ 		 <isNotEmpty prepend="AND" property="searchEaiSvcName">
+        		UPPER(EAISVCNAME)   LIKE '%'||UPPER(#searchEaiSvcName#)||'%'
+         </isNotEmpty>
+ 		 <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+        		UPPER(EAIBZWKDSTCD) LIKE '%'||UPPER(#searchEaiBzwkDstcd#)||'%'
+         </isNotEmpty>
+ 		 <isNotEmpty prepend="AND" property="searchEaiSvcDesc">
+        		UPPER(EAISVCDESC)   LIKE '%'||UPPER(#searchEaiSvcDesc#)||'%' 
+         </isNotEmpty>
+  </statement>
+  
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROWNO
+		     , EAISVCNAME
+		     , EAIBZWKDSTCD
+			 , SVCHMSEONOT
+			 , SVCMOTIVUSEDSTCD
+			 , SVCPRCESDSTICNAME
+			 , FLOWCTRLROUTNAME
+		     , INTGRADSTICNAME
+		     , SVCBFCLMNLOGYN
+			 , GSTATSYSADPTRBZWKGROUPNAME
+			 , SEVRLOGLVELNO
+			 , SVCLOGLVELNO
+			 , ERREAISVCNAME
+			 , DMNDERRCHNGIDNAME
+			 , DMNDERRFLDNAME
+			 , RSPNSERRCHNGIDNAME
+			 , RSPNSERRFLDNAME
+			 , EAISVCDESC
+			 , SIMYN SIMYN
+         FROM ( SELECT ROWNUM AS ROWNO, EAISVCNAME, EAIBZWKDSTCD, SVCHMSEONOT, SVCMOTIVUSEDSTCD, SVCPRCESDSTICNAME, FLOWCTRLROUTNAME
+						, INTGRADSTICNAME, SVCBFCLMNLOGYN, GSTATSYSADPTRBZWKGROUPNAME, SEVRLOGLVELNO, SVCLOGLVELNO
+						, ERREAISVCNAME, DMNDERRCHNGIDNAME, DMNDERRFLDNAME, RSPNSERRCHNGIDNAME, RSPNSERRFLDNAME, EAISVCDESC 
+						, SIMYN
+					FROM $schemaId$.TSEAIHE01 
+ 		 WHERE EAIBZWKDSTCD IN ( select EAIBZWKDSTCD from $schemaId$.tseairm06 where USERID =#loginId#)
+ 		 <isNotEmpty prepend="AND" property="searchEaiSvcName">
+        		UPPER(EAISVCNAME)   LIKE '%'||UPPER(#searchEaiSvcName#)||'%'
+         </isNotEmpty>
+ 		 <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+        		UPPER(EAIBZWKDSTCD) LIKE '%'||UPPER(#searchEaiBzwkDstcd#)||'%'
+         </isNotEmpty>
+ 		 <isNotEmpty prepend="AND" property="searchEaiSvcDesc">
+        		UPPER(EAISVCDESC)   LIKE '%'||UPPER(#searchEaiSvcDesc#)||'%' 
+         </isNotEmpty>
+		 	) TMP1
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>   
+
+  <statement id="selectDetailSvc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT 
+			  A.EAISVCNAME               AS "EAISVCNAME"    
+			, A.SVCPRCSSNO               AS "SVCPRCSSNO"    
+			, A.PSVINTFACDSTICNAME       AS "PSVINTFACDSTICNAME"    
+			, A.PSVSYSBZWKDSTCD          AS "PSVSYSBZWKDSTCD"    
+			, A.PSVSYSIDNAME             AS "PSVSYSIDNAME"    
+			, A.PSVSYSSVCDSTICNAME       AS "PSVSYSSVCDSTICNAME"    
+			, A.PSVSYSADPTRBZWKGROUPNAME AS "PSVSYSADPTRBZWKGROUPNAME"    
+			, A.FLOVRYN                  AS "FLOVRYN"    
+			, A.CHNGEONOT                AS "CHNGEONOT"    
+			, A.CHNGMSGIDNAME            AS "CHNGMSGIDNAME"    
+			, A.BASCRSPNSMSGCMPRCTNT     AS "BASCRSPNSMSGCMPRCTNT"    
+			, A.BASCRSPNSCHNGEONOT       AS "BASCRSPNSCHNGEONOT"    
+			, A.BASCRSPNSCHNGMSGIDNAME   AS "BASCRSPNSCHNGMSGIDNAME"    
+			, A.ERRRSPNSMSGCMPRCTNT      AS "ERRRSPNSMSGCMPRCTNT"    
+			, A.ERRRSPNSCHNGEONOT        AS "ERRRSPNSCHNGEONOT"    
+			, A.ERRRSPNSCHNGMSGIDNAME    AS "ERRRSPNSCHNGMSGIDNAME"    
+			, A.NEXTSVCPRCSSNO           AS "NEXTSVCPRCSSNO"    
+			, A.OUTBNDROUTNAME           AS "OUTBNDROUTNAME"    
+			, A.TOUTVAL                  AS "TOUTVAL"    
+			, A.CMPENSVCPRCSSDSTICNAME   AS "CMPENSVCPRCSSDSTICNAME"    
+			, A.SUPPLDELYN               AS "SUPPLDELYN"    
+			, A.HDRCTRLDSTCD             AS "HDRCTRLDSTCD"    
+			, A.HDRREFCLSNAME            AS "HDRREFCLSNAME"
+			/* RESTOPTION 추가 시작 */
+			, A.RESTOPTION				 AS "RESTOPTION"
+			/* RESTOPTION 추가 종료 */
+		 FROM  $schemaId$.TSEAIHE02 A,     
+		       $schemaId$.TSEAIHE01 B
+		 WHERE A.EAISVCNAME = B.EAISVCNAME
+		   AND A.EAISVCNAME = #eaiSvcName#
+		   AND A.SVCPRCSSNO = #svcPrcssNo#
+  </statement>
+  <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		 INSERT INTO $schemaId$.TSEAIHE01
+					( EAISVCNAME                 
+					, EAIBZWKDSTCD               
+					, SVCHMSEONOT                
+					, SVCMOTIVUSEDSTCD           
+					, SVCPRCESDSTICNAME          
+					, FLOWCTRLROUTNAME           
+					, INTGRADSTICNAME            
+					, SVCBFCLMNLOGYN             
+					, GSTATSYSADPTRBZWKGROUPNAME 
+					, SEVRLOGLVELNO              
+					, SVCLOGLVELNO               
+					, ERREAISVCNAME              
+					, DMNDERRCHNGIDNAME          
+					, DMNDERRFLDNAME             
+					, RSPNSERRCHNGIDNAME         
+					, RSPNSERRFLDNAME            
+					, EAISVCDESC                 
+					, SIMYN                      
+					, CREATEBY                   
+					, UPDATEBY                   
+					, CREATEON                 
+					, UPDATEON                 
+					)
+		     VALUES( #eaiSvcName#                 
+					, #eaiBzwkDstcd#               
+					, #svcHmsEonot#                
+					, #svcMotivUseDstcd#           
+					, #svcPrcesDsticName#          
+					, #flowCtrlRoutName#           
+					, #intgraDsticName#            
+					, #svcBfClmnLogYn#             
+					, #gstatSysAdptrBzwkGroupName# 
+					, #sevrLogLvelNo#              
+					, #svcLogLvelNo#               
+					, #errEAISvcName#              
+					, #dmndErrChngIdName#          
+					, #dmndErrFldName#             
+					, #rspnsErrChngIdName#         
+					, #rspnsErrFldName#            
+					, #eaiSvcDesc#                 
+					, #simYn#                      
+					, #loginId#                   
+					, #loginId#                   
+					, to_char(sysdate,'yyyymmddhh24miss')                 
+					, to_char(sysdate,'yyyymmddhh24miss')                
+					)
+  </statement>
+
+  <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">    
+    UPDATE $schemaId$.TSEAIHE01 
+       SET EAIBZWKDSTCD                      = #eaiBzwkDstcd#                  
+		 , SVCHMSEONOT                       = #svcHmsEonot#                   
+		 , SVCMOTIVUSEDSTCD                  = #svcMotivUseDstcd#              
+		 , SVCPRCESDSTICNAME                 = #svcPrcesDsticName#             
+		 , FLOWCTRLROUTNAME                  = #flowCtrlRoutName#              
+		 , INTGRADSTICNAME                   = #intgraDsticName#               
+		 , SVCBFCLMNLOGYN                    = #svcBfClmnLogYn#                
+		 , GSTATSYSADPTRBZWKGROUPNAME        = #gstatSysAdptrBzwkGroupName#    
+		 , SEVRLOGLVELNO                     = #sevrLogLvelNo#                 
+		 , SVCLOGLVELNO                      = #svcLogLvelNo#                  
+		 , ERREAISVCNAME                     = #errEAISvcName#                 
+		 , DMNDERRCHNGIDNAME                 = #dmndErrChngIdName#             
+		 , DMNDERRFLDNAME                    = #dmndErrFldName#                
+		 , RSPNSERRCHNGIDNAME                = #rspnsErrChngIdName#            
+		 , RSPNSERRFLDNAME                   = #rspnsErrFldName#               
+		 , EAISVCDESC                        = #eaiSvcDesc#                    
+		 , SIMYN                             = #simYn#                         
+		 , UPDATEBY                          = #loginId#                      
+		 , UPDATEON                          = to_char(sysdate,'yyyymmddhh24miss')                   
+     WHERE EAISVCNAME                        = #eaiSvcName#  
+  </statement>
+  
+  <statement id="selectListRef" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT A.EAISVCNAME 
+		     , A.SVCPRCSSNO
+		     , A.REFMSGIDNO
+		     , A.REFMSGIDNAME
+		     , C.LOUTDESC
+		 FROM  $schemaId$.TSEAIMS02 A
+		     , $schemaId$.TSEAIHE01 B
+		     , $schemaId$.TSEAITR07 C
+		 WHERE A.EAISVCNAME = B.EAISVCNAME
+		   AND A.REFMSGIDNAME = C.LOUTNAME(+)
+		   AND A.EAISVCNAME = #eaiSvcName#
+		   AND A.SVCPRCSSNO = #svcPrcssNo#
+		 ORDER BY A.EAISVCNAME, A.SVCPRCSSNO, A.REFMSGIDNO  
+  </statement>  
+
+  <statement id="selectListCondRule" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT 
+			A.EAISVCNAME       AS "EAISVCNAME" ,
+			A.SVCPRCSSNO       AS "SVCPRCSSNO" ,
+			A.RULESERNO        AS "RULESERNO" ,
+			A.RSULTPRCSSNO     AS "RSULTPRCSSNO" ,
+			A.RULEFLDGROUPNAME AS "RULEFLDGROUPNAME" ,
+			A.RULEFLDNAME      AS "RULEFLDNAME" ,
+			A.CMPRCTNT         AS "CMPRCTNT"
+		 FROM  $schemaId$.TSEAIFR01 A
+		     , $schemaId$.TSEAIHE01 B
+		 WHERE A.EAISVCNAME = B.EAISVCNAME
+		   AND A.EAISVCNAME = #eaiSvcName#
+		   AND A.SVCPRCSSNO = #svcPrcssNo#
+		 ORDER BY A.EAISVCNAME, A.SVCPRCSSNO, A.RULESERNO  
+  </statement>   
+  
+  <statement id="insertRef" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    INSERT INTO $schemaId$.TSEAIMS02(
+                EAISVCNAME, SVCPRCSSNO, REFMSGIDNO, REFMSGIDNAME)
+         VALUES(
+                #EAISVCNAME#, #SVCPRCSSNO#, #REFMSGIDNO#, #REFMSGIDNAME#)
+  </statement>
+  
+  <statement id="insertCondRule" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    INSERT INTO $schemaId$.TSEAIFR01(
+                EAISVCNAME, SVCPRCSSNO, RULESERNO, RSULTPRCSSNO, RULEFLDGROUPNAME, RULEFLDNAME, CMPRCTNT)
+         VALUES(
+                #EAISVCNAME#, #SVCPRCSSNO#, #RULESERNO#, #RSULTPRCSSNO#, #RULEFLDGROUPNAME#, #RULEFLDNAME#, #CMPRCTNT#)
+  </statement>
+  
+  <statement id="insertSvc" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+      INSERT INTO $schemaId$.TSEAIHE02(
+                      EAISVCNAME                   
+                    , SVCPRCSSNO                   
+                    , PSVINTFACDSTICNAME           
+                    , PSVSYSBZWKDSTCD              
+                    , PSVSYSIDNAME                 
+                    , PSVSYSSVCDSTICNAME           
+                    , PSVSYSADPTRBZWKGROUPNAME     
+                    , FLOVRYN                      
+                    , CHNGEONOT                    
+                    , CHNGMSGIDNAME                
+                    , BASCRSPNSMSGCMPRCTNT         
+                    , BASCRSPNSCHNGEONOT           
+                    , BASCRSPNSCHNGMSGIDNAME       
+                    , ERRRSPNSMSGCMPRCTNT          
+                    , ERRRSPNSCHNGEONOT            
+                    , ERRRSPNSCHNGMSGIDNAME        
+                    , NEXTSVCPRCSSNO               
+                    , OUTBNDROUTNAME               
+                    , TOUTVAL                      
+                    , CMPENSVCPRCSSDSTICNAME       
+                    , SUPPLDELYN                   
+                    , HDRCTRLDSTCD                 
+                    , HDRREFCLSNAME
+                    /* RESTOPTION 추가 시작 */
+					, RESTOPTION
+					/* RESTOPTION 추가 종료 */                
+                  )
+           VALUES (
+                      #eaiSvcName#                       
+                    , #svcPrcssNo#                       
+                    , #psvIntfacDsticName#               
+                    , #psvSysBzwkDstcd#                  
+                    , #psvSysIdName#                     
+                    , #psvSysSvcDsticName#               
+                    , #psvSysAdptrBzwkGroupName#         
+                    , #flovrYn#                          
+                    , #chngEonot#                        
+                    , #chngMsgIdName#                    
+                    , #bascRspnsMsgCmprCtnt#             
+                    , #bascRspnsChngEonot#               
+                    , #bascRspnsChngMsgIdName#           
+                    , #errRspnsMsgCmprCtnt#              
+                    , #errRspnsChngEonot#                
+                    , #errRspnsChngMsgIdName#            
+                    , #nextSvcPrcssNo#                   
+                    , #outbndRoutName#                   
+                    , #toutVal#                          
+                    , #cmpenSvcPrcssDsticName#           
+                    , #supplDelYn#                       
+                    , #hdrCtrlDstcd#                     
+                    , #hdrRefClsName#
+                    /* RESTOPTION 추가 시작 */
+					, #restOption#
+					/* RESTOPTION 추가 종료 */                   
+
+                  )
+  </statement>
+
+  <statement id="updateSvc" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+      UPDATE $schemaId$.TSEAIHE02 
+         SET  PSVINTFACDSTICNAME           = #psvIntfacDsticName#
+            , PSVSYSBZWKDSTCD              = #psvSysBzwkDstcd#
+            , PSVSYSIDNAME                 = #psvSysIdName#
+            , PSVSYSSVCDSTICNAME           = #psvSysSvcDsticName#
+            , PSVSYSADPTRBZWKGROUPNAME     = #psvSysAdptrBzwkGroupName#
+            , FLOVRYN                      = #flovrYn#
+            , CHNGEONOT                    = #chngEonot#
+            , CHNGMSGIDNAME                = #chngMsgIdName#
+            , BASCRSPNSMSGCMPRCTNT         = #bascRspnsMsgCmprCtnt#
+            , BASCRSPNSCHNGEONOT           = #bascRspnsChngEonot#
+            , BASCRSPNSCHNGMSGIDNAME       = #bascRspnsChngMsgIdName#
+            , ERRRSPNSMSGCMPRCTNT          = #errRspnsMsgCmprCtnt#
+            , ERRRSPNSCHNGEONOT            = #errRspnsChngEonot#
+            , ERRRSPNSCHNGMSGIDNAME        = #errRspnsChngMsgIdName#
+            , NEXTSVCPRCSSNO               = #nextSvcPrcssNo#
+            , OUTBNDROUTNAME               = #outbndRoutName#
+            , TOUTVAL                      = #toutVal#
+            , CMPENSVCPRCSSDSTICNAME       = #cmpenSvcPrcssDsticName#
+            , SUPPLDELYN                   = #supplDelYn#
+            , HDRCTRLDSTCD                 = #hdrCtrlDstcd#
+            , HDRREFCLSNAME                = #hdrRefClsName#
+            /* RESTOPTION 추가 시작 */
+			, RESTOPTION                   = #restOption#
+			/* RESTOPTION 추가 종료 */
+        WHERE EAISVCNAME                   = #eaiSvcName#
+          AND SVCPRCSSNO                   = #svcPrcssNo#
+  </statement>  
+  
+  <statement id="deleteSvc" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM $schemaId$.TSEAIHE02 
+     WHERE EAISVCNAME = #eaiSvcName#
+    <isNotEmpty prepend="AND" property="svcPrcssNo">
+       AND SVCPRCSSNO = #svcPrcssNo#
+    </isNotEmpty>             
+  </statement>  
+  
+</sqlMap>
+

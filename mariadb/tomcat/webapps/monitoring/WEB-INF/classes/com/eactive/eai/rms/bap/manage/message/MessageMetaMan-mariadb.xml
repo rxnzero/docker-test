@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="MessageMeta">
+
+	<statement id="list" resultClass="java.util.HashMap">
+		SELECT 
+			MSGMETADSTCD ,
+		    MSGDESC ,  
+		    THISMSGUSEYN
+		FROM (
+	         SELECT @NO := @NO + 1 AS ROWNO, 
+	         	MSGMETADSTCD ,
+		    	MSGDESC ,  
+		    	THISMSGUSEYN
+			FROM $schemaId$.TSEAIBM03,  (SELECT @NO := 0) R
+	        <dynamic prepend="WHERE">
+		    	<isNotEmpty prepend="AND" property="searchMsgMetaDstcd">
+				MsgMetaDstcd LIKE CONCAT( '%' , #searchMsgMetaDstcd#, '%')
+			</isNotEmpty>
+		    <isNotEmpty prepend="AND" property="searchMsgDesc">
+				MsgDesc LIKE CONCAT( '%' , #searchMsgDesc# , '%')
+			</isNotEmpty> 
+			</dynamic>
+			ORDER BY MsgMetaDstcd
+		 ) TMP
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#		
+	</statement>	
+
+	<statement id="count"  resultClass="java.lang.Integer">
+		SELECT 	COUNT(MsgMetaDstcd) AS "TotalCount"
+    	FROM $schemaId$.TSEAIBM03
+	        <dynamic prepend="WHERE">
+		    	<isNotEmpty prepend="AND" property="searchMsgMetaDstcd">
+				MsgMetaDstcd LIKE CONCAT( '%' , #searchMsgMetaDstcd#, '%')
+			</isNotEmpty>
+		    <isNotEmpty prepend="AND" property="searchMsgDesc">
+				MsgDesc LIKE CONCAT( '%' , #searchMsgDesc# , '%')
+			</isNotEmpty> 
+			</dynamic>		
+	</statement>	
+ 
+	<statement id="update_bm03"  resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBM03 
+		SET    MsgDesc = #msgDesc#,
+		       ThisMsgUseYn = #thisMsgUseYn#,
+			   ThisMsgAmndrID = #userid#,
+			   ThisMsgAmndHMS = SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )	
+		WHERE  MsgMetaDstcd = #msgMetaDstcd#
+	</statement>
+	
+	<statement id="insert_bm03"  resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBM03 (
+			 MsgMetaDstcd,
+			 MsgDesc,
+			 ThisMsgUseYn,
+			 ThisMsgRegsntID,
+			 ThisMsgRegiHMS,
+			 ThisMsgAmndrID,
+			 ThisMsgAmndHMS  )
+		VALUES (
+			#msgMetaDstcd# ,
+			#msgDesc# ,
+			#thisMsgUseYn# ,
+			#userid# ,
+			SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),
+			#userid# ,
+			SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )	 
+		)
+	</statement>
+
+	<statement id="insert_bm02" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBM02 (
+			 MsgGroupDstcd,
+			 MsgClmnSeq,
+			 MsgItemDsticName,
+			 ThisMsgClmnUseYn,
+			 ThisMsgRegsntID,
+			 ThisMsgRegiHMS,
+			 ThisMsgAmndrID,
+			 ThisMsgAmndHMS,
+			 MsgMetaDstcd  )
+		VALUES (
+			 #msgMetaDstcd# ,
+			 #msgClmnSeq# ,
+			 #msgItemDsticName# ,
+			 #thisMsgUseYn# ,
+			 #userid# ,
+			 SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),
+			 #userid# ,
+			 SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),	
+			 #msgMetaDstcd# 
+		)
+	</statement>
+	
+</sqlMap>

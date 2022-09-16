@@ -1,0 +1,280 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.io.*"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%
+	response.setHeader("Pragma", "No-cache");
+	response.setHeader("Cache-Control", "no-cache");
+	response.setHeader("Expires", "0");
+
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<jsp:include page="/jsp/common/include/css.jsp"/>
+<jsp:include page="/jsp/common/include/script.jsp"/>
+<script language="javascript" >
+var url      = '<c:url value="/onl/transaction/online/transactionStatus.json" />';
+var url_view = '<c:url value="/onl/transaction/online/transactionStatus.view" />';
+var timer;
+var recentYn="N";
+var selectName = "searchEaiBzwkDstcd";	// selectBox Name
+	function init(callback,recentYn) {
+		$.ajax({
+			type : "POST",
+			url:url,
+			dataType:"json",
+			data:{cmd: 'LIST_DETAIL_COMBO'},
+			success:function(json){
+				new makeOptions("BIZCODE","BIZNAME").setObj($("select[name=searchEaiBzwkDstcd]")).setNoValueInclude(true).setNoValue("","전체").setData(json.bizList).setFormat(codeName3OptionFormat).rendering();
+				
+				
+				$("select[name=searchEaiBzwkDstcd]").val("${param.searchEaiBzwkDstcd}");
+				
+				setSearchable(selectName);	// 콤보에 searchable 설정
+				
+				if (typeof callback === 'function') {
+					callback(recentYn);
+				}
+			},
+			error:function(e){
+				alert(e.responseText);
+			}
+		});
+		
+	}
+
+	function detail(recentYn){
+		var postData = getSearchForJqgrid("cmd","DETAIL"); //jqgrid에서는 object 로
+		postData["recentYn"] = recentYn;
+		$("#grid").setGridParam({ url:url,postData: postData }).trigger("reloadGrid");
+	}
+	
+$(document).ready(function() {	
+	init(detail,"N");
+	$('#grid').jqGrid({
+		datatype : "json",
+		mtype : 'POST',
+		//url : url,
+		//postData : gridPostData,
+		colNames : [ 
+		             '업무구분코드',
+		             '업무구분명',
+		             '서비스코드',
+		             '인스턴스명',
+		             '100',
+		             '200',
+		             '300',
+		             '400',
+		             '100',
+		             '200',
+		             '300',
+		             '400',
+		             '900',
+		             '300',
+		             '400',
+		             '900',
+		             'IF',
+		             '수동',
+		             '총',
+		             '서비스설명'
+		              ],
+		colModel : [ 
+		             { name : 'BIZCODE'    , hidden : true     },
+		             { name : 'BIZNAME'    , align : 'left'   	, width:'100'    },
+		             { name : 'SVCCODE'    , align : 'left'   	, width:'128'    },
+		             { name : 'INSTNAME'   , align : 'center'   , width:'70'    },
+		             { name : 'P100'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+		             { name : 'P200'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+		             { name : 'P300'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+		             { name : 'P400'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+                                           
+		             { name : 'E100'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+		             { name : 'E200'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+		             { name : 'E300'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+		             { name : 'E400'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+		             { name : 'E900'       , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+
+		             { name : 'E9300'      , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+		             { name : 'E9400'      , align : 'center'   , width:'50' 	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum' },
+		             { name : 'E9900'      , align : 'center'   , width:'50'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'sum'  },
+
+		             { name : 'AVGEAI'     , align : 'center'   , width:'46'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'avg'  },
+		             { name : 'AVGPSV'     , align : 'center'   , width:'46' 	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'avg' },
+		             { name : 'AVGTOTAL'   , align : 'center'   , width:'46'	,formatter:'integer',formatoptions:{thousandsSeparator:","},summaryType:'avg'  },
+		             { name : 'SVCNAME'    , align : 'left'                    }
+
+		              ],
+		jsonReader : {
+			repeatitems : false
+		},
+		footerrow:true,
+		userDataOnFooter:true,		
+		rowNum: 10000,
+		height: 480,
+		viewrecords : true,
+		gridview: true,
+		ondblClickRow : function(rowId) {
+		},
+		gridComplete:function (d){
+			var colModel = $(this).getGridParam("colModel");
+			for(var i = 0 ; i< colModel.length; i++){
+				$(this).setColProp(colModel[i].name, {sortable : false});			
+			}
+		},			
+	    loadComplete:function (d){
+	    	var sum = d.summary;
+	    	var colModel = $(this).getGridParam("colModel");
+	    	var rowCnt = $('#grid').getGridParam("reccount");
+	    	for(var i = 0 ; i< colModel.length; i++){
+				$(this).setColProp(colModel[i].name, {sortable : false});
+				var propName = colModel[i].name;
+				var summaryType = colModel[i].summaryType;
+				var Total = sum[propName];
+				if(summaryType =='avg'){
+					if(rowCnt == 0) 
+						Total = 0;
+					else
+	    				Total = (Total/rowCnt).toFixed(3);		//avg를 바로 쓰면 row 수가 +1 되어 계산됨.
+	    		}
+	    		
+	    		if(colModel[i].formatter == 'integer')
+	    			eval("$('#grid').jqGrid('footerData','set',{BIZNAME:'합계', "+propName+":Total});");
+	    	}
+			
+			$(".ui-jqgrid-ftable tr:first").children("td").css("background-color", "#D4F4FA");	// td 배경색
+			$(".ui-jqgrid-ftable tr:first").css("height", "30px");								// tr 높이
+			$(".ui-jqgrid-ftable tr:first").css("font-size", "10pt");							// tr 글자 크기
+			$(".ui-jqgrid-ftable td:eq(1)").css("text-align", "center");						// td 글자 정렬	    
+			
+			
+			//Merge Col Cells
+			$(".ui-jqgrid-ftable td:eq(1)").css('width','');	
+			$(".ui-jqgrid-ftable td:eq(1)").attr('colspan','3');						
+			$(".ui-jqgrid-ftable td:eq(2)").hide();			
+			$(".ui-jqgrid-ftable td:eq(3)").hide();
+			
+			//위치 화면 하단에 고정
+			$(".ui-jqgrid-ftable").css('position','fixed');		//
+			$(".ui-jqgrid-ftable").css('bottom','0');
+	    },
+	    loadError:function(xhr,status,error){
+	    	//alert(error+","+status);
+	    	//clearInterval(timer);
+	    }	
+		
+	});
+	$("#grid").jqGrid('setGroupHeaders', {
+  		useColSpanStyle: true, 
+  		groupHeaders:[
+			{startColumnName: 'BIZNAME', numberOfColumns: 3, titleText: 'IF'},
+			{startColumnName: 'P100', numberOfColumns: 4, titleText: '전문구간별 처리건수'},
+			{startColumnName: 'E100', numberOfColumns: 5, titleText: '전문구간별 에러건수'},
+			{startColumnName: 'E9300', numberOfColumns: 3, titleText: '타임 아웃'},
+			{startColumnName: 'AVGEAI', numberOfColumns: 3, titleText: '평균처리시간(초)'}
+  		]
+	});
+
+	$("#btn_10min").click(function(){
+		recentYn="Y";
+		detail(recentYn);
+	});
+	$("#btn_detail").click(function(){
+	    var args = new Object();
+	    args['userId'] = $("input[name=userId]").val();
+	    
+	    var url2 = url_view;
+	    url2 += "?cmd=POPUP";
+	    showModal(url2,args,470,740);
+	});	
+	$("#btn_initialize").click(function(){
+		$.ajax({
+			type : "POST",
+			url:url,
+			dataType:"json",
+			data:{cmd: 'INITIALIZE',recentYn:recentYn},
+			success:function(json){
+				alert("성공하였습니다.");
+			},
+			error:function(e){
+				alert(e.responseText);
+			}
+		});			
+	});	
+	$("#btn_download").click(function(event) {
+           event.stopPropagation(); // Do not propagate the event.
+           // Create an object that will manage to download the file.
+           var merge = new Array();
+           merge.push(makeMerge("IF","0","0","0","2"));
+           merge.push(makeMerge("전문구간별 처리건수","0","0","3","6"));
+           merge.push(makeMerge("전문구간별 에러건수","0","0","7","11"));
+           merge.push(makeMerge("타임아웃","0","0","12","14"));
+           merge.push(makeMerge("평균처리시간(초)","0","0","15","17"));
+           merge.push(makeMerge("서비스설명","0","1","18","18"));
+           
+		gridToExcelSubmit(url,"LIST_GRID_TO_EXCEL",$("#grid"),$("#ajaxForm"),"전문별 거래현황",merge);
+		return false;
+	});		
+	buttonControl();
+	//detail(recentYn);
+	timer = setInterval(function(){
+		detail(recentYn);
+	},5000);
+	
+});
+ 
+</script>
+</head>
+	<body>
+	<!-- path -->
+	<div class="container">
+		<div class="right full">
+			<p class="nav">${rmsMenuPath}</p>
+		</div>
+	</div>
+	<!-- title -->
+	<div class="container" id="title">
+		<div class="left full ">
+			<p class="title"><img class="title_image" src="<c:url value="/images/title_bullet.gif"/>">전문별 거래현황(일누적)</p>
+		</div>
+	</div>	
+	<!-- line -->
+	<div class="container">
+		<div class="left full title_line "> </div>
+	</div>	
+	<!-- comment -->
+	<div class="container">
+		<div class="left full" >
+			<p class="comment" >100=요청수신 200=요청송신 300=응답수신 400=응답송신 900=IF내부에러</p>
+		</div>
+	</div>	
+
+	<!-- button -->
+	<table  width="100%" height="35px"  >
+	<tr>
+		<td>
+		<table width="100%">
+		<tr>
+			<td class="search_td_title" width="80px">업무구분명</td><td><select name="searchEaiBzwkDstcd" value="${param.searchEaiBzwkDstcd}"style="width:100%"></select></td>
+			<td class="search_td_title" width="180px">IF서비스코드필터(콤마구분)</td><td><input type="text" name="searchFilter" value="${param.searchFilter}" style="width:100%"></td>
+		</tr>
+		</table>
+	
+		</td>
+	
+		<td align="right" width="300px">
+			<img id="btn_10min"      level="W" src="<c:url value="/images/bt/bt_10min.gif"/>"/>
+			<img id="btn_detail"     level="R" src="<c:url value="/images/bt/bt_detail.gif"/>"/>
+			<img id="btn_initialize" level="W" src="<c:url value="/images/bt/bt_initialize.gif"/>"/>
+			<img id="btn_download"   level="W" src="<c:url value="/images/bt/bt_download.gif"/>"/>
+		</td>
+	</tr>
+	</table>	
+
+	<!-- grid -->
+	<table id="grid" ></table>
+	<div id="pager"></div>
+	
+	</body>
+</html>
+

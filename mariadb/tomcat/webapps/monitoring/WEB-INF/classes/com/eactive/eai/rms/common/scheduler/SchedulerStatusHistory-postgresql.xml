@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="SchedulerStatusHistory">
+
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		 SELECT 
+		        JOBNAME AS "JOBNAME"
+		      , JOBDESC AS "JOBDESC"
+		      , INSTANCENAME AS "INSTANCENAME"
+			  , STARTDATE AS "STARTDATE"
+			  , ENDDATE AS "ENDDATE"
+			  , STATUS AS "STATUS"
+		   FROM (
+             SELECT 
+             	A.JOBNAME
+              , B.JOBDESC 			  
+              , A.INSTANCENAME 
+			  , A.STARTDATE
+			  , A.ENDDATE
+			  , A.STATUS
+		       FROM   $schemaId$.TSEAIRM20 A JOIN $schemaId$.TSEAIRM21 B ON A.JOBNAME=B.JOBNAME
+				WHERE 
+				(A.STARTDATE  BETWEEN #searchStartTime# AND #searchEndTime#
+					OR A.ENDDATE  BETWEEN #searchStartTime# AND #searchEndTime#
+				)	
+				<isNotEmpty prepend="AND" property="searchJobName">
+			      UPPER(A.JOBNAME) LIKE '%'||UPPER(#searchJobName#)||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchInstanceName">
+			      UPPER(A.INSTANCENAME) LIKE '%'||UPPER(#searchInstanceName#)||'%'
+				</isNotEmpty> 
+			) TMP1
+			ORDER BY STARTDATE DESC, ENDDATE DESC
+  </statement>  
+</sqlMap>

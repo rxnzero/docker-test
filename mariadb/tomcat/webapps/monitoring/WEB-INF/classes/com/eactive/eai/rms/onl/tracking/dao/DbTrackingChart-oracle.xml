@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="DbTrackingChart">
+  <!--  #### Transaction tracking in database  ###  -->
+
+	<statement id="getTransChartList" resultClass="com.eactive.eai.rms.onl.tracking.vo.DbTrackingChartVo">
+   SELECT HE01.EAISVCNAME EAISVCNAME
+        , HE01.EAISVCDESC EAISVCDESC
+        , HE01.SVCMOTIVUSEDSTCD SVCMOTIVUSEDSTCD
+        , MS02.REFMSGIDNAME REFMSGIDNAME
+        , FR03.BZWKFLDNAME BZWKFLDNAME
+        , COALESCE(FR03.MSGFLDSTARTSITUVAL,0) MSGFLDSTARTSITUVAL
+        , COALESCE(FR03.MSGFLDLEN,0) MSGFLDLEN
+        , COALESCE(FR03.FLDPRCSSNO,0) FLDPRCSSNO
+        , HS04.RECVTRANNAME RECVTRANNAME
+        , HE01.GSTATSYSADPTRBZWKGROUPNAME GSTATSYSADPTRNAME
+        , CASE WHEN HE01.SIMYN = 'Y' THEN CM03.PRPTY2VAL 
+               ELSE HE02.PSVSYSADPTRBZWKGROUPNAME END PSVSYSADPTRNAME
+        , CASE WHEN HE02.CHNGEONOT = 1 THEN TR02_REQ_S.CNVSNNAME 
+                ELSE NULL END AS REQCNVSNAME                
+        , COALESCE(TR02_REQ_S.LOUTNAME,MS02.REFMSGIDNAME) AS REQSRCCNVSNAME
+        , TR02_REQ_T.LOUTNAME AS REQTGTCNVSNAME
+        , MS02_RES.REFMSGIDNAME REFMSGIDNAME2
+        , CASE WHEN HE01.SVCMOTIVUSEDSTCD = 'ASYN' THEN TR02_REQ_S.CNVSNNAME 
+               WHEN HE02.BASCRSPNSCHNGEONOT = 1 THEN TR02_RES_S.CNVSNNAME
+               ELSE NULL END AS RESCNVSNAME  
+        , CASE WHEN HE01.SVCMOTIVUSEDSTCD = 'ASYN' THEN TR02_REQ_S.LOUTNAME 
+               ELSE COALESCE(TR02_RES_S.LOUTNAME,MS02_RES.REFMSGIDNAME) END AS RESSRCCNVSNAME
+        , CASE WHEN HE01.SVCMOTIVUSEDSTCD = 'ASYN' THEN TR02_REQ_T.LOUTNAME 
+               ELSE TR02_RES_T.LOUTNAME END AS RESTGTCNVSNAME
+        , MS02_ERR.REFMSGIDNAME REFMSGIDNAME3
+        , CASE WHEN HE02.ERRRSPNSCHNGEONOT = 1 THEN TR02_ERR_S.CNVSNNAME 
+                ELSE NULL END AS ERRCNVSNAME
+        , COALESCE(TR02_ERR_S.LOUTNAME,MS02_ERR.REFMSGIDNAME) AS ERRSRCCNVSNAME
+        , TR02_ERR_T.LOUTNAME AS ERRTGTCNVSNAME
+        FROM $schemaId$.TSEAIHE01 HE01 
+              LEFT OUTER JOIN ( 
+                SELECT EAISVCNAME
+                    , max(decode(COLUMNNAME,'COMMON_SRVCID',COLUMNVALUE,'')) RECVTRANNAME
+                 FROM $schemaId$.TSEAIHS04 hs04 , $schemaId$.tseaihs05 hs05
+                 where hs04.BZWKSVCKEYNAME =hs05.BZWKSVCKEYNAME
+                   AND hs04.BZWKSVCKEYNAME in (SELECT BZWKSVCKEYNAME FROM $schemaId$.TSEAIHS05 WHERE  COLUMNNAME ='COMMON_IFID'  AND COLUMNVALUE  in ( #eaiTranName# )  )
+                group by hs04.BZWKSVCKEYNAME,EAISVCNAME
+              ) HS04
+              ON HE01.EAISVCNAME = HS04.EAISVCNAME 
+              LEFT OUTER JOIN $schemaId$.TSEAIMS02 MS02 
+              ON HE01.EAISVCNAME = MS02.EAISVCNAME  AND MS02.SVCPRCSSNO = 1 AND MS02.REFMSGIDNO = 1
+              LEFT OUTER JOIN $schemaId$.TSEAIMS02 MS02_RES 
+              ON HE01.EAISVCNAME = MS02_RES.EAISVCNAME  AND MS02_RES.SVCPRCSSNO = 1 AND MS02_RES.REFMSGIDNO = 2
+              LEFT OUTER JOIN $schemaId$.TSEAIMS02 MS02_ERR
+              ON HE01.EAISVCNAME = MS02_ERR.EAISVCNAME  AND MS02_ERR.SVCPRCSSNO = 1 AND MS02_ERR.REFMSGIDNO = 3
+              LEFT OUTER JOIN $schemaId$.TSEAIFR03 FR03
+              ON HE01.EAISVCNAME = FR03.EAISVCNAME AND FR03.ETRACTDSTCD = 'TR'
+            , $schemaId$.TSEAIHE02 HE02
+              LEFT OUTER JOIN $schemaId$.TSEAITR02 TR02_REQ_S
+              ON TR02_REQ_S.SOURCRSULTDSTCD ='SRC_LAYOUT' AND TR02_REQ_S.CNVSNNAME = HE02.CHNGMSGIDNAME AND HE02.CHNGEONOT = 1 
+              LEFT OUTER JOIN $schemaId$.TSEAITR02 TR02_REQ_T
+              ON TR02_REQ_T.SOURCRSULTDSTCD ='TGT_LAYOUT' AND TR02_REQ_T.CNVSNNAME = HE02.CHNGMSGIDNAME AND HE02.CHNGEONOT = 1
+              LEFT OUTER JOIN $schemaId$.TSEAITR02 TR02_RES_S
+              ON TR02_RES_S.SOURCRSULTDSTCD ='SRC_LAYOUT' AND TR02_RES_S.CNVSNNAME = HE02.BASCRSPNSCHNGMSGIDNAME AND HE02.BASCRSPNSCHNGEONOT = 1
+              LEFT OUTER JOIN $schemaId$.TSEAITR02 TR02_RES_T
+              ON TR02_RES_T.SOURCRSULTDSTCD ='TGT_LAYOUT' AND TR02_RES_T.CNVSNNAME = HE02.BASCRSPNSCHNGMSGIDNAME AND HE02.BASCRSPNSCHNGEONOT = 1
+              LEFT OUTER JOIN $schemaId$.TSEAITR02 TR02_ERR_S
+              ON TR02_ERR_S.SOURCRSULTDSTCD ='SRC_LAYOUT' AND TR02_ERR_S.CNVSNNAME = HE02.ERRRSPNSCHNGMSGIDNAME AND HE02.ERRRSPNSCHNGEONOT = 1
+              LEFT OUTER JOIN $schemaId$.TSEAITR02 TR02_ERR_T
+              ON TR02_ERR_T.SOURCRSULTDSTCD ='TGT_LAYOUT' AND TR02_ERR_T.CNVSNNAME = HE02.ERRRSPNSCHNGMSGIDNAME AND HE02.ERRRSPNSCHNGEONOT = 1
+              LEFT OUTER JOIN $schemaId$.TSEAICM03 CM03 ON CM03.PRPTYGROUPNAME='SIM' AND CM03.PRPTYNAME='SIM.ADAPTER'
+       WHERE HE01.EAISVCNAME IN ( #eaiTranName# ||'S1' , #eaiTranName# ||'S2', #eaiTranName# ||'R1', #eaiTranName# ||'R2' )
+         AND HE01.EAISVCNAME = HE02.EAISVCNAME
+         AND HE02.SVCPRCSSNO = 1
+       ORDER BY 1, 3, 8
+	</statement>
+	
+	
+	<statement id="getEAITranList" resultClass="java.util.HashMap">
+	SELECT DISTINCT SUBSTR(HE01.EAISVCNAME, 1, LENGTH(HE01.EAISVCNAME)-2) "eaiTranName"
+		FROM $schemaId$.TSEAIHE01 HE01 
+		WHERE HE01.EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 WHERE USERID = #loginId#)
+		  AND HE01.EAISVCNAME LIKE #eaiTranName# || '%'
+		ORDER BY 1
+	</statement>
+ 
+  <statement id="selectSubList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			              
+	SELECT * 
+	         FROM ( SELECT ROW_NUMBER() OVER(ORDER BY HE01.EAISvcName) ROWNO
+	                     , HE01.EAISvcName
+	                     , HE01.EAIBzwkDstcd
+	                     , SUBSTR( HE01.EAISvcName, 1, LENGTH(HE01.EAISvcName)-2) EAITRANNAME
+	                     , HE01.EAISvcDesc
+			              , CASE WHEN '$schemaId$' = 'EAI' 
+			              		THEN CASE WHEN SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME)-1, 2) IN ('S2','R2')
+			              				  THEN 'O' ELSE 'I' END
+			                     ELSE CASE WHEN SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName)-1, 2) in ('S2','R1') 
+			                 	 			THEN 'O' ELSE 'I' END 
+			                 END io
+	                     , SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME)-1, 1) SplizDmndDstcd 
+                         , SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME), 1) StndTelgmWtinExtnlDstcd    
+						 , SUBSTR( HE01.GstatSysAdptrBzwkGroupName,2,3) FromName
+					     , SUBSTR( HE02.PsvSysAdptrBzwkGroupName,2,3) ToName
+						 , HE01.DevUserId DevUser
+						 , '' DevUserName
+						 , HE01.BankUserId BankUser
+						 , '' BankUserName
+			             , HE01.CreateBy
+			             , HE01.UpdateBy
+			             , '' CreateByName
+			             , '' UpdateByName
+					  FROM $schemaId$.TSEAIHE01 HE01 
+          				  LEFT OUTER JOIN $schemaId$.TSEAIHE02 HE02 ON HE01.EAISvcName = HE02.EAISvcName AND HE02.SvcPrcssNo = 1
+          				  WHERE HE01.EAIBzwkDstcd IN ( select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID=#loginId#  )
+
+					      <isNotEmpty prepend="AND" property="eaiSvcName">
+					            HE01.EAISvcName LIKE '%' || #eaiSvcName# || '%'
+					      </isNotEmpty>
+		      )
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum# 
+	
+  </statement>
+  
+  
+  <statement id="selectSubListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) CNT
+      FROM $schemaId$.TSEAIHE01 HE01 
+    WHERE HE01.EAIBzwkDstcd IN ( select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID=#loginId#  )
+   <isNotEmpty prepend="AND" property="eaiSvcName">
+          HE01.EAISvcName LIKE '%' || #eaiSvcName# || '%'
+   </isNotEmpty>
+  </statement> 
+  
+  <statement id="selectDetail"  parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	 	 SELECT HE01.EAISvcName 
+	 	      , HE01.EAIBzwkDstcd
+	 	      , SUBSTR(HE01.EAISvcName, 1, LENGTH(HE01.EAISvcName)-2) eaiTranName
+	          , HE01.EAISvcDesc
+              , CASE WHEN '$schemaId$' = 'EAI' 
+              		THEN CASE WHEN SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME)-1, 2) IN ('S2','R2')
+              				  THEN 'O' ELSE 'I' END
+                     ELSE CASE WHEN SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName)-1, 2) in ('S2','R1') 
+                 	 			THEN 'O' ELSE 'I' END 
+                 END IO
+              , SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName)-1, 1) SplizDmndDstcd
+	          , SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName), 1) StndTelgmWtinExtnlDstcd
+		      , CASE WHEN HE01.SvcMotivUseDstcd ='SYNC' and HE02.PsvIntfacDsticName ='SYNC' then 'SYNC' 
+		             WHEN HE01.SvcMotivUseDstcd ='ASYN' and HE02.PsvIntfacDsticName ='ASYN' then 'ASYN' 
+		             WHEN HE01.SvcMotivUseDstcd ='SYNC' and HE02.PsvIntfacDsticName ='ASYN' then 'SYNC_ASYN'
+		             WHEN HE01.SvcMotivUseDstcd ='ASYN' and HE02.PsvIntfacDsticName ='SYNC' then 'ASYN_SYNC'
+		             end  SvcMotivUseDstcd  
+	          , trim(RecvTranName) serviceId
+	          , MS02_1.RefMsgIDName || CASE WHEN MS02_2.RefMsgIDName IS NOT NULL THEN ',' || MS02_2.RefMsgIDName END || CASE WHEN MS02_3.RefMsgIDName IS NOT NULL THEN ',' || MS02_3.RefMsgIDName 
+	             END LayoutMappingName
+	          , FR_1.BzwkFldName bzwkFldName1
+	          , NVL(FR_1.MsgFldStartSituVal,0) MsgFldStartSituVal1
+	          , NVL(FR_1.MsgFldLen,0) msgFldLen1
+	          , FR_2.BzwkFldName bzwkFldName2
+	          , NVL(FR_2.MsgFldStartSituVal,0) MsgFldStartSituVal2
+	          , NVL(FR_2.MsgFldLen,0) msgFldLen2
+	          , HE01.GstatSysAdptrBzwkGroupName fromAdapter
+	          , HE02.PsvSysAdptrBzwkGroupName toAdapter
+	          , HE02_2.PsvSysAdptrBzwkGroupName extAdapter
+	          , TRIM(HE02.ChngMsgIdName) ChngMsgIdName1
+  	          , TRIM(HE02.BASCRSPNSCHNGMSGIDNAME) BascRspnsChngMsgIdName1
+	          , TRIM(HE02.ERRRSPNSCHNGMSGIDNAME) ErrRspnsChngMsgIdName1
+	          , HE02_2.ChngMsgIdName ChngMsgIdName2
+	          , HE01.SIMYN SimYN
+	          , HE01.DevUserId
+	          , '' DevUserName
+	          , HE01.BankUserId  
+	          , '' BankUserName
+	          , HS04.bzwkSvcKeyName
+		  FROM  $schemaId$.TSEAIHE01 HE01 
+					  LEFT OUTER JOIN ( 
+                            SELECT EAISVCNAME ,hs04.bzwkSvcKeyName
+		                         , max(decode(COLUMNNAME,'COMMON_SRVCID',COLUMNVALUE,'')) RecvTranName
+		                      FROM $schemaId$.TSEAIHS04 hs04 , $schemaId$.tseaihs05 hs05
+		                      where hs04.BZWKSVCKEYNAME =hs05.BZWKSVCKEYNAME
+		                     group by hs04.BZWKSVCKEYNAME,EAISVCNAME				
+					  ) HS04
+					  On HE01.EAISvcName = HS04.EAISvcName
+            LEFT OUTER JOIN $schemaId$.TSEAIHE02 HE02   ON HE01.EAISvcName = HE02.EAISvcName AND HE02.SvcPrcssNo = 1
+            LEFT OUTER JOIN $schemaId$.TSEAIHE02 HE02_2 ON HE01.EAISvcName = HE02_2.EAISvcName AND HE02_2.SvcPrcssNo = 2
+            LEFT OUTER JOIN (SELECT EAISvcName, RefMsgIDName FROM $schemaId$.TSEAIMS02 WHERE RefMsgIDNo=1 ) MS02_1 On HE01.EAISvcName = MS02_1.EAISvcName
+            LEFT OUTER JOIN (SELECT EAISvcName, RefMsgIDName FROM $schemaId$.TSEAIMS02 WHERE RefMsgIDNo=2 ) MS02_2 On HE01.EAISvcName = MS02_2.EAISvcName
+            LEFT OUTER JOIN (SELECT EAISvcName, RefMsgIDName FROM $schemaId$.TSEAIMS02 WHERE RefMsgIDNo=3 ) MS02_3 On HE01.EAISvcName = MS02_3.EAISvcName
+					  LEFT OUTER JOIN (SELECT EAISvcName, BzwkFldName, MsgFldStartSituVal, MsgFldLen FROM $schemaId$.TSEAIFR03 WHERE FldPrcssNo=1 ) FR_1 On HE01.EAISvcName = FR_1.EAISvcName
+					  LEFT OUTER JOIN (SELECT EAISvcName, BzwkFldName, MsgFldStartSituVal, MsgFldLen FROM $schemaId$.TSEAIFR03 WHERE FldPrcssNo=2 ) FR_2 On HE01.EAISvcName = FR_2.EAISvcName
+		 WHERE HE01.EAISvcName = #eaiSvcName#  
+  </statement>
+ 
+ 
+ <!--  transform  --> 
+	<statement id="insertTransform" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR01 ( 
+            CNVSNNAME, CNVSNDESC, LASTAMNDHMS, CREATEBY, UPDATEBY
+        ) VALUES (#cnvsnName#, #cnvsnDesc#, to_char(sysdate,'yyyymmddhh24miss') , #loginId#, #loginId#) 
+	</statement>	
+	<statement id="updateTransform" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAITR01 SET CNVSNDESC = #cnvsnDesc#, LASTAMNDHMS =  to_char(sysdate,'yyyymmddhh24miss') , UPDATEBY = #loginId#
+        WHERE  CNVSNNAME = #cnvsnName#
+	</statement>	
+	<statement id="deleteTransform" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR01 
+        WHERE  CNVSNNAME = #cnvsnName#
+	</statement>	
+	
+	<statement id="insertTransformSourceResult" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR02 ( CNVSNNAME, LOUTNAME, SOURCRSULTDSTCD )
+        VALUES ( #cnvsnName#, #loutName#, #sourcRsultDstcd# )    
+	</statement>	
+	<statement id="deleteTransformSourceResult" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR02 
+         WHERE  CNVSNNAME = #cnvsnName#
+         <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="sourcRsultDstcd">
+               SOURCRSULTDSTCD = #sourcRsultDstcd#
+            </isNotEmpty>
+         </dynamic> 
+	</statement>	
+	<statement id="insertTransformItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR03 ( 
+            CNVSNNAME, CNVSNRSULTITEMPATHNAME, CNVSNCMDNAME, CNVSNITEMBASCVAL, CNVSNITEMSERNO
+        ) VALUES (#cnvsnName:VARCHAR#, #cnvsnRsultItemPathName:VARCHAR#, #cnvsnCmdName:VARCHAR#, #cnvsnItemBascVal:VARCHAR#, #cnvsnItemSerno:NUMBER#) 
+	</statement>	
+	<statement id="deleteTransformItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR03 
+         WHERE  CNVSNNAME = #cnvsnName#
+	</statement>
+		
+	<statement id="updateTransfromEaiSvcName" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAIHE02
+           SET  
+			<isEqual compareValue="REQ" property="cnvsnType">
+ 				CHNGEONOT = #chngEonot#,
+           		CHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+			<isEqual compareValue="RES" property="cnvsnType">
+				BASCRSPNSCHNGEONOT = #chngEonot#,
+           		BASCRSPNSCHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+			<isEqual compareValue="ERR" property="cnvsnType">
+				ERRRSPNSCHNGEONOT = #chngEonot#,
+           		ERRRSPNSCHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+         WHERE  EAISVCNAME = #eaiSvcName#
+         AND    SVCPRCSSNO = 1
+	</statement>	
+	<statement id="insertTR01" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR01 ( 
+            CNVSNNAME, CNVSNDESC, LASTAMNDHMS, CREATEBY, UPDATEBY
+        ) VALUES (#cnvsnName#, #cnvsnDesc#, to_char(sysdate,'yyyymmddhh24miss'), #loginId#, #loginId#) 
+	</statement>
+	<statement id="selectSharedTrans" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT 
+          T.EAISVCNAME, A.CNVSNNAME , T.CNVSNTYPE
+              FROM $schemaId$.TSEAITR01 A  LEFT OUTER JOIN (
+                  SELECT DISTINCT EAISVCNAME, CHNGMSGIDNAME, CNVSNTYPE FROM (
+                  SELECT A.EAISVCNAME, B.CHNGMSGIDNAME, 'REQ' CNVSNTYPE  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                  UNION ALL
+                  SELECT A.EAISVCNAME,  B.BASCRSPNSCHNGMSGIDNAME CHNGMSGIDNAME, 'RES' CNVSNTYPE  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                  UNION ALL
+                  SELECT A.EAISVCNAME,  B.ERRRSPNSCHNGMSGIDNAME  CHNGMSGIDNAME, 'ERR' CNVSNTYPE  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                  ) TMP
+              ) T
+              ON  A.CNVSNNAME = T.CHNGMSGIDNAME 
+               where  A.CNVSNNAME = #cnvsnName#
+	</statement>
+</sqlMap>

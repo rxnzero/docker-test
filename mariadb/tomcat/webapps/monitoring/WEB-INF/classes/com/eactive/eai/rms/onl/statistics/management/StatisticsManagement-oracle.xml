@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="StatisticsManagement">
+  
+  <statement id="selectStatisticsManagement" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+         SELECT SUBSTR(STATCJOBYMD, 0, 4)||'-'|| SUBSTR(STATCJOBYMD, 5, 2) ||'-' || SUBSTR(STATCJOBYMD, 7) AS STATCJOBYMD
+         	  , STATCJOBCYCLDSTCD
+         	  , DECODE(STATCJOBCYCLDSTCD, 'M', '월별작업', '일별작업') AS STATCJOBCYCLDSTNM
+<!--          	  , STATCJOBSTARTHMS -->
+<!--          	  , STATCJOBENDHMS -->
+         	  , SUBSTR(
+         	  			TO_CHAR(	TO_TIMESTAMP(STATCJOBENDHMS, 'YYYYMMDDHH24MISSFF2')
+         	  					  - TO_TIMESTAMP(STATCJOBSTARTHMS, 'YYYYMMDDHH24MISSFF2'), 'HH24MMSS'), 12, 8) AS STATCJOBHMS
+         	  , SUCSSYN
+         	  , DECODE(SUCSSYN, '1', '성공', '실패') AS SUCSSYNNM
+         	  , ERRMSG
+        FROM $schemaId$.TSEAIST01
+        WHERE STATCJOBYMD BETWEEN #searchStart# || '00' AND #searchEnd# || '99'
+		<isNotEmpty prepend="AND" property="searchJobTypeCd">
+			   STATCJOBCYCLDSTCD = #searchJobTypeCd#
+		</isNotEmpty>
+        ORDER BY STATCJOBYMD DESC
+        	   , STATCJOBCYCLDSTCD DESC
+  </statement>
+  
+</sqlMap>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="LayoutType">
+<!--  #### 레이아웃 유형 ###  -->
+	<!--  목록 조회  -->
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT 
+			ROWNO AS "ROWNO", 
+			LOUTPTRNNAME AS "LOUTPTRNNAME", 
+			LOUTPTRNDESC AS "LOUTPTRNDESC", 
+			MSGLOUTCRETNCLSNAME AS "MSGLOUTCRETNCLSNAME" 
+		     FROM ( 
+		       SELECT ROW_NUMBER() OVER() AS ROWNO, 
+						LOUTPTRNNAME, 
+						LOUTPTRNDESC, 
+						MSGLOUTCRETNCLSNAME 
+				FROM $schemaId$.TSEAITR06
+		  	) TMP1
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+</sqlMap>

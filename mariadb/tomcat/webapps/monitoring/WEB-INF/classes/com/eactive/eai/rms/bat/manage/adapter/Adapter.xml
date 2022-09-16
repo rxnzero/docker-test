@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatAdapter">
+	
+	<statement id="adapterDetail" resultClass="java.util.HashMap">
+		SELECT 	WORKGRPCD      AS "WORKGRPCD",
+			ADPTRCD        AS "ADPTRCD",
+			ADPTRBZWKNAME  AS "ADPTRBZWKNAME",
+			ADPTRDESC      AS "ADPTRDESC",
+			SNDRCVKIND     AS "SNDRCVKIND",
+			ADPTRKIND      AS "ADPTRKIND",
+			JNDIDATASOURCE AS "JNDIDATASOURCE",
+			ENC1           AS "ENC1"
+		FROM    $schemaId$.TSEAIEA02
+    	WHERE   adptrCd=#adptrCd#
+	</statement>  
+
+	<statement id="dbAdapterList" resultClass="java.util.HashMap">
+		SELECT 	A.ADPTRCD        AS "ADPTRCD" ,
+			A.ADPTRCDSEQ     AS "ADPTRCDSEQ" ,
+			A.INTFID         AS "INTFID" ,
+			A.SQLNAME        AS "SQLNAME" ,
+			A.SQLNAMEDESC    AS "SQLNAMEDESC" ,
+			A.SELECTUNITCNT  AS "SELECTUNITCNT" ,
+			A.LAYOUTKEY      AS "LAYOUTKEY" ,
+			A.DBSQL          AS "DBSQL" ,
+			A.CODECKEY       AS "CODECKEY"
+		FROM    $schemaId$.TSEAIEA03 A,
+		        $schemaId$.TSEAIEA02 B
+    	WHERE   A.adptrCd = B.adptrCd
+    	AND     A.adptrCd = #adptrCd#
+    	ORDER BY A.adptrCdSeq
+	</statement> 
+	
+	<statement id="fileAdapterList" resultClass="java.util.HashMap">
+		SELECT 	ADPTRCD               AS "ADPTRCD" ,  
+			ADPTRCDSEQ            AS "ADPTRCDSEQ" ,
+			INTFID                AS "INTFID" ,
+			FTPNAME               AS "FTPNAME" ,
+			FTPNAMEDESC           AS "FTPNAMEDESC" ,
+			FTPHOSTNAME           AS "FTPHOSTNAME" ,
+			RMTSEVRFTPPORTNONAME  AS "RMTSEVRFTPPORTNONAME" ,
+			RMTSEVRFTPUID         AS "RMTSEVRFTPUID" ,
+			FTPARCHIVEDIR         AS "FTPARCHIVEDIR" ,
+			FTPTYPE               AS "FTPTYPE" ,
+			FTPSTOREFILEPATTERN   AS "FTPSTOREFILEPATTERN" ,
+			NEXTOPTION            AS "NEXTOPTION" ,
+			CHECKNAME             AS "CHECKNAME" ,
+			FTPCHECKDIR           AS "FTPCHECKDIR" ,
+			SYSTEMNAME            AS "SYSTEMNAME" ,
+			SYSTEMOWNER           AS "SYSTEMOWNER" ,
+			SYSTEMOWNERTELEPHONE  AS "SYSTEMOWNERTELEPHONE" ,
+			SYSTEMOTHERTXT        AS "SYSTEMOTHERTXT" ,
+			SECTIONVAL            AS "SECTIONVAL" ,
+			LAYOUTKEY             AS "LAYOUTKEY"
+		FROM    $schemaId$.TSEAIEA05
+    	WHERE   adptrCd=#adptrCd#
+    	ORDER BY adptrCdSeq
+	</statement> 
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIEA02(
+				workGrpCd,      adptrBzwkName, adptrCd, 
+				adptrDesc,      sndRcvKind,    adptrKind,
+				jndiDatasource, enc1
+				)
+		VALUES	(#workGrpCd#, #adptrBzwkName#, #adptrCd#, 
+			 	 #adptrDesc#, #sndRcvKind#,    #adptrKind#,
+				 #jndiDatasource#, #enc1#
+				)
+	</statement>
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE  $schemaId$.TSEAIEA02 SET
+				adptrBzwkName  =#adptrBzwkName#,
+				adptrDesc      =#adptrDesc#,
+				jndiDatasource =#jndiDatasource#,
+				enc1           =#enc1#
+		WHERE   adptrCd        =#adptrCd#
+
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIEA02 WHERE adptrCd      =#adptrCd#
+	</statement>
+	 
+</sqlMap>

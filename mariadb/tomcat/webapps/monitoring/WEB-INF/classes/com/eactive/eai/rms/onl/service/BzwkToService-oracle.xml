@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BzwkToService">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  ROWNUM AS ROWNO, 
+						A.EAIBZWKDSTCD, B.BZWKDSTICNAME, A.INSTANCECODE
+						FROM $schemaId$.TSEAIIF06 A LEFT JOIN $schemaId$.TSEAICM01 B ON A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+					A.EAIBZWKDSTCD LIKE UPPER('%' || #searchEaiBzwkDstcd# || '%')
+				</isNotEmpty>
+			</dynamic>						
+
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TOTALCOUNT
+			FROM $schemaId$.TSEAIIF06 A LEFT JOIN $schemaId$.TSEAICM01 B ON A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+		<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+					A.EAIBZWKDSTCD LIKE UPPER('%' || #searchEaiBzwkDstcd# || '%')
+				</isNotEmpty>
+		</dynamic>				
+	</statement>	
+</sqlMap>

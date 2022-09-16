@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="IntfacPtrnCdYearly">
+  
+  <statement id="findByIntfacPtrnCdYearly" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.intfacptrncd.vo.IntfacPtrnCdYearlyVO">
+         SELECT SUBSTR(STATCYM, 1, 4) AS STATCY,
+                INTFACPTRNCD,
+							 (   SUM(S1MNTRSMTNOITM)  + SUM(S2MNTRSMTNOITM)  + SUM(S3MNTRSMTNOITM)
+							   + SUM(S4MNTRSMTNOITM)  + SUM(S5MNTRSMTNOITM)  + SUM(S6MNTRSMTNOITM)
+							   + SUM(S7MNTRSMTNOITM)  + SUM(S8MNTRSMTNOITM)  + SUM(S9MNTRSMTNOITM)
+							   + SUM(S10MNTRSMTNOITM) + SUM(S11MNTRSMTNOITM) + SUM(S12MNTRSMTNOITM)
+							 ) AS YNTRSMTNOITM,							
+							 (   SUM(S1MNERRNOITM)  + SUM(S2MNERRNOITM)  + SUM(S3MNERRNOITM)
+							   + SUM(S4MNERRNOITM)  + SUM(S5MNERRNOITM)  + SUM(S6MNERRNOITM)
+							   + SUM(S7MNERRNOITM)  + SUM(S8MNERRNOITM)  + SUM(S9MNERRNOITM)
+							   + SUM(S10MNERRNOITM) + SUM(S11MNERRNOITM) + SUM(S12MNERRNOITM)
+							 ) AS YNERRNOITM
+			 	  FROM $schemaId$.TSEAIST04
+					<isNotEmpty prepend="WHERE" property="intfacPtrnCd">
+					      TRIM(INTFACPTRNCD) LIKE '%'||#intfacPtrnCd#||'%'
+					</isNotEmpty>
+				 GROUP BY SUBSTR(STATCYM, 1, 4), INTFACPTRNCD
+				 ORDER BY SUBSTR(STATCYM, 1, 4), INTFACPTRNCD
+  </statement>
+  
+  <statement id="findByIntfacPtrnCdYearlyObject2_1" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.intfacptrncd.vo.IntfacPtrnCdYearlyVO">
+             SELECT A.*
+               FROM ( SELECT ROWNUM, TMP1.*
+											  FROM ( SELECT SUBSTR(STATCYM, 1, 4) AS STATCY,
+																      INTFACPTRNCD,
+																		   (   SUM(S1MNTRSMTNOITM)  + SUM(S2MNTRSMTNOITM)  + SUM(S3MNTRSMTNOITM)
+																		     + SUM(S4MNTRSMTNOITM)  + SUM(S5MNTRSMTNOITM)  + SUM(S6MNTRSMTNOITM)
+																		     + SUM(S7MNTRSMTNOITM)  + SUM(S8MNTRSMTNOITM)  + SUM(S9MNTRSMTNOITM)
+																		     + SUM(S10MNTRSMTNOITM) + SUM(S11MNTRSMTNOITM) + SUM(S12MNTRSMTNOITM)
+																		   ) AS YNTRSMTNOITM
+																 FROM $schemaId$.TSEAIST04
+																WHERE STATCYM LIKE '%'||#startDate#||'%'   
+																<isNotEmpty prepend="AND" property="intfacPtrnCd">
+																      TRIM(INTFACPTRNCD) LIKE '%'||#intfacPtrnCd#||'%'
+																</isNotEmpty>
+														      GROUP BY SUBSTR(STATCYM, 1, 4), INTFACPTRNCD
+														      ORDER BY YNTRSMTNOITM DESC
+											 				) TMP1
+										) A
+							WHERE ROWNUM &lt; 20+1
+							ORDER BY ROWNUM
+  </statement>
+  
+  <statement id="findByIntfacPtrnCdYearlyObject2_2" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.intfacptrncd.vo.IntfacPtrnCdYearlyVO">
+		 SELECT A.*
+		   FROM ( SELECT ROWNUM, TMP1.*
+		            FROM ( SELECT SUBSTR(STATCYM, 1, 4) AS STATCY,
+												      INTFACPTRNCD,
+													   (   SUM(S1MNERRNOITM)  + SUM(S2MNERRNOITM)  + SUM(S3MNERRNOITM)
+													     + SUM(S4MNERRNOITM)  + SUM(S5MNERRNOITM)  + SUM(S6MNERRNOITM)
+													     + SUM(S7MNERRNOITM)  + SUM(S8MNERRNOITM)  + SUM(S9MNERRNOITM)
+													     + SUM(S10MNERRNOITM) + SUM(S11MNERRNOITM) + SUM(S12MNERRNOITM)
+													   ) AS YNERRNOITM
+										     FROM $schemaId$.TSEAIST04
+										    WHERE STATCYM LIKE '%'||#startDate#||'%'
+												<isNotEmpty prepend="AND" property="intfacPtrnCd">
+												      TRIM(INTFACPTRNCD) LIKE '%'||#intfacPtrnCd#||'%'
+												</isNotEmpty>
+									      GROUP BY SUBSTR(STATCYM, 1, 4), INTFACPTRNCD
+									      ORDER BY YNERRNOITM DESC
+										 )  TMP1
+						) A
+			WHERE ROWNUM &lt; 20+1 
+			ORDER BY ROWNUM
+  </statement>
+</sqlMap>

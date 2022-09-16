@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Scheduler">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">     
+     SELECT COUNT(*) 
+       FROM $schemaId$.TSEAICM21 
+      <dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="searchJobName">
+	      UPPER(JOBNAME) LIKE '%'||UPPER(#searchJobName#)||'%'
+		</isNotEmpty>
+      </dynamic>
+      
+  </statement>
+  
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		 SELECT ROWNO
+		      , JOBNAME
+			  , CRONEXP
+			  , JOBCLASSNAME
+			  , USEYN
+			  , INSTANCENAME
+		   FROM (
+             SELECT ROWNUM AS ROWNO, JOBNAME 			  
+              , CRONEXP
+			  , JOBCLASSNAME
+			  , USEYN
+			  , INSTANCENAME
+		       FROM   $schemaId$.TSEAICM21
+		      <dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchJobName">
+			      UPPER(JOBNAME) LIKE '%'||UPPER(#searchJobName#)||'%'
+				</isNotEmpty>
+		      </dynamic>
+			) TMP1
+			WHERE ROWNO BETWEEN #startNum# AND #endNum# 
+			ORDER BY JOBNAME
+  </statement>
+</sqlMap>

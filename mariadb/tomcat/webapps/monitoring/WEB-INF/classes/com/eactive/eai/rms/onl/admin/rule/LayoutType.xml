@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="LayoutType">
+<!--  #### 레이아웃 유형 ###  -->
+	<!--   전체 목록수 얻기 -->
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "CNT"
+			FROM $schemaId$.TSEAITR06 TB
+	</statement>	
+	
+	<!--  insert  -->
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAITR06(
+				LOUTPTRNNAME,
+				<isNotEmpty property="loutPtrnDesc">
+				LOUTPTRNDESC, 
+				</isNotEmpty>
+				MSGLOUTCRETNCLSNAME
+				)
+		VALUES	(#loutPtrnName#,
+				<isNotEmpty property="loutPtrnDesc">
+				#loutPtrnDesc#,
+				</isNotEmpty>
+				#msgLoutCretnClsName#
+				)		
+	</statement>	
+	
+	<!--  상세 조회 -->
+	<statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT TB.LOUTPTRNNAME AS "LOUTPTRNNAME", 
+			   TB.LOUTPTRNDESC AS "LOUTPTRNDESC",
+			   TB.MSGLOUTCRETNCLSNAME AS "MSGLOUTCRETNCLSNAME" 
+		FROM $schemaId$.TSEAITR06 TB 
+		WHERE TB.LOUTPTRNNAME=#loutPtrnName#
+	</statement>  
+	
+	<!--  update  -->
+	<statement id="update" parameterClass="java.util.HashMap" >
+	 	UPDATE 	$schemaId$.TSEAITR06 
+	 	SET LOUTPTRNDESC = #loutPtrnDesc#, 
+	 		MSGLOUTCRETNCLSNAME = #msgLoutCretnClsName#
+	 	WHERE 	LOUTPTRNNAME = #loutPtrnName#
+	</statement>
+	
+	<!--  delete  -->
+	<statement id="delete" parameterClass="java.util.HashMap" >
+	 	DELETE FROM $schemaId$.TSEAITR06 
+	 	WHERE 	LOUTPTRNNAME = #loutPtrnName#
+	</statement>	
+	<statement id="selectListAll" resultClass="java.util.HashMap">
+	       SELECT 
+			LOUTPTRNNAME AS "LOUTPTRNNAME",
+			LOUTPTRNDESC AS "LOUTPTRNDESC", 
+			MSGLOUTCRETNCLSNAME AS "MSGLOUTCRETNCLSNAME"
+			FROM $schemaId$.TSEAITR06
+	</statement>		
+	
+</sqlMap>

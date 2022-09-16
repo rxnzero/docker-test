@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MenuRender">
+	<statement id="getRoleList" resultClass="java.util.HashMap">
+	      SELECT 
+			MAX(R_M.AUTH) AUTHCODE
+	      FROM 
+			 $schemaId$.TSEAIRM04 U_R, $schemaId$.TSEAIRM03 R_M, $schemaId$.TSEAIRM05 R
+	     WHERE U_R.USERID = #EMPNUM#
+	        AND U_R.ROLEID = R.ROLEID
+	     	AND R.USEYN='Y'
+	     	AND R.ROLEID = R_M.ROLEID
+	     	AND R_M.MENUID = #MENUID#
+            AND R_M.AUTH IN ( 'R', 'W')          
+	</statement>
+	<statement id="getUrlAuth" resultClass="java.util.HashMap">
+	      SELECT 
+			MAX(R_M.AUTH) AUTHCODE
+	      FROM 
+			 $schemaId$.TSEAIRM04 U_R, $schemaId$.TSEAIRM03 R_M, $schemaId$.TSEAIRM05 R , $schemaId$.TSEAIRM01 M
+	     WHERE U_R.USERID = #userId#
+	        AND U_R.ROLEID = R.ROLEID
+	     	AND R.USEYN='Y'
+	     	AND R.ROLEID = R_M.ROLEID
+	     	AND R_M.MENUID = M.MENUID
+	     	AND M.MenuURL like #menuUrl#||'%'
+            AND R_M.AUTH IN ( 'R', 'W')          
+	</statement>
+	
+	<statement id="getRecordAuthList" resultClass="java.util.HashMap">
+	      SELECT 
+			AUTH.EAIBZWKDSTCD BZCD
+	      FROM 
+			 $schemaId$.TSEAIRM06 AUTH
+	     WHERE AUTH.USERID = #EMPNUM#
+	</statement>
+	
+	<statement id="getRecordAuthListALL" resultClass="java.util.HashMap">
+	      SELECT 
+			AUTH.EAIBZWKDSTCD BZCD
+	      FROM 
+			 $schemaId$.TSEAICM01 AUTH
+	</statement>
+	
+	<statement id="getRecordAuthCnt" resultClass="java.lang.Integer">
+	      SELECT 
+			COUNT(*) CNT
+	      FROM 
+			 $schemaId$.TSEAIRM06 AUTH
+	     WHERE AUTH.USERID = #EMPNUM#
+	     	AND AUTH.EAIBZWKDSTCD= #EALBAWKDSTCD#
+	</statement>	
+
+	<statement id="getRoleId" resultClass="java.lang.String">
+	      SELECT 
+			U.ROLEID ROLEID
+	      FROM 
+			 $schemaId$.TSEAIRM04 U
+	     WHERE U.USERID = #EMPNUM#
+	</statement>
+	
+	<statement id="getUserInfo" resultClass="java.util.HashMap">
+	      SELECT 
+			R.ROLEID ROLEID,
+			U.USERNAME USERNAME,
+			U.DVSNNAME DVSNNAME
+	      FROM 
+			 $schemaId$.TSEAIRM02 U,
+			 $schemaId$.TSEAIRM04 R
+	     WHERE U.USERID = #EMPNUM# 
+	       AND U.USERID = R.USERID
+	</statement>
+	
+
+		
+	<statement id="getMenuList" resultClass="java.util.HashMap">
+		SELECT
+                     T3.MENUID AS LEV2_ID,
+                     T3.MENUNAME AS LEV2_NAME,
+                     T3.MENUIMAGE AS LEV2_IMG,
+                     T3.MenuURL AS LEV2_URL,
+                     T4.MENUID AS LEV3_ID,
+                     T4.MENUNAME AS LEV3_NAME,
+                     T4.MENUIMAGE AS LEV3_IMG   ,
+                     T4.MenuURL AS LEV3_URL,
+                     T5.MENUID AS LEV4_ID,
+                     T5.MENUNAME AS LEV4_NAME,
+                     T5.MENUIMAGE AS LEV4_IMG ,
+                     T5.MenuURL AS LEV4_URL
+             FROM $schemaId$.TSEAIRM01 T1
+             LEFT JOIN $schemaId$.TSEAIRM01 T2 ON T2.PARENTMENUID = T1.MENUID
+             LEFT JOIN $schemaId$.TSEAIRM01 T3 ON T3.PARENTMENUID = T2.MENUID
+             LEFT JOIN $schemaId$.TSEAIRM01 T4 ON T4.PARENTMENUID = T3.MENUID
+             LEFT JOIN $schemaId$.TSEAIRM01 T5 ON T5.PARENTMENUID = T4.MENUID
+             WHERE T5.MenuURL !=  'NAN'
+  	  		   AND T2.PARENTMENUID = (
+		  		 	SELECT M.MENUID 
+		  		 	FROM $schemaId$.TSEAIRM01 M
+		  		 	WHERE M.PARENTMENUID = #SERVER_TYPE#
+		  		 )
+		       <!-- TODO JUN AND SUBSTR(T2.MENUID, 1, 5) = #SEL_GB#*/-->
+               AND  T1.DISPLAYYN ='Y' AND  T1.USEYN = 'Y'
+               AND  T2.DISPLAYYN ='Y' AND  T2.USEYN = 'Y'
+               AND  T3.DISPLAYYN ='Y' AND  T3.USEYN = 'Y'
+               AND  T4.DISPLAYYN ='Y' AND  T4.USEYN = 'Y'
+               AND  T5.DISPLAYYN ='Y' AND  T5.USEYN = 'Y'
+               AND T5.MENUID IN (
+                             SELECT
+                                     MENU.MENUID
+                             FROM
+                                      $schemaId$.TSEAIRM03 MENU
+                             WHERE MENU.AUTH IN ( 'R', 'W')
+                                     AND <iterate open="(" conjunction="," close=")" property="ROLEID" prepend="MENU.ROLEID in ">
+							          		#ROLEID[]#
+							          	 </iterate> 
+                                     
+                       )
+               AND T5.MENUID IN (
+                             SELECT
+                                     MENU.MENUID
+                             FROM
+                                      $schemaId$.TSEAIRM01 MENU
+                             WHERE  <iterate open="(" conjunction="," close=")" property="APPCODE" prepend="MENU.APPCODE in ">
+							          		#APPCODE[]#
+							       	</iterate> 
+                                     
+                       )
+                       
+             ORDER BY  T2.SORTORDER , T3.SORTORDER, T3.SORTORDER,T4.SORTORDER, T5.SORTORDER
+      </statement>	
+
+	<statement id="getMenuName" resultClass="java.lang.String">
+	      SELECT 
+			MENU.MENUNAME MENUNAME
+	      FROM 
+			 $schemaId$.TSEAIRM01 MENU
+	     WHERE MENU.MENUID = #MENUID#
+	</statement>	
+	
+	<statement id="getLeftMenuList" resultClass="java.util.HashMap">
+		SELECT 
+			MENU.MENUID MENUID, 
+			MENU.MENUNAME MENUNAME , 
+			MENU.MenuURL MENUURL
+		FROM 
+			$schemaId$.TSEAIRM01 MENU
+		WHERE 
+			MENU.PARENTMENUID = #MENUID#
+			AND MENU.USEYN= 'Y'
+			AND MENU.DISPLAYYN= 'Y'
+			AND MENU.MENUID IN (
+				SELECT 
+					AUTH.MENUID
+				FROM 
+					 $schemaId$.TSEAIRM03 AUTH
+				WHERE AUTH.AUTH IN ( 'R', 'W')
+				AND 
+		          <iterate open="(" conjunction="," close=")" property="ROLEID" prepend="AUTH.ROLEID in ">
+		          	#ROLEID[]#
+		          </iterate> 				
+ 
+			)
+			AND MENU.MENUID IN (
+				SELECT 
+					MENU.MENUID
+				FROM 
+					 $schemaId$.TSEAIRM01 MENU
+                             WHERE  <iterate open="(" conjunction="," close=")" property="APPCODE" prepend="MENU.APPCODE in ">
+							          		#APPCODE[]#
+							       	</iterate> 			
+ 
+			)			
+		ORDER BY MENU.SORTORDER
+	</statement>		
+
+	<statement id="getEaiTeamCnt" resultClass="java.lang.Integer">
+	      SELECT 
+			COUNT(*) CNT
+	      FROM 
+			 $schemaId$.TSEAIRM02 U, $schemaId$.TSEAIRM05 ROLE
+	     WHERE U.USERID = #EMPNUM#
+	     	AND ROLE.ROLEID IN ($ROLEIDS$)
+	     	AND U.ROLEID = ROLE.ROLEID	     	
+	</statement>	
+	
+	<statement id="getPosition" resultClass="java.lang.String">
+		SELECT  #POSITION_ROOT# ||
+					  T2.MENUNAME ||' &gt; '||
+		              T3.MENUNAME  ||' &gt; '||
+		              T4.MENUNAME   POSITION_NAME
+		FROM $schemaId$.TSEAIRM01 T1
+		LEFT JOIN $schemaId$.TSEAIRM01 T2 ON T2.PARENTMENUID = T1.MENUID
+		LEFT JOIN $schemaId$.TSEAIRM01 T3 ON T3.PARENTMENUID = T2.MENUID
+		LEFT JOIN $schemaId$.TSEAIRM01 T4 ON T4.PARENTMENUID = T3.MENUID
+		WHERE  T4.MENUID= #MENUID#
+	</statement>
+  
+    <statement id="getRoleService" resultClass="java.lang.Integer">
+        SELECT COUNT(ROLE.ROLEID) CNT
+        FROM   $schemaId$.TSEAIRM03 ROLE, $schemaId$.TSEAIRM01 MENU
+        WHERE  
+        	<iterate open="(" conjunction="," close=")" property="ROLEID" prepend="ROLE.ROLEID in ">
+         		#ROLEID[]#
+            </iterate> 
+        
+        AND    ROLE.MENUID LIKE #MENUTYPE#
+        AND    ROLE.MENUID = MENU.MENUID
+        AND    MENU.DISPLAYYN = 'Y'
+        AND    MENU.USEYN   = 'Y'
+    </statement>
+    
+    <statement id="getInitialMenu" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+        SELECT max(MENUID) "MENUID"
+        FROM   $schemaId$.TSEAIRM05
+        WHERE  
+     		<iterate open="(" conjunction="," close=")" property="ROLEID" prepend="ROLEID in ">
+         	#ROLEID[]#
+            </iterate> 	
+    </statement>
+  
+   	
+	
+</sqlMap>

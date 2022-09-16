@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapLifecycle">
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TOTALCOUNT"
+				FROM $schemaId$.TSEAIBP04		
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	LIFECYCLCLSNAME AS "LIFECYCLCLSNAME",
+		        LODINSEQ AS "LODINSEQ",
+		        LIFECYCLUSEDSTCD AS "LIFECYCLUSEDSTCD"
+				FROM $schemaId$.TSEAIBP04
+		WHERE 	LifeCyclClsName = #lifeCyclClsName#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE  $schemaId$.TSEAIBP04
+				SET LodinSeq = #lodinSeq#,
+				    LifeCyclUseDstcd = #lifeCyclUseDstcd# 
+		WHERE 	LifeCyclClsName = #lifeCyclClsName# 
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIBP04 (
+		           LifeCyclClsName,
+		           LodinSeq,
+		           LifeCyclUseDstcd
+		        )
+				VALUES (
+				    #lifeCyclClsName#,
+				    #lodinSeq#,
+				    #lifeCyclUseDstcd#
+				)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIBP04 WHERE LifeCyclClsName = #lifeCyclClsName#
+	</statement>
+	
+</sqlMap>

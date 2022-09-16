@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatLayoutSync">
+
+	<statement id="findadapterForLayoutKey" resultClass="java.util.HashMap">
+	    SELECT 
+	        A.adptrCd       AS "adptrCd",
+	        CAST( A.adptrCdSeq AS CHAR)    AS "adptrCdSeq",
+	        A.intfId        AS "intfId",
+	        A.layoutKey     AS "layoutKey"
+	    FROM
+	        $schemaId$.TSEAIEA05 A
+	    WHERE layoutKey = #layoutKey#
+        order by A.adptrCd,A.adptrCdSeq
+	</statement>	
+	
+	<statement id="findadapterDbForLayoutKey" resultClass="java.util.HashMap">
+	    SELECT 
+	        A.adptrCd       AS "adptrCd",
+	        CAST( A.adptrCdSeq AS CHAR)    AS "adptrCdSeq",
+	        A.intfId        AS "intfId",
+	        A.layoutKey     AS "layoutKey"
+	    FROM 
+	        $schemaId$.TSEAIEA03 A
+	    WHERE layoutKey = #layoutKey#
+        order by A.adptrCd,A.adptrCdSeq
+	</statement>
+	
+	<statement id="subFtpLayInsert"  parameterClass="java.util.HashMap" resultClass="java.lang.Integer">	
+		INSERT 	INTO $schemaId$.TSEAIES06(
+				adptrCd,      adptrCdSeq,      layoutSeq,  
+				intfId,       orderSeq,        colSize,
+				colDepth,     colDesc,         colDescEng,
+				colType,			colKind         
+				)
+		VALUES	(#adptrCd#,     CAST(#adptrCdSeq# AS UNSIGNED), IFNULL((SELECT MAX(layoutSeq)+1 FROM $schemaId$.TSEAIES06 WHERE adptrCd=#adptrCd# AND adptrCdSeq=#adptrCdSeq# ),1), 
+		         #intfId#,     CAST(IFNULL(#orderSeq#,'0') AS UNSIGNED),     #colSize#,
+		         #colDepth#,      #colDesc#,                          #colDescEng#,
+		         #colType#,       #colKind#
+				)
+	</statement>
+	
+	<statement id="subFtpLayDelete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE	FROM $schemaId$.TSEAIES06 
+	 	 WHERE  adptrCd    = #adptrCd# 
+	 	   AND  adptrCdSeq = CAST(#adptrCdSeq# AS UNSIGNED)
+	 	   <isNotEmpty prepend="AND" property="layoutSeq"> 
+	 	   AND  layoutSeq  = TO_NUMBER(#layoutSeq#)
+	 	   </isNotEmpty>
+	</statement>
+ 		
+	<statement id="addLayoutSyncLog">
+	INSERT INTO $schemaId$.TSEAIES08
+	     ( logPrcssSeqno, Seqno, ServiceName ,Command,LoutName,RecvData,RecvAmndHMS,PrcssRslt, PrcssRsltCmnt )
+	VALUES
+	     ( #logPrcssSeqno#, #Seqno#, #ServiceName# ,#Command#,#LoutName#,#RecvData#,#RecvAmndHMS#,#PrcssRslt#, #PrcssRsltCmnt# )
+	</statement>
+</sqlMap>

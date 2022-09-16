@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CommonDomain">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		select ROWNO AS "ROWNO", DOMAINNM AS "DOMAINNM", 
+			DOMAINTYPE AS "DOMAINTYPE", DOMAINOPTION AS "DOMAINOPTION", DOMAINVAL AS "DOMAINVAL"
+		FROM(
+			SELECT	(ROW_NUMBER() OVER (ORDER BY DOMAINNM)) AS ROWNO, DOMAINNM , DOMAINTYPE, DOMAINOPTION, DOMAINVAL
+			 FROM $schemaId$.TSEAICM23 WHERE UPPER(DOMAINNM) LIKE '%'||#searchDomainNM#||'%' 
+		 ) CONTENT
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+		 ORDER BY 1
+	</statement>
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		 FROM $schemaId$.TSEAICM23 WHERE UPPER(DOMAINNM) LIKE '%'||#searchDomainNM#||'%' 
+	</statement>
+</sqlMap>

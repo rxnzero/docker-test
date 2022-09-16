@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="DashboardTarget">
+
+  <statement id="getProcCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		 SELECT COUNT(L1.LOGPRCSSSERNO) CNT
+       FROM $schemaId$.$tableName$  L1,
+         (  SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, MAX(LOGPRCSSSERNO) LOGPRCSSSERNO
+              FROM $schemaId$.$tableName$
+             WHERE MSGDPSTYMS BETWEEN '$start$' AND '$end$'
+							<isNotEqual compareValue="''" prepend="AND" property="insts">
+			 				     EAISEVRINSTNCNAME IN ( $insts$ )
+				      </isNotEqual>
+          GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO
+          ) L0
+      WHERE L0.EAIBZWKDSTCD = L1.EAIBZWKDSTCD
+	      AND L0.MSGDPSTYMS = L1.MSGDPSTYMS
+	      AND L0.EAISVCSERNO = L1.EAISVCSERNO
+	      AND L0.LOGPRCSSSERNO = L1.LOGPRCSSSERNO
+	      AND L1.LOGPRCSSSERNO != '900'
+	      AND L1.EAIERRCD NOT LIKE 'REC%'
+	      AND (
+			        ( L1.SVCMOTIVUSEDSTCD = 'ASYN' AND L1.PSVINTFACDSTICNAME = 'ASYN'  AND L1.LOGPRCSSSERNO IN ('200', '400') )
+			        OR
+			        ( L1.SVCMOTIVUSEDSTCD = 'SYNC' AND L1.PSVINTFACDSTICNAME = 'SYNC'  AND L1.LOGPRCSSSERNO = '400' )
+			        OR
+			        ( L1.SVCMOTIVUSEDSTCD = 'ASYN' AND L1.PSVINTFACDSTICNAME = 'SYNC'  AND L1.LOGPRCSSSERNO = '400' )
+			        OR
+			        ( L1.SVCMOTIVUSEDSTCD = 'SYNC' AND L1.PSVINTFACDSTICNAME = 'ASYN'  AND L1.LOGPRCSSSERNO = '400' )
+     			  )
+  </statement>
+  
+  <statement id="getTimeoutCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+  	SELECT COUNT(DISTINCT EAISVCSERNO) CNT
+		  FROM $schemaId$.$tableName$
+		 WHERE MSGDPSTYMS BETWEEN #start# AND #end# 
+			 AND EAIERRCD LIKE 'REC%'		
+			 AND EAIERRCD IN ( $timeoutErr$ )
+			 AND EAISEVRINSTNCNAME IN ( $insts$ )
+	</statement>
+	
+	<statement id="getErrorCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(DISTINCT EAISVCSERNO) CNT
+		  FROM $schemaId$.$tableName$ 
+		 WHERE MSGDPSTYMS BETWEEN #start# AND #end# 
+			 AND EAIERRCD LIKE 'REC%'		
+			 AND EAIERRCD NOT IN ( $timeoutErr$ )
+			 AND EAISEVRINSTNCNAME IN ( $insts$ )
+	</statement>
+	
+	<statement id="updatePeekTps" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		MERGE INTO $schemaId$.TSEAIRM08 A USING (
+	            SELECT 'Monitoring' AS PRPTYGROUPNAME, #key# AS PRPTYNAME
+	              FROM DUAL
+	            ) B ON ( A.PRPTYGROUPNAME = B.PRPTYGROUPNAME AND A.PRPTYNAME = B.PRPTYNAME)
+	       WHEN NOT MATCHED THEN
+	            INSERT(PRPTYGROUPNAME, PRPTYNAME, PRPTY2VAL ) 
+	            VALUES('Monitoring', #key#, #val#) 
+	       WHEN MATCHED THEN 
+	            UPDATE SET PRPTY2VAL = #val#
+	</statement>
+	  
+	<statement id="getTimeoutCountBranchTest" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">     
+		SELECT COUNT(DISTINCT EAISVCSERNO) CNT
+		  FROM $schemaId$.$tableName$ L1, $schemaId$.TSEAIHE01 H1
+		 WHERE L1.MSGDPSTYMS BETWEEN #start# AND #end#
+			 AND L1.EAIERRCD LIKE 'REC%'
+			 AND L1.EAIERRCD IN ( $timeoutErr$ )
+			 AND L1.EAISEVRINSTNCNAME IN ( $insts$ )
+			 AND L1.EAISVCNAME = H1.EAISVCNAME
+			<isEqual compareValue="개설" prepend="AND" property="commDiv">
+			      SUBSTR(H1.EAISVCNAME,LENGTH(H1.EAISVCNAME)-2) IN ('S01','R02')
+			</isEqual>
+			<isEqual compareValue="취급" prepend="AND" property="commDiv">
+			      SUBSTR(H1.EAISVCNAME,LENGTH(H1.EAISVCNAME)-2) IN ('S02','R01')
+			</isEqual>
+    </statement>
+  
+	<statement id="getErrorCountBranchTest" parameterClass="java.util.HashMap" resultClass="java.lang.Integer"> 
+    SELECT COUNT(DISTINCT EAISVCSERNO) CNT
+		  FROM $schemaId$.$tableName$  L1,  $schemaId$.TSEAIHE01 H1
+		 WHERE L1.MSGDPSTYMS BETWEEN #start# AND #end#
+			 AND L1.EAIERRCD LIKE 'REC%'
+			 AND L1.EAIERRCD NOT IN ( $timeoutErr$  )
+			 AND L1.EAISEVRINSTNCNAME IN ( $insts$ )
+			 AND L1.EAISVCNAME = H1.EAISVCNAME
+			<isEqual compareValue="개설" prepend="AND" property="commDiv">
+			     SUBSTR(H1.EAISVCNAME,LENGTH(H1.EAISVCNAME)-2) IN ('S01','R02')
+			</isEqual>
+			<isEqual compareValue="취급" prepend="AND" property="commDiv">
+			      SUBSTR(H1.EAISVCNAME,LENGTH(H1.EAISVCNAME)-2) IN ('S02','R01')
+			</isEqual>
+    </statement>
+  
+	<statement id="getMinMaxDate" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT MIN(STATCYMD) "minDate", MAX(STATCYMD) "maxDate"
+			  FROM $schemaId$.TSEAIRM11
+				<isNotEmpty prepend="WHERE" property="hostName">
+				      EAIMONISYSHOSTNAME = #hostName#
+				</isNotEmpty>
+    </statement>
+  
+	<statement id="getMinMaxTime" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT COALESCE(MIN(STATCHMS),0) "minTime", COALESCE(MAX(STATCHMS),0) "maxTime"  
+		  FROM  $schemaId$.TSEAIRM11
+		WHERE 1=1
+		<isNotEmpty prepend="AND" property="baseDate">
+		      STATCYMD = #baseDate#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="hostName">
+		      EAIMONISYSHOSTNAME = #hostName#
+		</isNotEmpty>
+    </statement>
+  
+	<statement id="insertTradeStatics" parameterClass="com.eactive.eai.rms.onl.tracking.vo.DbStaticsVo" resultClass="java.lang.Integer">
+			INSERT INTO  $schemaId$.TSEAIRM11
+						    	( EAIMONIJOBDSTCD, EAIMONISVCDSTCD, STATCYMD, STATCHMS
+						    	, EAIMONISYSHOSTNAME, EAIMONIPRCSSNOITM, EAIMONITOUTNOITM, EAIMONIERRNOITM
+						    	, MAXSSPERPRCSSQANTY )
+	    		 VALUES (#eaiMoniJobDstcd#, #eaiMoniSvcDstcd#, #statcYmd#, #statcHMS#
+	    		         , #eaiMoniSysHostName#, #eaiMoniPrcssNoitm#, #eaiMoniToutNoitm#, #eaiMoniErrNoitm#
+	    		         , #maxSSPerPrcssQanty#)
+    </statement>
+  
+	<statement id="sumTradeStatics" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	   	  SELECT COALESCE(MAX(STATCHMS),0) "maxTime" , COALESCE(SUM(EAIMONIPRCSSNOITM),0) "sumProc"
+	    	     , COALESCE(SUM(EAIMONITOUTNOITM),0) "sumTimeout", COALESCE(SUM(EAIMONIERRNOITM),0) "sumError"
+	    	     , COALESCE(MAX(MAXSSPERPRCSSQANTY),0) "maxTps"
+				FROM   $schemaId$.TSEAIRM11
+				WHERE  EAIMONIJOBDSTCD = #eaiMoniJobDstcd#
+				AND    EAIMONISVCDSTCD = #eaiMoniSvcDstcd#
+				AND    STATCYMD = #statcYmd#
+			<isNotEmpty prepend="AND" property="hostName">
+			      EAIMONISYSHOSTNAME = #hostName#
+			</isNotEmpty>
+    </statement>
+  
+	<statement id="resetTradeStatics" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+			UPDATE  $schemaId$.TSEAIRM11 
+			SET EAIMONIPRCSSNOITM = 0, EAIMONITOUTNOITM = 0, EAIMONIERRNOITM = 0, MAXSSPERPRCSSQANTY = 0.0
+			WHERE  STATCYMD = #statcYmd#
+			<isNotEmpty prepend="AND" property="statcHMS">
+			     STATCHMS &lt;= #statcHMS#
+			</isNotEmpty>
+    </statement>
+  
+	<statement id="selectEAISevrDstcd" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT EAISVCNAME "EAISvcName", '$schemaId$' AS "schema"  
+      FROM $schemaId$.TSEAIHE01
+     ORDER BY 1
+    </statement>
+  
+	<statement id="getEaiBatchServerIpList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT EAISEVRINSTNCNAME EAISVRINSTNM,  EAISEVRIP EAISVRIP,
+		       SEVRLSNPORTNAME EAISVRLSNPORT,    FLOVRSEVRNAME FAILOVERSVRNM,
+		       HOSTNAME HOSTNAME
+		FROM   $schemaId$.TSEAIBP03
+		WHERE  EAISEVRINSTNCNAME != 'ALL'
+		   AND EAISEVRIP != '*'
+		 ORDER BY EAISEVRIP, SEVRLSNPORTNAME ASC
+  </statement>
+</sqlMap>

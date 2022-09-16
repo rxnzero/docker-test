@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapSysinfo">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  @NO := @NO + 1 AS ROWNO,
+						SYSCD        ,
+						SYSNAME      ,
+                        SYSIP        ,
+                        SYSPORT      ,
+                        USERID       ,
+                        USERPASSWORD ,
+                        SENDDIR      ,
+                        RECVDIR      ,
+                        SFTPYN       ,
+                        THISMSGUSEYN       
+						FROM $schemaId$.TSEAIBJ11,  (SELECT @NO := 0) R
+				<dynamic prepend="WHERE">
+					<isNotEmpty prepend="AND" property="searchSysCd">
+						UPPER(SysCd) LIKE CONCAT( '%' , #searchSysCd# , '%')
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchSysName">
+						UPPER(SysName) LIKE CONCAT( '%' , #searchSysName# , '%')
+					</isNotEmpty>
+				</dynamic>
+				ORDER BY SysCd
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TOTALCOUNT
+			FROM $schemaId$.TSEAIBJ11
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchSysCd">
+				UPPER(SysCd) LIKE CONCAT( '%' , #searchSysCd# , '%')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchSysName">
+				UPPER(SysName) LIKE CONCAT( '%' , #searchSysName# , '%')
+			</isNotEmpty>
+		</dynamic>				
+	</statement>	
+
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIBJ11 SET
+				SysName        = #sysName#,
+                SysIp          = #sysIp#,
+                SysPort        = #sysPort#,
+                UserId         = #userId#,
+                UserPassword   = #userPassword#,
+                SendDir        = #sendDir#,
+                RecvDir        = #recvDir#,
+                SftpYn         = #sftpYn#,       
+				ThisMsgUseYn   = #thisMsgUseYn#,
+				ThisMsgAmndrID = #userid# ,
+				ThisMsgAmndHMS = SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ) 
+		WHERE 	SysCd        = #sysCd#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIBJ11(
+				     SysCd          ,
+				     SysName        ,
+				     SysIp          ,
+				     SysPort        ,
+				     UserId         ,
+				     UserPassword   ,
+				     SendDir        ,
+				     RecvDir        ,
+				     SftpYn         ,
+				     ThisMsgUseYn   ,
+				     ThisMsgRegsntID,
+				     ThisMsgRegiHMS ,
+				     ThisMsgAmndrID ,
+				     ThisMsgAmndHMS 
+				)
+				VALUES(
+				     #sysCd#       ,
+				     #sysName#     ,      
+				     #sysIp#       ,        
+				     #sysPort#     ,      
+				     #userId#      ,       
+				     #userPassword#, 
+				     #sendDir#     ,      
+				     #recvDir#     ,      
+				     #sftpYn#      ,  
+				     #thisMsgUseYn#,
+				     #userid#,
+				     SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),
+				     #userid#,
+				     SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+				)
+	</statement>
+
+</sqlMap>

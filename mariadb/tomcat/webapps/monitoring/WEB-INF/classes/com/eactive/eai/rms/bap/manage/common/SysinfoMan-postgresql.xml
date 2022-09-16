@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapSysinfo">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT 
+			ROWNO AS "ROWNO",
+			SysCd AS "SYSCD" ,
+			SysName AS "SYSNAME" ,
+            SysIp AS "SYSIP" ,
+            SysPort AS "SYSPORT" ,
+            UserId AS "USERID" ,
+            UserPassword AS "USERPASSWORD" ,
+            SendDir AS "SENDDIR" ,
+            RecvDir AS "RECVDIR" ,
+            SftpYn AS "SFTPYN" ,
+            ThisMsgUseYn AS "THISMSGUSEYN" 
+		FROM (
+                SELECT  ROW_NUMBER() OVER(ORDER BY SysCd)  ROWNO, 
+						SysCd , 
+						SysName ,
+                        SysIp ,
+                        SysPort ,
+                        UserId ,
+                        UserPassword ,
+                        SendDir ,
+                        RecvDir ,
+                        SftpYn ,
+                        ThisMsgUseYn        
+						FROM $schemaId$.TSEAIBJ11
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchSysCd">
+					UPPER(SysCd) LIKE '%' || #searchSysCd# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchSysName">
+					UPPER(SysName) LIKE '%' || #searchSysName# || '%'
+				</isNotEmpty>
+			</dynamic>						
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TOTALCOUNT"
+			FROM $schemaId$.TSEAIBJ11
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchSysCd">
+				UPPER(SysCd) LIKE '%' || #searchSysCd# || '%'
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchSysName">
+				UPPER(SysName) LIKE '%' || #searchSysName# || '%'
+			</isNotEmpty>
+		</dynamic>				
+	</statement>	
+</sqlMap>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Biz">
+	
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+				SELECT 	rownum ROWNUMBER, 
+						EAIBzwkDstcd,
+						BzwkDsticName,
+						BzwkDsticDesc 
+						FROM $schemaId$.TSEAICM01
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+					UPPER(EaiBzwkDstcd) LIKE '%' || #searchEaiBzwkDstcd# || '%'
+				</isNotEmpty>
+			</dynamic>						
+			) ORGTABLE
+		WHERE ROWNUMBER BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TotalCount
+			FROM $schemaId$.TSEAICM01
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+					UPPER(EaiBzwkDstcd) LIKE '%' || #searchEaiBzwkDstcd# || '%'
+				</isNotEmpty>
+			</dynamic>				
+	</statement>	
+	
+	<statement id="selectUserBizList" resultClass="java.util.HashMap">
+		SELECT C01.EAIBZWKDSTCD  BIZCODE
+			 , C01.BZWKDSTICNAME BIZNAME
+			 , C01.BZWKDSTICDESC BIZDESC
+			 , decode(R06.EAIBZWKDSTCD,null,'false','true') CHK
+	      FROM $schemaId$.TSEAICM01 C01
+	      LEFT OUTER JOIN $schemaId$.TSEAIRM06 R06 ON 
+	       ( C01.EAIBZWKDSTCD = R06.EAIBZWKDSTCD	AND R06.USERID = #userId# )
+	       WHERE 1=1
+	       <isNotEmpty prepend ="AND" property="searchBzwkName">
+			<iterate property="searchBzwkName" open="(" close=")" conjunction="OR">
+				   UPPER(C01.EAIBZWKDSTCD) LIKE '%' || UPPER(#searchBzwkName[]#) || '%'
+				OR UPPER(C01.BZWKDSTICNAME) LIKE '%' || UPPER(#searchBzwkName[]#) || '%'
+			</iterate>
+			</isNotEmpty>
+	     order by 1
+	</statement>
+	
+</sqlMap>

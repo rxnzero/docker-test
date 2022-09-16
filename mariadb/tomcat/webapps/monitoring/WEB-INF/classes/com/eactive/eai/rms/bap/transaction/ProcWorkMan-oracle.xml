@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BapProcWork">
+    <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    	SELECT COUNT(*)
+		  FROM (
+				   SELECT *
+					 FROM $schemaId$.TSEAIBS04 S4
+					 	, $schemaId$.TSEAIBJ02 J2
+				  	 	, $schemaId$.TSEAIBJ06 J6
+				  	WHERE S4.BjobBzwkDstcd  = J2.BjobBzwkDstcd
+				  	  AND S4.BjobBzwkDstcd  = J6.BjobBzwkDstcd    
+				  	  AND S4.OsidInstiDstcd = J6.OsidInstiDstcd                                
+					  <isNotEmpty prepend="AND" property="searchStartTime1">
+						S4.SndrcvStartHMS BETWEEN #searchStartTime1# AND #searchEndTime1#
+					  </isNotEmpty>
+					  <isNotEmpty prepend="AND" property="searchStartTime2">
+						S4.SndrcvEndHMS BETWEEN #searchStartTime2# AND #searchEndTime2#
+					  </isNotEmpty>
+					  
+					  <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+						S4.BjobBzwkDstcd = #searchBjobBzwkDstcd#
+					  </isNotEmpty>
+					  
+					  <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+						S4.OsidInstiDstcd = #searchOsidInstiDstcd#
+					  </isNotEmpty>
+			
+					  <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+						UPPER(S4.SndrcvFileName) like '%' || UPPER(#searchSndrcvFileName#) || '%'
+					  </isNotEmpty>
+			   ) ORGTABLE
+    </statement>
+    
+    <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT *
+		  FROM (
+				   SELECT ROW_NUMBER() OVER (ORDER BY S4.MsgPrcssPrity ASC, S4.SndrcvStartHMS DESC, S4.BjobBzwkDstcd  ASC) ROWNO
+				   		, S4.BjobDmndMsgID								/* 작업요청메시지ID (uuid)  */
+				        , S4.BjobDmndSubMsgID							/* 작업요청부메시지ID (subuuid) */
+				        , S4.TelgmReTralCnt								/* 전문재시도수     */
+				        , S4.SysLnkgDstcd								/* 시스템연결구분코드     */
+				        , S4.BjobDmndMsgCretnHMS						/* 작업요청메시지 생성시각  */
+				        , S4.BjobMsgScheID								/* 작업메시지 일정ID   */
+				        , S4.BjobBzwkDstcd								/* 업무구분코드     */
+				        , J2.BjobBzwkName		AS BjobBzwkDstcdName	/* 업무구분명     */
+				        , S4.OsidInstiDstcd								/* 대외기관구분코드    */
+				        , J6.OsidInstiName		AS OsidInstiDstcdName	/* 대외기관구분명     */
+				        , S4.BjobPtrnDstcd								/* 작업유형구분코드    */
+				        , S4.SndrcvStartHMS								/* 송수신 시작시각    */
+				        , S4.SndrcvEndHMS								/* 송수신 종료시각    */
+				        , S4.SndrcvFileDirName							/* 송수신 파일 디렉토리명  */
+				        , S4.SndrcvFileName								/* 송수신 파일명    */
+				        , S4.BkupSndrcvFileName							/* 백업 송수신 파일명   */
+				        , S4.MsgPrcssPrity								/* 메시지처리 우선순위   */
+				        , S4.ThisMsgAmndrID								/* 메시지수정자ID    */
+				        , S4.ThisMsgAmndHMS								/* 메시지 수정시각    */
+				        , S4.MsgQueeTracTdmndHMS						/* 메시지큐추출요청시각    */
+				        , S4.MsgPrcssStuscd								/* 메시지처리상태코드    */
+					 FROM $schemaId$.TSEAIBS04 S4
+					 	, $schemaId$.TSEAIBJ02 J2
+				  	 	, $schemaId$.TSEAIBJ06 J6
+				  	WHERE S4.BjobBzwkDstcd  = J2.BjobBzwkDstcd
+				  	  AND S4.BjobBzwkDstcd  = J6.BjobBzwkDstcd
+				  	  AND S4.OsidInstiDstcd = J6.OsidInstiDstcd
+					  <isNotEmpty prepend="AND" property="searchStartTime1">
+						S4.SndrcvStartHMS BETWEEN #searchStartTime1# AND #searchEndTime1#
+					  </isNotEmpty>
+					  <isNotEmpty prepend="AND" property="searchStartTime2">
+						S4.SndrcvEndHMS BETWEEN #searchStartTime2# AND #searchEndTime2#
+					  </isNotEmpty>
+					  
+					  <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+						S4.BjobBzwkDstcd = #searchBjobBzwkDstcd#
+					  </isNotEmpty>
+					  
+					  <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+						S4.OsidInstiDstcd = #searchOsidInstiDstcd#
+					  </isNotEmpty>
+			
+					  <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+						UPPER(S4.SndrcvFileName) like '%' || UPPER(#searchSndrcvFileName#) || '%'
+					  </isNotEmpty>
+			   ) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+    </statement>
+    
+	<statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROW_NUMBER() OVER (ORDER BY S4.MsgPrcssPrity ASC, S4.SndrcvStartHMS DESC, S4.BjobBzwkDstcd  ASC) ROWNO
+			 , S4.BjobDmndMsgID
+	         , S4.BjobDmndSubMsgID
+	         , S4.TelgmReTralCnt
+	         , S4.SysLnkgDstcd
+	         , S4.BjobDmndMsgCretnHMS
+	         , S4.BjobMsgScheID
+	         , S4.BjobBzwkDstcd
+	         , J2.BjobBzwkName		AS BjobBzwkDstcdName
+	         , S4.BjobBzwkDstcd
+	         , J6.OsidInstiName		AS OsidInstiDstcdName
+	         , S4.OsidInstiDstcd
+	         , CASE WHEN S4.BjobPtrnDstcd='RS' THEN '송신' 
+					WHEN S4.BjobPtrnDstcd='RR' THEN '수신' 
+					ELSE S4.BjobPtrnDstcd 
+				END AS BjobPtrnDstcd
+	         , S4.SndrcvStartHMS
+	         , S4.SndrcvEndHMS
+	         , S4.SndrcvFileDirName
+	         , S4.SndrcvFileName
+	         , S4.BkupSndrcvFileName
+	         , S4.MsgPrcssPrity
+	         , S4.ThisMsgAmndrID
+	         , S4.ThisMsgAmndHMS
+	         , S4.MsgQueeTracTdmndHMS						/* 메시지큐추출요청시각    */
+	         , S4.MsgPrcssStuscd								/* 메시지처리상태코드    */
+		  FROM $schemaId$.TSEAIBS04 S4
+		  	 , $schemaId$.TSEAIBJ02 J2
+		  	 , $schemaId$.TSEAIBJ06 J6
+		 WHERE S4.BjobBzwkDstcd		= J2.BjobBzwkDstcd
+		   AND S4.BjobBzwkDstcd		= J6.BjobBzwkDstcd
+		   AND S4.OsidInstiDstcd	= J6.OsidInstiDstcd
+		   AND S4.BjobMsgScheID		= #bjobMsgScheID#
+		   AND S4.BjobDmndSubMsgID	= #bjobDmndSubMsgID#
+	</statement>
+  
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    	DELETE FROM $schemaId$.TSEAIBS04 
+		 WHERE BjobDmndMsgID	= #bjobDmndMsgID#
+		   AND BjobDmndSubMsgID	= #bjobDmndSubMsgID#
+	</statement>
+    
+</sqlMap>

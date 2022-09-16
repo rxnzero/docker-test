@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TransactionCtrl">
+
+	<!--   전체 목록수 얻기 -->
+	<statement id="selectListForServiceCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) 
+		  FROM $schemaId$.TSEAIHE01		 HE 
+			     LEFT OUTER JOIN $schemaId$.TSEAITI01 TI 
+			       ON TI.EAICTRLNAME = HE.EAISVCNAME AND TI.EAICTRLNAMEDSTCD = '1'			  
+		<dynamic prepend="WHERE">
+			<isEqual compareValue="H" prepend="AND" property="searchIo">
+				(HE.EAISVCNAME LIKE '%S2' OR HE.EAISVCNAME LIKE '%R1')
+			</isEqual>
+			<isEqual compareValue="O" prepend="AND" property="searchIo">
+				(HE.EAISVCNAME LIKE '%S1' OR HE.EAISVCNAME LIKE '%R2')
+			</isEqual>
+			<isNotEqual compareValue="A" prepend="AND" property="searchEaiBzwkDstcd">
+				HE.EAIBZWKDSTCD = #eaiBzwkDstcd#
+			</isNotEqual>
+			<isNotEmpty prepend="AND" property="searchCode">
+				HE.EAISVCNAME LIKE UPPER( CONCAT(#searchCode# , '%') )
+			</isNotEmpty>
+		  <isEqual compareValue="N" prepend="AND" property="searchControlSelectType">
+		  TI.EAICTRLNAME IS NULL
+	    </isEqual>
+		  <isEqual compareValue="C" prepend="AND" property="searchControlSelectType">
+		  TI.EAICTRLNAME IS NOT NULL
+	    </isEqual>
+		</dynamic>
+ 	</statement>
+ 	
+	<!--  목록 조회  -->
+	<statement id="selectListForService" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select ROW_NUMBER() OVER()  "ROWNUM",
+		EAIBZWKDSTCD AS "EAIBZWKDSTCD" ,
+		BZWKDSTICNAME AS "BZWKDSTICNAME" ,
+		EAISVCNAME AS "EAISVCNAME" ,
+		EAISVCDESC AS "EAISVCDESC" ,
+		STATUS AS "STATUS"         ,
+		EAICTRLNAME AS "EAICTRLNAME"
+		from (
+
+			SELECT HE.EAIBZWKDSTCD          
+				, (SELECT CM.BZWKDSTICNAME FROM $schemaId$.TSEAICM01 CM WHERE CM.EAIBZWKDSTCD = HE.EAIBZWKDSTCD) BZWKDSTICNAME
+				, HE.EAISVCNAME          
+				, HE.EAISVCDESC 
+				, CASE WHEN TI.EAICTRLNAME IS NOT NULL THEN '통제'
+                       ELSE '정상' END STATUS    
+                , TI.EAICTRLNAME
+			FROM $schemaId$.TSEAIHE01		 HE 
+			     LEFT OUTER JOIN $schemaId$.TSEAITI01 TI 
+			       ON TI.EAICTRLNAME = HE.EAISVCNAME AND TI.EAICTRLNAMEDSTCD = '1'			  
+		<dynamic prepend="WHERE">
+			<isEqual compareValue="H" prepend="AND" property="searchIo">
+				(HE.EAISVCNAME LIKE '%S2' OR HE.EAISVCNAME LIKE '%R1')
+			</isEqual>
+			<isEqual compareValue="O" prepend="AND" property="searchIo">
+				(HE.EAISVCNAME LIKE '%S1' OR HE.EAISVCNAME LIKE '%R2')
+			</isEqual>
+			<isNotEqual compareValue="A" prepend="AND" property="searchEaiBzwkDstcd">
+				HE.EAIBZWKDSTCD = #searchEaiBzwkDstcd#
+			</isNotEqual>
+			<isNotEmpty prepend="AND" property="searchCode">
+				HE.EAISVCNAME LIKE UPPER(#searchCode#||'%')
+			</isNotEmpty>
+		  <isEqual compareValue="N" prepend="AND" property="searchControlSelectType">
+		  TI.EAICTRLNAME IS NULL
+	      </isEqual>
+		  <isEqual compareValue="C" prepend="AND" property="searchControlSelectType">
+		  TI.EAICTRLNAME IS NOT NULL
+	    </isEqual>
+		</dynamic>
+		ORDER BY EAIBZWKDSTCD, EAISVCNAME
+		) data
+	</statement>
+
+	<statement id="selectListForInstiCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS "CNT"
+		  FROM $schemaId$.TSEAIMX04 MX
+			LEFT OUTER JOIN $schemaId$.TSEAITI01 TI ON TI.EAICTRLNAME = MX.VLD_VAL 
+						  AND TI.EAICTRLNAMEDSTCD = '2'
+			WHERE MX.CD_IDTF_ID = '1000657215'
+			  AND MX.DEL_YN	 = 'N'
+			  <isEqual compareValue="N" prepend="AND" property="searchControlSelectType">
+			  TI.EAICTRLNAME IS NULL
+		      </isEqual>
+			  <isEqual compareValue="C" prepend="AND" property="searchControlSelectType">
+			  TI.EAICTRLNAME IS NOT NULL
+		      </isEqual>
+				<isNotEmpty prepend="AND" property="searchCode">
+				MX.VLD_VAL LIKE UPPER( CONCAT( #searchCode# , '%') )
+				</isNotEmpty>
+	</statement>
+	
+	<statement id="selectListForInsti" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select ROW_NUMBER() OVER()  "ROWNUM",
+		EAISVCNAME AS "EAISVCNAME" , 
+		EAISVCDESC AS "EAISVCDESC" ,
+		STATUS AS "STATUS"         ,
+        EAICTRLNAME AS "EAICTRLNAME"
+		from (
+			SELECT VLD_VAL EAISVCNAME, VLD_VAL_NM EAISVCDESC
+			     , CASE WHEN TI.EAICTRLNAME IS NOT NULL THEN '통제'
+					    ELSE '정상' END AS STATUS  
+				 ,TI.EAICTRLNAME  
+				FROM $schemaId$.TSEAIMX04 MX
+				LEFT OUTER JOIN $schemaId$.TSEAITI01 TI ON TI.EAICTRLNAME = MX.VLD_VAL 
+							  AND TI.EAICTRLNAMEDSTCD = '2'
+				WHERE MX.CD_IDTF_ID = '1000657215'
+				  AND MX.DEL_YN	 = 'N'
+			  <isEqual compareValue="N" prepend="AND" property="searchControlSelectType">
+			  TI.EAICTRLNAME IS NULL
+		      </isEqual>
+			  <isEqual compareValue="C" prepend="AND" property="searchControlSelectType">
+			  TI.EAICTRLNAME IS NOT NULL
+		      </isEqual>
+				<isNotEmpty prepend="AND" property="searchCode">
+				MX.VLD_VAL LIKE UPPER( CONCAT( #searchCode# , '%') )
+				</isNotEmpty>
+				ORDER BY VLD_VAL
+			) data
+	</statement>
+	
+	<statement id="selectListForChannelCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS "CNT"
+		  FROM $schemaId$.TSEAIMX04 MX
+			LEFT OUTER JOIN $schemaId$.TSEAITI01 TI ON TI.EAICTRLNAME = MX.VLD_VAL 
+						  AND TI.EAICTRLNAMEDSTCD = '3'
+			WHERE MX.CD_IDTF_ID = '1000657214'
+			  AND MX.DEL_YN	 = 'N'
+			  <isEqual compareValue="N" prepend="AND" property="searchControlSelectType">
+			  TI.EAICTRLNAME IS NULL
+		      </isEqual>
+			  <isEqual compareValue="C" prepend="AND" property="searchControlSelectType">
+			  TI.EAICTRLNAME IS NOT NULL
+		      </isEqual>
+				<isNotEmpty prepend="AND" property="searchCode">
+				MX.VLD_VAL LIKE UPPER( CONCAT( #searchCode# , '%') )
+				</isNotEmpty>
+	</statement>
+	
+	<statement id="selectListForChannel" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select ROW_NUMBER() OVER() "ROWNUM",
+		EAISVCNAME AS "EAISVCNAME" ,
+		EAISVCDESC AS "EAISVCDESC" ,
+		STATUS AS "STATUS"         ,
+		EAICTRLNAME AS "EAICTRLNAME"
+		from (
+			SELECT VLD_VAL EAISVCNAME, VLD_VAL_NM EAISVCDESC, 
+				   CASE WHEN TI.EAICTRLNAME IS NOT NULL THEN '통제'
+						ELSE '정상' END AS STATUS,
+				   TI.EAICTRLNAME      
+				FROM $schemaId$.TSEAIMX04 MX
+				LEFT OUTER JOIN $schemaId$.TSEAITI01 TI ON TI.EAICTRLNAME = MX.VLD_VAL 
+							  AND TI.EAICTRLNAMEDSTCD = '3'
+				WHERE MX.CD_IDTF_ID = '1000657214'
+				  AND MX.DEL_YN	 = 'N'
+			  <isEqual compareValue="N" prepend="AND" property="searchControlSelectType">
+			  TI.EAICTRLNAME IS NULL
+		      </isEqual>
+			  <isEqual compareValue="C" prepend="AND" property="searchControlSelectType">
+			  TI.EAICTRLNAME IS NOT NULL
+		      </isEqual>
+				<isNotEmpty prepend="AND" property="searchCode">
+				MX.VLD_VAL LIKE UPPER( CONCAT(#searchCode# , '%') )
+				</isNotEmpty>
+				ORDER BY VLD_VAL
+			) data
+	</statement>
+ 
+ 	<!-- 업무별 거래현황 -->
+	<statement id="selectListByBzwk" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT EAIBZWKDSTCD AS "EAIBZWKDSTCD"
+             , CNT AS "CNT"
+             , BZWKDSTICNAME AS "BZWKDSTICNAME"
+          FROM (
+          	   	 SELECT ROW_NUMBER() OVER(ORDER BY TL.EAIBZWKDSTCD) ROWNO
+          	   	 	  , EAIBZWKDSTCD
+          	   	 	  , COUNT(EAISVCNAME) CNT
+          	   	 	  , (SELECT CM.BZWKDSTICNAME FROM $schemaId$.TSEAICM01 CM WHERE CM.EAIBZWKDSTCD = TL.EAIBZWKDSTCD) BZWKDSTICNAME
+				   FROM $schemaId$.TSEAITL02 TL
+			      WHERE MSGDPSTYMS LIKE #searchDate#||'%'
+				  GROUP BY EAIBZWKDSTCD
+          	   ) AS TL
+         WHERE ROWNO BETWEEN #startNum# AND #endNum#
+ 	</statement>
+ 	
+ 	<!-- 업무별 거래현황 COUNT -->
+	<statement id="selectListByBzwkCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+			SELECT COUNT(*) AS "CNT"
+		  FROM ( 
+				SELECT EAIBZWKDSTCD 
+				  FROM $schemaId$.TSEAITL02
+				 WHERE MSGDPSTYMS LIKE #searchDate#||'%'
+				GROUP BY EAIBZWKDSTCD 
+			) AS TB
+ 	</statement>
+ 	
+ 	<!-- 서비스 별 거래현황 -->
+	<statement id="selectListByService" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT EAIBZWKDSTCD AS "EAIBZWKDSTCD"
+			 , EAISVCNAME AS "EAISVCNAME"
+			 , CNT AS "CNT"
+			 , BZWKDSTICNAME AS "BZWKDSTICNAME"
+			 , EAISVCDESC AS "EAISVCDESC"
+		  FROM (
+				    SELECT ROW_NUMBER() OVER(ORDER BY TL.EAIBZWKDSTCD) ROWNO, 
+				    	  EAIBZWKDSTCD , EAISVCNAME , COUNT(EAISVCNAME) CNT,
+				          (SELECT CM.BZWKDSTICNAME FROM $schemaId$.TSEAICM01 CM WHERE CM.EAIBZWKDSTCD = TL.EAIBZWKDSTCD) BZWKDSTICNAME,
+				          (SELECT HE.EAISVCDESC FROM $schemaId$.TSEAIHE01 HE WHERE HE.EAISVCNAME = TL.EAISVCNAME) EAISVCDESC
+						  FROM $schemaId$.TSEAITL02 TL
+				     WHERE MSGDPSTYMS LIKE #searchDate#||'%'
+						GROUP BY EAIBZWKDSTCD, EAISVCNAME
+			   ) AS TB
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+ 	</statement>
+ 	
+ 	<!-- 서비스 별 거래현황 COUNT -->
+	<statement id="selectListByServiceCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS "CNT"
+		  FROM ( SELECT EAIBZWKDSTCD, EAISVCNAME
+				  FROM $schemaId$.TSEAITL02
+				 WHERE MSGDPSTYMS LIKE #searchDate#||'%'
+				GROUP BY EAIBZWKDSTCD, EAISVCNAME
+					 ) AS TB
+ 	</statement>
+
+ 	<!-- 대외채널기관 코드 별 거래현황 -->
+	<statement id="selectListByInsti" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    SELECT EAIBZWKDSTCD AS "EAIBZWKDSTCD" ,
+	           EAIOSIDINSTICD AS "EAIOSIDINSTICD" , 
+			       (SELECT CM.BZWKDSTICNAME FROM $schemaId$.TSEAICM01 CM WHERE CM.EAIBZWKDSTCD = TL.EAIBZWKDSTCD) AS "BZWKDSTICNAME",
+			       (SELECT MX.VLD_VAL_NM      FROM $schemaId$.TSEAIMX04 MX WHERE MX.VLD_VAL = TL.EAIOSIDINSTICD AND CD_IDTF_ID = '1000657215' AND MX.DEL_YN = 'N' ) AS "INSTINAME",
+			       COUNT(EAIOSIDINSTICD) AS "CNT"
+		    FROM $schemaId$.TSEAITL02 TL
+		   WHERE EAIOSIDINSTICD != ' '
+		     AND MSGDPSTYMS LIKE #searchDate#||'%'
+		   GROUP BY EAIBZWKDSTCD, EAIOSIDINSTICD
+ 	</statement>
+
+ 	<!-- 대외채널기관 코드 별 거래현황 COUNT -->
+	<statement id="selectListByInstiCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS "CNT"
+		  FROM ( SELECT EAIBZWKDSTCD, EAIOSIDINSTICD
+				  FROM $schemaId$.TSEAITL02 TL
+			   WHERE EAIOSIDINSTICD != ' '
+			     AND MSGDPSTYMS LIKE #searchDate#||'%'
+			   GROUP BY EAIBZWKDSTCD, EAIOSIDINSTICD
+					 )
+ 	</statement>
+ 	
+ 	<!-- 대외채널 코드 별 거래현황 -->
+	<statement id="selectListByChannel" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    SELECT EAIOSIDINSTICD AS "EAIOSIDINSTICD",
+	       (SELECT MX.VLD_VAL_NM      FROM $schemaId$.TSEAIMX04 MX WHERE MX.VLD_VAL = TL.EAIOSIDINSTICD AND CD_IDTF_ID = '1000657214' MX.DEL_YN = 'N' ) AS "INSTINAME",
+	       COUNT(EAIOSIDINSTICD) AS "CNT"
+		    FROM $schemaId$.TSEAITL02 TL
+		   WHERE EAIOSIDINSTICD != ' '
+		     AND MSGDPSTYMS LIKE #searchDate#||'%'
+		   GROUP BY EAIOSIDINSTICD
+ 	</statement>
+
+ 	<!-- 대외채널 코드 별 거래현황 COUNT -->
+	<statement id="selectListByChannelCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS "CNT"
+		  FROM ( SELECT EAIOSIDINSTICD
+				  FROM $schemaId$.TSEAITL02 TL
+			   WHERE EAIOSIDINSTICD != ' '
+			     AND MSGDPSTYMS LIKE #searchDate#||'%'
+			   GROUP BY EAIOSIDINSTICD
+		 ) AS TB
+ 	</statement>
+  	<!-- SEARCH CONTROL HISTORY -->
+ 	<statement id="selectListHistory" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+ 		SELECT   EAICTRLNAME      AS "EAICTRLNAME" 
+			, EAICTRLDESC      AS "EAICTRLDESC" 
+			, EAICTRLNAMEDSTCD AS "EAICTRLNAMEDSTCD" 
+			, EAICTRLDSTICCTNT AS "EAICTRLDSTICCTNT" 
+			, CTRLPRCSSYMS     AS "CTRLPRCSSYMS" 
+			, CTRLPRCSSNAME    AS "CTRLPRCSSNAME" 
+			, CTRLREVOCYMS     AS "CTRLREVOCYMS" 
+			, REVOCPRCSSNAME   AS "REVOCPRCSSNAME" 
+ 		  FROM (
+ 		  	   		SELECT ROW_NUMBER() OVER(ORDER BY TL.EAICTRLNAME) ROWNO
+			             , TL.EAICTRLNAME
+			             , CASE WHEN TL.EAICTRLNAMEDSTCD = '1' THEN HE.EAISVCDESC
+			             		WHEN TL.EAICTRLNAMEDSTCD = '2' THEN MX2.VLD_VAL_NM
+			             		WHEN TL.EAICTRLNAMEDSTCD = '3' THEN MX3.VLD_VAL_NM 
+			           		END EAICTRLDESC
+				         , (
+				              SELECT CODENAME
+				                FROM $schemaId$.TSEAICM20
+				               WHERE CODEGROUP	= 'CONTROL_TYPE'
+				                 AND CODE		= CASE WHEN EAICTRLNAMEDSTCD = '1' THEN 'S' ELSE 'C' END
+				           ) AS EAICTRLNAMEDSTCD 
+				         , TL.EAICTRLDSTICCTNT 
+				         , TO_CHAR(TO_TIMESTAMP(TL.CTRLPRCSSYMS , 'YYYYMMDDHH24MISSMS'), 'YYYY-MM-DD HH24:MI:SS.MS') AS CTRLPRCSSYMS
+						 , TL.CTRLPRCSSNAME
+				         , TO_CHAR(TO_TIMESTAMP(TL.CTRLREVOCYMS , 'YYYYMMDDHH24MISSMS'), 'YYYY-MM-DD HH24:MI:SS.MS') AS CTRLREVOCYMS
+				         , TL.REVOCPRCSSNAME
+				      FROM $schemaId$.TSEAITL01 TL
+				           LEFT OUTER JOIN $schemaId$.TSEAIHE01 HE  ON TL.EAICTRLNAME = HE.EAISVCNAME  AND TL.EAICTRLNAMEDSTCD = '1'
+				           LEFT OUTER JOIN $schemaId$.TSEAIMX04 MX2 ON TL.EAICTRLNAME = MX2.VLD_VAL    AND TL.EAICTRLNAMEDSTCD = '2' AND MX2.CD_IDTF_ID = '1000657215' AND MX2.DEL_YN = 'N'
+				           LEFT OUTER JOIN $schemaId$.TSEAIMX04 MX3 ON TL.EAICTRLNAME = MX3.VLD_VAL    AND TL.EAICTRLNAMEDSTCD = '3' AND MX3.CD_IDTF_ID = '1000657214' AND MX3.DEL_YN = 'N'
+					 WHERE TL.CTRLPRCSSYMS LIKE #searchDate#||'%'
+					 ORDER BY TL.CTRLPRCSSYMS DESC
+ 		  	   ) AS TB
+ 		 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+ 		
+ 	</statement>
+ 	
+  	<!-- SEARCH CONTROL HISTORY COUNT -->
+ 	<statement id="selectListHistoryCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) 
+	      FROM $schemaId$.TSEAITL01 TL
+	           LEFT OUTER JOIN $schemaId$.TSEAIHE01 HE  ON TL.EAICTRLNAME = HE.EAISVCNAME  AND TL.EAICTRLNAMEDSTCD = '1'
+	           LEFT OUTER JOIN $schemaId$.TSEAIMX04 MX2 ON TL.EAICTRLNAME = MX2.VLD_VAL    AND TL.EAICTRLNAMEDSTCD = '2' AND MX2.CD_IDTF_ID = '1000657215' AND MX2.DEL_YN = 'N'
+	           LEFT OUTER JOIN $schemaId$.TSEAIMX04 MX3 ON TL.EAICTRLNAME = MX3.VLD_VAL    AND TL.EAICTRLNAMEDSTCD = '3' AND MX3.CD_IDTF_ID = '1000657214' AND MX3.DEL_YN = 'N'
+			 WHERE TL.CTRLPRCSSYMS LIKE #searchDate#||'%'
+ 	</statement>
+</sqlMap>

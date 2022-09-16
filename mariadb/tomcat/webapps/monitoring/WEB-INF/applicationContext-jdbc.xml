@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+			http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+			">
+  <!-- JNDI DataSource for J2EE environments -->
+ 
+  <bean  
+    id="dataSource"
+    class="com.eactive.eai.rms.common.datasource.RoutingDataSource">
+    <property
+      name="targetDataSources">
+      <map
+        key-type="java.lang.String">
+        <entry 
+          key="EAI"
+          value-ref="EAI" />
+        <entry 
+          key="FEP"
+          value-ref="FEP" />
+        <entry 
+          key="BATCH"
+          value-ref="BATCH" />
+        <entry 
+          key="EAI_BATCH"
+          value-ref="EAI_BATCH" />
+      </map>
+    </property>
+    <property
+      name="defaultTargetDataSource"
+      ref="MONITORING">
+    </property>
+  </bean>
+
+  <context:component-scan
+    base-package="com.eactive.eai.rms">
+    <context:include-filter
+      type="annotation"
+      expression="org.springframework.stereotype.Component" />
+    <context:exclude-filter
+      type="annotation"
+      expression="org.springframework.stereotype.Controller" />
+  </context:component-scan>
+ 
+  <context:spring-configured /> 
+  <context:annotation-config />
+
+  <bean
+    class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
+<!-- 
+  <tx:annotation-driven transaction-manager="transactionManager" />
+-->  
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property
+      name="dataSource"
+      ref="dataSource">
+      </property>
+  </bean>
+
+    <aop:config>
+        <aop:advisor pointcut="execution(* *..*Service.insert*(..))||execution(* *..*Service.update*(..))||execution(* *..*Service.delete*(..))||execution(* *..*Service.transaction*(..))||execution(* *..*Service.backup*(..)) "  advice-ref="txAdvice"/>
+    </aop:config>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="insert*"      propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="update*"      propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="delete*"      propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="transaction*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="backup*"      propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="*"            read-only="true" />
+        </tx:attributes>
+    </tx:advice>
+
+
+
+
+  <!-- ibatis -->
+  <bean
+    id="sqlMapClient"
+    class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+    <property
+      name="dataSource"
+      ref="dataSource" />
+    <property name="configLocations">
+    	<list>
+    		<value>/WEB-INF/sqlmap-config/${db.vendor}/sqlMapConfigOfOnl.xml</value>
+    		<value>/WEB-INF/sqlmap-config/${db.vendor}/sqlMapConfigOfBap.xml</value>
+    		<value>/WEB-INF/sqlmap-config/${db.vendor}/sqlMapConfigOfBat.xml</value>
+    	</list>
+    </property>
+  </bean>
+  <!-- ibatis -->
+  <bean
+    id="sqlMapClientForMonitoring"
+    class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+    <property
+      name="dataSource"
+      ref="MONITORING" />
+    <property
+      name="configLocation"
+      value="/WEB-INF/sqlmap-config/${db.vendor}/sqlMapConfigForMonitoring.xml" />      
+  </bean>  
+  <!-- ibatis -->
+  <bean
+    id="sqlMapClientForMeta"
+    class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+    <property
+      name="dataSource"
+      ref="META" />
+    <property
+      name="configLocation"
+      value="/WEB-INF/sqlmap-config/${db.vendor}/sqlMapConfigForMeta.xml" />      
+  </bean>    
+</beans>

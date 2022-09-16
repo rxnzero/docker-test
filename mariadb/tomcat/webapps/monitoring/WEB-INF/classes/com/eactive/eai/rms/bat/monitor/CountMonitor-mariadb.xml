@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatCountMonitor">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT IFNULL(SUM(CASE WHEN T2.SNDSTATUSCD IS NOT NULL THEN 1 ELSE 0 END)                            ,0) AS SNDSTATUSCNT0,
+	           IFNULL(SUM(CASE WHEN T2.RCVSTATUSCD IS NOT NULL THEN 1 ELSE 0 END)                            ,0) AS RCVSTATUSCNT0,
+	           IFNULL(SUM(CASE WHEN T2.SNDSTATUSCD='C' THEN 1 ELSE 0 END)                                    ,0) AS SNDSTATUSCNT1,
+	           IFNULL(SUM(CASE WHEN T2.SNDSTATUSCD NOT IN ('C','S') THEN 1 ELSE 0 END)                       ,0) AS SNDSTATUSCNT2,
+	           IFNULL(SUM(CASE WHEN T2.RCVSTATUSCD='C' THEN 1 ELSE 0 END)                                    ,0) AS RCVSTATUSCNT1,
+	           IFNULL(SUM(CASE WHEN T2.RCVSTATUSCD NOT IN ('C','S') AND T2.SNDSTATUSCD='C' THEN 1 ELSE 0 END),0) AS RCVSTATUSCNT2,
+	           IFNULL(SUM(CASE WHEN T2.SNDSTATUSCD='S' THEN 1 ELSE 0 END)                                    ,0) AS SNDSTATUSCNT3,
+	           IFNULL(SUM(CASE WHEN T2.RCVSTATUSCD='S' THEN 1 ELSE 0 END)                                    ,0) AS RCVSTATUSCNT3
+		FROM ( SELECT IFNULL((SELECT MAX(transStatusCd) FROM $schemaId$.TSEAIES03 WHERE BjobDmndMsgID=a.BjobDmndMsgID AND sndRcvKind='1' ),
+	                  IFNULL((SELECT MAX(transStatusCd) FROM $schemaId$.TSEAIES04 WHERE BjobDmndMsgID=a.BjobDmndMsgID AND sndRcvKind='1' ),'F')) AS sndStatusCd,
+	                  IFNULL((SELECT MAX(transStatusCd) FROM $schemaId$.TSEAIES03 WHERE BjobDmndMsgID=a.BjobDmndMsgID AND sndRcvKind='2' ),
+	                  IFNULL((SELECT MAX(transStatusCd) FROM $schemaId$.TSEAIES04 WHERE BjobDmndMsgID=a.BjobDmndMsgID AND sndRcvKind='2' ),'F')) AS rcvStatusCd
+	           FROM   $schemaId$.TSEAIES01 A
+	           WHERE A.msgRegDate BETWEEN #searchStartDate# AND CONCAT( #searchEndDate# , '9' )
+	         ) T2
+	</statement>	
+
+</sqlMap>

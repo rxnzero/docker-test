@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="InboundErrorInfoMan">
+	
+	<!-- Inbound 에러 목록 조회  -->
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT 
+			ROWNO              AS "ROWNO" ,
+			EAISVCSERNO        AS "EAISVCSERNO" ,
+			ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME" ,
+			EAIERRDSTCD        AS "EAIERRDSTCD" ,
+			EAIERRCD           AS "EAIERRCD" ,
+			EAIERRCTNT         AS "EAIERRCTNT" ,
+			ERROCCURHMS        AS "ERROCCURHMS" ,
+			BZWKDATACTNT       AS "BZWKDATACTNT" ,
+			EAISEVRINSTNCNAME  AS "EAISEVRINSTNCNAME"  
+		FROM ( 
+            SELECT ROW_NUMBER() OVER() AS ROWNO, 
+		    	EAISVCSERNO, ADPTRBZWKGROUPNAME, EAIERRDSTCD, EAIERRCD, 
+		        EAIERRCTNT, ERROCCURHMS, BZWKDATACTNT, EAISEVRINSTNCNAME 
+		    FROM ( 
+		    	SELECT EAISVCSERNO, ADPTRBZWKGROUPNAME, EAIERRDSTCD, EAIERRCD, EAIERRCTNT, 
+		        	    TO_CHAR(TO_TIMESTAMP(SUBSTR(ERROCCURHMS,1,14),'YYYYMMDDHH24MISSMS'), 'YYYY-MM-DD HH24:MI:SS') 
+		        	    || '.' || SUBSTR(ERROCCURHMS,15,2) ERROCCURHMS,
+		            BZWKDATACTNT, EAISEVRINSTNCNAME 
+		        FROM $schemaId$.TSEAICM04 		        
+		        <dynamic prepend="WHERE">
+					<isNotEmpty prepend="AND" property="searchEaiSvcSerNo">
+						EAISVCSERNO LIKE UPPER('%'||#searchEaiSvcSerNo#||'%')
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+						ADPTRBZWKGROUPNAME = #searchAdptrBzwkGroupName#
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchEaiErrCd">
+						EAIERRCD LIKE UPPER('%'||#searchEaiErrCd#||'%')
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchEaiSevrInstncName">
+						EAISEVRINSTNCNAME LIKE UPPER('%'||#searchEaiSevrInstncName#||'%')
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchEndDate">
+						ERROCCURHMS BETWEEN #searchStartDate#||'00000000' AND #searchEndDate#||'23595999'
+					</isNotEmpty>
+				</dynamic>
+					ORDER BY ERROCCURHMS DESC 
+		        ) TMP1
+		    ) TMP2 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+		    
+	</statement>	
+	
+	<!-- Inbound 에러 목록수 -->
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+    	SELECT COUNT(*) AS "TOTALCOUNT"
+        FROM $schemaId$.TSEAICM04 		        
+        <dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchEaiSvcSerNo">
+				UPPER(EAISVCSERNO) LIKE '%'||#searchEaiSvcSerNo#||'%'
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+				ADPTRBZWKGROUPNAME = #searchAdptrBzwkGroupName#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchEaiErrCd">
+				EAIERRCD LIKE UPPER('%'||#searchEaiErrCd#||'%')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchEaiSevrInstncName">
+				EAISEVRINSTNCNAME LIKE UPPER('%'||#searchEaiSevrInstncName#||'%')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchEndDate">
+				ERROCCURHMS BETWEEN #searchStartDate#||'00000000' AND #searchEndDate#||'23595999'
+			</isNotEmpty>
+		</dynamic>
+	</statement>
+	
+	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT EAISVCSERNO AS "EAISVCSERNO"
+		     , ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME"
+		     , EAIERRDSTCD AS "EAIERRDSTCD"
+		     , EAIERRCD AS "EAIERRCD"
+		     , EAIERRCTNT AS "EAIERRCTNT"
+		     , TO_CHAR(TO_TIMESTAMP(SUBSTR(ERROCCURHMS,1,14),'YYYYMMDDHH24MIMS'), 'YYYY-MM-DD HH24:MI:SS') || '.' || SUBSTR(ERROCCURHMS,15,2) "ERROCCURHMS"
+		     , BZWKDATACTNT AS "BZWKDATACTNT"
+		     , EAISEVRINSTNCNAME AS "EAISEVRINSTNCNAME"
+		FROM $schemaId$.TSEAICM04 
+		WHERE EAISVCSERNO = #eaiSvcSerno#
+	</statement>
+</sqlMap>

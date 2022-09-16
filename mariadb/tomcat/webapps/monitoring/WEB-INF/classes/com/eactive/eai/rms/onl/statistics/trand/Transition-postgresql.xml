@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Transition">
+  <!--  #### Transaction tracking in database  ###  -->
+  
+  
+  <!--  error list count ( single table ) -->
+  <statement id="findByTransition" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.trand.vo.TransitionVO"><![CDATA[
+		SELECT STATCYM AS "STATCYM",
+	        MNTRSMTNOITM1 AS "MNTRSMTNOITM1", 
+			MNTRSMTNOITM2 AS "MNTRSMTNOITM2", 
+			MNTRSMTNOITM3 AS "MNTRSMTNOITM3", 
+			MNTRSMTNOITM4 AS "MNTRSMTNOITM4", 
+			MNTRSMTNOITM5 AS "MNTRSMTNOITM5", 
+			MNTRSMTNOITM6 AS "MNTRSMTNOITM6", 
+			MNTRSMTNOITM7 AS "MNTRSMTNOITM7", 
+			MNTRSMTNOITM8 AS "MNTRSMTNOITM8", 
+			MNTRSMTNOITM9 AS "MNTRSMTNOITM9", 
+			MNTRSMTNOITM10 AS "MNTRSMTNOITM10",
+			MNTRSMTNOITM11 AS "MNTRSMTNOITM11",
+			MNTRSMTNOITM12 AS "MNTRSMTNOITM12"
+		FROM  (                                     
+		       SELECT TMP1.*, ROW_NUMBER() OVER() AS ROWNUM             
+		       FROM  ( 
+					SELECT  STATCYM,
+					        SUM(S1MNTRSMTNOITM) AS  MNTRSMTNOITM1, 
+							SUM(S2MNTRSMTNOITM) AS  MNTRSMTNOITM2, 
+							SUM(S3MNTRSMTNOITM) AS  MNTRSMTNOITM3, 
+							SUM(S4MNTRSMTNOITM) AS  MNTRSMTNOITM4, 
+							SUM(S5MNTRSMTNOITM) AS  MNTRSMTNOITM5, 
+							SUM(S6MNTRSMTNOITM) AS  MNTRSMTNOITM6, 
+							SUM(S7MNTRSMTNOITM) AS  MNTRSMTNOITM7, 
+							SUM(S8MNTRSMTNOITM) AS  MNTRSMTNOITM8, 
+							SUM(S9MNTRSMTNOITM) AS  MNTRSMTNOITM9, 
+							SUM(S10MNTRSMTNOITM) AS MNTRSMTNOITM10,
+							SUM(S11MNTRSMTNOITM) AS MNTRSMTNOITM11,
+							SUM(S12MNTRSMTNOITM) AS MNTRSMTNOITM12
+					FROM $schemaId$.TSEAIST04
+					GROUP BY STATCYM
+					ORDER BY STATCYM
+		       ) TMP1 WHERE ROWNUM <= #lastRow#
+		) TMP2 WHERE ROWNUM >= #firstRow#
+		]]>
+  </statement>
+  
+  <statement id="findTrandArray" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.trand.vo.TrandBean">  
+    
+    SELECT STATCYM, SUBSTR(STATCYM, 5, 2) AS "MONTH",
+         ( SUM(S1DDTRSMTNOITM)  + SUM(S2DDTRSMTNOITM)  + SUM(S3DDTRSMTNOITM)+
+		   SUM(S4DDTRSMTNOITM)  + SUM(S5DDTRSMTNOITM)  + SUM(S6DDTRSMTNOITM)+
+		   SUM(S7DDTRSMTNOITM)  + SUM(S8DDTRSMTNOITM)  + SUM(S9DDTRSMTNOITM)+
+		   SUM(S10DDTRSMTNOITM) + SUM(S11DDTRSMTNOITM) + SUM(S12DDTRSMTNOITM)+
+		   SUM(S13DDTRSMTNOITM) + SUM(S14DDTRSMTNOITM) + SUM(S15DDTRSMTNOITM)+
+		   SUM(S16DDTRSMTNOITM) + SUM(S17DDTRSMTNOITM) + SUM(S18DDTRSMTNOITM)+
+ 		   SUM(S19DDTRSMTNOITM) + SUM(S20DDTRSMTNOITM) + SUM(S21DDTRSMTNOITM)+
+	 	   SUM(S22DDTRSMTNOITM) + SUM(S23DDTRSMTNOITM) + SUM(S24DDTRSMTNOITM)+
+		   SUM(S25DDTRSMTNOITM) + SUM(S26DDTRSMTNOITM) + SUM(S27DDTRSMTNOITM)+
+		   SUM(S28DDTRSMTNOITM) + SUM(S29DDTRSMTNOITM) + SUM(S30DDTRSMTNOITM)+
+		   SUM(S31DDTRSMTNOITM)
+         ) AS "TRSMTNOITM"
+      FROM $schemaId$.TSEAIST03
+      <isEqual compareValue="S" prepend="WHERE" property="searchField">
+            EAISVCNAME = #searchText#
+      </isEqual>
+      <isEqual compareValue="B" prepend="WHERE" property="searchField">
+            EAIBZWKDSTCD = #searchText#
+      </isEqual>
+      GROUP BY STATCYM
+  </statement>
+
+    
+</sqlMap>

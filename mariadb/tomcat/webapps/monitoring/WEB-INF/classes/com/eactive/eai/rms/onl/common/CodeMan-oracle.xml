@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CodeMan">
+	<statement id="selectCodeGroupList" resultClass="java.util.HashMap">
+		SELECT T19.CODEGROUP	AS CDGROUP
+			 , T19.DESCRIPTION	AS CDGROUPDESC
+			 , (
+			 	  SELECT COUNT(*)
+					FROM $schemaId$.TSEAICM20
+				   WHERE CODEGROUP = T19.CODEGROUP
+			   ) AS CHILDCNT
+		  FROM $schemaId$.TSEAICM19 T19
+		  	 , $schemaId$.TSEAICM20 T20
+		 WHERE T19.CODEGROUP = T20.CODEGROUP(+)
+			<isNotEmpty prepend="AND" property="searchName">
+					(
+						UPPER(T19.CODEGROUP)	LIKE UPPER('%'||#searchName#||'%')
+					OR	UPPER(T20.CODE)			LIKE UPPER('%'||#searchName#||'%')
+					OR	UPPER(T20.CODENAME)		LIKE UPPER('%'||#searchName#||'%')
+					)
+			</isNotEmpty>
+		 GROUP BY T19.CODEGROUP
+		 		, T19.DESCRIPTION
+		 ORDER BY T19.CODEGROUP
+	</statement>
+	
+	<statement id="selectCodeTreeList" resultClass="java.util.HashMap">
+		SELECT LEVEL - 1		AS "level"
+			 , T20.CODE			AS "id"
+			 , T20.PARENTCODE	AS "parent"
+			 , 'true'			AS "expanded"
+			 , DECODE(CONNECT_BY_ISLEAF,1,'true','false') AS "isLeaf"
+			 
+			 , T20.CODE
+			 , T20.CODENAME
+			 , T20.PARENTCODE
+			 , T20.CODEGROUP
+			 , DECODE(T20.SEQ, 0, '', T20.SEQ) AS SEQ
+			 , NVL2(T20.USEYN, T20.USEYN, 'N') AS USEYN
+			 , DECODE(T20.USEYN, 'Y', '사용함', DECODE(T20.PARENTCODE, NULL, '', '사용안함')) AS USEYNNAME
+		  FROM (
+					SELECT CODEGROUP
+						 , CODE
+						 , CODENAME
+						 , DECODE(PARENTCODE, NULL, #searchCodeGroup#, PARENTCODE) AS PARENTCODE
+						 , SEQ
+						 , USEYN
+					  FROM (
+								SELECT LEVEL - 1 "LEVEL"
+									 , CODEGROUP
+									 , CODE
+									 , CODENAME
+									 , PARENTCODE
+									 , SEQ
+									 , USEYN
+								  FROM $schemaId$.TSEAICM20
+							   CONNECT BY PRIOR PARENTCODE = CODE
+								 START WITH CODE IN (
+														SELECT CODE
+														  FROM $schemaId$.TSEAICM20
+														 WHERE CODEGROUP = #searchCodeGroup#
+														   /*AND CODENAME LIKE '%ACKO%'*/
+													)
+						   )
+					  WHERE CODEGROUP = #searchCodeGroup#
+					  GROUP BY CODEGROUP
+							 , CODE
+							 , CODENAME
+							 , PARENTCODE
+							 , SEQ
+							 , USEYN
+                                          
+					  UNION ALL
+                         
+					SELECT CODEGROUP
+						 , CODEGROUP AS CODE
+						 , ''
+						 , NULL
+						 , 0
+						 , ''
+					  FROM $schemaId$.TSEAICM19
+					 WHERE CODEGROUP = #searchCodeGroup#
+					 GROUP BY CODEGROUP
+			   ) T20
+		 CONNECT BY PRIOR T20.CODE = T20.PARENTCODE
+		   START WITH T20.PARENTCODE IS NULL
+		   ORDER SIBLINGS BY T20.SEQ, T20.CODE
+	</statement>
+    <!-- Start Code 입력, 수정, 삭제 -->
+    <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT  INTO $schemaId$.TSEAICM20(
+                    CODEGROUP
+                ,   CODE
+                ,   CODENAME
+                ,   SEQ
+                ,   PARENTCODE
+                ,   USEYN
+                )
+        VALUES  (
+                    #codeGroup#
+                ,   #code#
+                ,   #codeName#
+                ,   #seq#
+                ,   #parentCode#
+                ,   #useYn#
+                )       
+    </statement>
+    
+    <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE  $schemaId$.TSEAICM20 
+           SET  CODENAME    = #codeName#
+             ,  SEQ         = #seq#
+             ,  USEYN       = #useYn#
+         WHERE  CODEGROUP   = #codeGroup#
+           AND  CODE        = #code#
+    </statement>
+    
+    <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAICM20
+         WHERE CODEGROUP = #codeGroup#
+         <isNotEqual property="level" compareValue="0">
+           AND CODE IN (
+                          SELECT T20.CODE
+                            FROM $schemaId$.TSEAICM20 T20 
+                         CONNECT BY PRIOR CODE = PARENTCODE  
+                           START WITH CODE = #code#
+                       )
+         </isNotEqual>
+    </statement>
+    <!-- End Code 입력, 수정, 삭제 -->
+</sqlMap>

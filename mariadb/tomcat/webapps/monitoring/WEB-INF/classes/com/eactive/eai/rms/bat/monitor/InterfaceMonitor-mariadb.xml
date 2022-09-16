@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatInterfaceMonitor">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM ( SELECT @NO := @NO + 1 AS ROWNO,   
+		              A.WORKGRPCD,
+		              A.INTFID,
+		              A.LEVEL4,
+		              IFNULL(B.BJOBMSGSCHEID,'') AS BJOBMSGSCHEID,
+		              A.INTFNAME,
+		              A.BATCHTYPE,
+		              C.BJOBDMNDMSGID,
+		              C.ERRYN,
+		              (SELECT COUNT(BJOBMSGSCHEID) 
+		               FROM $SCHEMAID$.TSEAIES01
+		               WHERE INTFID=A.INTFID 
+		               AND MSGREGDATE BETWEEN #SEARCHSTARTTIME# AND #SEARCHENDTIME# ) AS MSGCNT,
+		              C.SNDSTARTDATE,
+		              C.INTFIDENDDATE,
+		              CONCAT( SUBSTR(B.SNDRCVSTARTHMS,1,2) , ':' , SUBSTR(B.SNDRCVSTARTHMS,3,2) ,  '~' , SUBSTR(B.SNDRCVENDHMS,1,2) , ':' , SUBSTR(B.SNDRCVENDHMS,3,2) ) AS SCHEDULTIME,
+		              A.INTFENDDATE,
+		              (SELECT CHECKNAME
+		               FROM $SCHEMAID$.TSEAIEA05
+		               WHERE ADPTRCD=A.SNDADPTRCD
+		               AND ADPTRCDSEQ=A.SNDADPTRCDSEQ) AS CHECKNAME,
+		              A.DELYN ,
+		              C.CHECKBASEDATE,
+		              C.CHECKROWCNT,
+		              C.SNDLINECNT,
+		              C.RCVLINECNT,
+		              B.SCHEKIND,
+		              A.EVENTCALLVAL,
+		              D.FILETRSMTSIZECTNT
+	           FROM  (SELECT @NO := 0) R , $schemaId$.TSEAIEA04 A 
+	           LEFT OUTER JOIN   
+	                  ( SELECT TB1.BjobMsgScheID,
+	                           TB2.intfId,
+	                           TB1.SndrcvStartHMS,
+	                           TB1.SndrcvEndHMS,
+	                           TB1.scheKind
+	                    FROM $schemaId$.TSEAIES07 TB1,
+	                         $schemaId$.TSEAIES09 TB2
+	                    WHERE TB1.BjobMsgScheID = TB2.BjobMsgScheID
+	                    AND   TB1.ThisMsgUseYn = '1'
+	                  ) B
+					 ON  A.intfId=B.intfId
+					 LEFT OUTER JOIN		 	   
+		 	          ( SELECT * FROM (
+	                    SELECT T1.intfId,
+	                           T1.BjobDmndMsgID,
+	                           NVL(T1.ErrYn,'N') AS ErrYn,
+	                           T1.sndStartDate,
+	                           T1.intfIdEndDate,
+	                           T1.checkBaseDate,
+	                           T1.checkRowCnt,
+	                           T1.sndLineCnt,
+	                           T1.rcvLineCnt,
+	                           @NO := @NO + 1 AS RN
+		 	            FROM $schemaId$.TSEAIES01 T1, SELECT @NO := 0) R1 
+		 	            WHERE msgRegDate BETWEEN #searchStartTime# AND #searchEndTime# )
+		 	            WHERE RN = 1
+		 	            ORDER BY T1.msgRegDate DESC 
+	                  ) C
+	                  ON   A.intfId=C.intfId
+		 	   		  LEFT OUTER JOIN
+	                  ( SELECT T1.intfId,
+	                           T2.fileTrsmtSizeCtnt
+	                    FROM ( SELECT * 
+		 	            FROM ( SELECT T1.intfId AS intfId ,
+		 	                          T1.BjobDmndMsgID,
+		 	                          @NO := @NO + 1 AS m
+                               FROM   $schemaId$.TSEAIES01 T1
+                               WHERE  T1.msgRegDate BETWEEN #searchStartTime# AND #searchEndTime#
+                               order by T1.msgRegDate desc
+                        )WHERE rn = 1                                     
+                        ) T1, $schemaId$.TSEAIES03 T2 
+		 	             WHERE  T1.intfId = T2.intfId
+		 	             AND    T1.BjobDmndMsgID=T2.BjobDmndMsgID
+		 	             AND    T2.sndRcvKind='1' 
+	                  ) D
+	                  ON   A.intfId=D.intfId
+	           WHERE A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	           <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+                   A.workGrpCd =  #searchEaiBzwkDstcd#
+               </isNotEmpty>
+	           <isNotEmpty prepend="AND" property="searchDelYn">
+         	       A.delYn =  #searchDelYn#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchBatchType">
+         			  A.batchType = #searchBatchType#
+               </isNotEmpty>
+         	   <isNotEmpty prepend="AND" property="searchErrorVal">
+         	          IFNULL(C.errYn,'N') = #searchErrorVal#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchInterfaceNm">
+                      ( A.intfName LIKE CONCAT( '%' , #searchInterfaceNm# , '%') OR A.intfId LIKE CONCAT('%' , #searchInterfaceNm# , '%' )  )
+               </isNotEmpty>
+	           ORDER BY A.WorkGrpCd, A.IntfId, C.SndStartDate DESC
+			 ) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(A.intfId) AS TOTALCOUNT
+	    FROM   $schemaId$.TSEAIEA04 A
+	    		LEFT OUTER JOIN
+	           ( SELECT tb1.BjobMsgScheID,
+	                    tb2.intfId,
+	                    tb1.SndrcvStartHMS,
+	                    tb1.SndrcvEndHMS,
+	                    tb1.scheKind
+	             FROM $schemaId$.TSEAIES07 tb1,
+	                  $schemaId$.TSEAIES09 tb2
+	             WHERE tb1.BjobMsgScheID = tb2.BjobMsgScheID
+	           ) B
+	           ON A.IntfId=B.IntfId
+	           LEFT OUTER JOIN
+	           ( SELECT * FROM (
+	             SELECT T1.intfId,
+	                    T1.BjobDmndMsgID,
+	                    T1.errYn,
+	                    T1.sndStartDate,
+	                    T1.intfIdEndDate,
+	                    T1.checkBaseDate,
+	                    T1.checkRowCnt,
+	                    T1.sndLineCnt,
+	                    T1.rcvLineCnt,
+	                    ROW_NUMBER() OVER(PARTITION BY T1.intfId ORDER BY T1.msgRegDate DESC ) RN
+		 	     FROM $schemaId$.TSEAIES01 T1 
+		 	     WHERE msgRegDate BETWEEN #searchStartTime# AND #searchEndTime# )
+		 	     WHERE RN = 1
+	             ) C
+	             ON A.IntfId=C.IntfId
+	    WHERE  A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+            A.workGrpCd =  #searchEaiBzwkDstcd#
+        </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="searchDelYn">
+         	A.delYn =  #searchDelYn#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchBatchType">
+         	A.batchType = #searchBatchType#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchErrorVal">
+         	IFNULL(C.errYn,'N') = #searchErrorVal#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchInterfaceNm">
+            ( A.intfName LIKE CONCAT( '%' , #searchInterfaceNm# , '%') OR A.intfId LIKE CONCAT('%' , #searchInterfaceNm# , '%' )  )
+        </isNotEmpty>
+	</statement>	
+	
+</sqlMap>

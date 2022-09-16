@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="ClassInfo">
+	<statement id="list"  resultClass="java.util.HashMap">
+		SELECT
+		   TelgmClsName,
+		   TelgmClsDesc,
+		   ROWNO
+		 FROM(
+		 SELECT
+		   TelgmClsName,
+		   TelgmClsDesc,
+		   ROW_NUMBER() OVER( ORDER BY TelgmClsName) ROWNO
+		 FROM $schemaId$.TSEAIBR01
+		 <isNotEmpty prepend="WHERE" property="searchTelgmClsName">
+			TelgmClsName LIKE '%' || #searchTelgmClsName# || '%'
+		 </isNotEmpty>
+		) TMP
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+		
+	</statement>	
+
+	<statement id="count"  resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TotalCount"
+		FROM $schemaId$.TSEAIBR01
+	    <isNotEmpty prepend="WHERE" property="searchTelgmClsName">
+			TelgmClsName LIKE '%' || #searchTelgmClsName# || '%'
+		</isNotEmpty> 			
+	</statement>	
+ 
+</sqlMap>

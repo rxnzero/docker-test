@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Scheduler">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">     
+     SELECT COUNT(*) 
+       FROM $schemaId$.TSEAIRM21 
+      <dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="searchJobName">
+	      UPPER(JOBNAME) LIKE '%'||UPPER(#searchJobName#)||'%'
+		</isNotEmpty>
+      </dynamic>
+  </statement>
+  
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		 SELECT ROWNO AS "ROWNO"
+		      , JOBNAME AS "JOBNAME"
+		      , JOBDESC AS "JOBDESC"
+			  , CRONEXP AS "CRONEXP"
+			  , JOBCLASSNAME AS "JOBCLASSNAME"
+			  , USEYN AS "USEYN"
+			  , INSTANCENAME AS "INSTANCENAME"
+			  , CHKSTATUS AS "CHKSTATUS"
+		   FROM (
+             SELECT ROW_NUMBER() OVER() AS ROWNO, JOBNAME, JOBDESC 			  
+              , CRONEXP
+			  , JOBCLASSNAME
+			  , USEYN
+			  , INSTANCENAME
+			  , CHKSTATUS
+		       FROM   $schemaId$.TSEAIRM21
+		      <dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchJobName">
+			      UPPER(JOBNAME) LIKE '%'||UPPER(#searchJobName#)||'%'
+				</isNotEmpty>
+		      </dynamic>
+			) TMP1
+			WHERE ROWNO BETWEEN #startNum# AND #endNum# 
+			ORDER BY JOBNAME
+  </statement>
+
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		 SELECT JOBNAME AS "JOBNAME"
+		 	  , JOBDESC AS "JOBDESC"
+		      , CRONEXP AS "CRONEXP"
+			  , JOBCLASSNAME AS "JOBCLASSNAME"
+			  , USEYN AS "USEYN"
+			  , INSTANCENAME AS "INSTANCENAME"
+			  , CHKSTATUS AS "CHKSTATUS"
+		   FROM $schemaId$.TSEAIRM21
+		  WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="selectListSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		 SELECT JOBNAME AS "JOBNAME"
+		      , DATAKEY AS "DATAKEY"
+		      , DATAVALUE AS "DATAVALUE"
+		   FROM $schemaId$.TSEAIRM22 
+		   WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="selectAllSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">    
+		SELECT JOBNAME  AS "JOBNAME"
+		     , DATAKEY AS "DATAKEY"
+		     , DATAVALUE AS "DATAVALUE"
+		  FROM $schemaId$.TSEAIRM22 
+		 ORDER BY JOBNAME, ADPTRIODSTCD, ADPTRPRPTYNAME
+  </statement>
+
+  <statement id="selectSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		SELECT DATAKEY AS "DATAKEY", DATAVALUE AS "DATAVALUE" 
+		FROM $schemaId$.TSEAIRM22 
+		WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="selectListAll" parameterClass="java.util.HashMap" resultClass="java.util.ArrayList">    
+		 SELECT JOBNAME AS "JOBNAME", CRONEXP AS "CRONEXP", 
+		 JOBCLASSNAME AS "JOBCLASSNAME", USEYN AS "USEYN", INSTANCENAME AS "INSTANCENAME"
+		   FROM $schemaId$.TSEAIRM21
+  </statement>
+   
+  <statement id="selectAllScheduler" resultClass="java.util.HashMap">
+	  SELECT JOBNAME AS "JOBNAME", CRONEXP AS "CRONEXP", 
+		 JOBCLASSNAME AS "JOBCLASSNAME", USEYN AS "USEYN", INSTANCENAME AS "INSTANCENAME"
+	  FROM $schemaId$.TSEAIRM21
+  </statement>
+  
+  <statement id="selectAllItemScheduler" resultClass="java.util.HashMap">
+	  SELECT M.JOBNAME AS "JOBNAME", M.CRONEXP AS "CRONEXP", 
+	  M.JOBCLASSNAME AS "JOBCLASSNAME", M.USEYN AS "USEYN", 
+	  M.INSTANCENAME AS "INSTANCENAME", D.DATAKEY AS "DATAKEY", D.DATAVALUE AS "DATAVALUE"
+	  FROM $schemaId$.TSEAIRM21 M
+	     , $schemaId$.TSEAIRM22 D
+	  WHERE M.JOBNAME = D.JOBNAME
+  </statement>
+  
+  <statement id="selectInstance" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		 SELECT PRPTY2VAL AS "PRPTY2VAL"
+		   FROM $schemaId$.TSEAIRM08
+		 <dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="prptyGroupName">
+		      PRPTYGROUPNAME = #prptyGroupName#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="prptyName">
+		      PRPTYNAME = #prptyName#
+			</isNotEmpty>
+	     </dynamic>
+  </statement>
+
+  <statement id="selectRecentStatus" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+  	SELECT STATUS  AS "STATUS"
+  	FROM $schemaId$.TSEAIRM20 
+  	WHERE ENDDATE = (
+  		SELECT MAX(ENDDATE) 
+  		FROM $schemaId$.TSEAIRM20 
+  		WHERE JOBNAME= #jobName# 
+  		AND INSTANCENAME = #instanceName#
+  	) 
+  </statement>
+</sqlMap>

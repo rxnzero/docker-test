@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="EaiMsg">
+  <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM  $schemaId$.TSEAIHE01 
+          WHERE EAISVCNAME=#eaiSvcName#
+  </statement>
+  
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT    
+			EAISVCNAME                 AS "EAISVCNAME"
+			, EAIBZWKDSTCD               AS "EAIBZWKDSTCD"
+			, SVCHMSEONOT                AS "SVCHMSEONOT"
+			, SVCMOTIVUSEDSTCD           AS "SVCMOTIVUSEDSTCD"
+			, SVCPRCESDSTICNAME          AS "SVCPRCESDSTICNAME"
+			, FLOWCTRLROUTNAME           AS "FLOWCTRLROUTNAME"
+			, INTGRADSTICNAME            AS "INTGRADSTICNAME"
+			, SVCBFCLMNLOGYN             AS "SVCBFCLMNLOGYN"
+			, GSTATSYSADPTRBZWKGROUPNAME AS "GSTATSYSADPTRBZWKGROUPNAME"
+			, SEVRLOGLVELNO              AS "SEVRLOGLVELNO"
+			, SVCLOGLVELNO               AS "SVCLOGLVELNO"
+			, ERREAISVCNAME              AS "ERREAISVCNAME"
+			, DMNDERRCHNGIDNAME          AS "DMNDERRCHNGIDNAME"
+			, DMNDERRFLDNAME             AS "DMNDERRFLDNAME"
+			, RSPNSERRCHNGIDNAME         AS "RSPNSERRCHNGIDNAME"
+			, RSPNSERRFLDNAME            AS "RSPNSERRFLDNAME"
+			, EAISVCDESC                 AS "EAISVCDESC"
+			, SIMYN                      AS "SIMYN"
+			, CREATEBY                   AS "CREATEBY"
+			, UPDATEBY                   AS "UPDATEBY"
+			, CREATEON                   AS "CREATEON"
+			, UPDATEON                   AS "UPDATEON"
+			, REQCHGR                    AS "REQCHGR"
+			, REQCHGRTLNO                AS "REQCHGRTLNO"
+			, RESCHGR                    AS "RESCHGR"
+			, RESCHGRTLNO                AS "RESCHGRTLNO"
+		  FROM $schemaId$.TSEAIHE01
+		 WHERE EAISVCNAME = #eaiSvcName#
+  </statement>  
+  
+   <statement id="selectListSvc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT   
+		  A.EAISVCNAME               AS "EAISVCNAME"    
+		, A.SVCPRCSSNO               AS "SVCPRCSSNO"    
+		, A.PSVINTFACDSTICNAME       AS "PSVINTFACDSTICNAME"    
+		, A.PSVSYSBZWKDSTCD          AS "PSVSYSBZWKDSTCD"    
+		, A.PSVSYSIDNAME             AS "PSVSYSIDNAME"    
+		, A.PSVSYSSVCDSTICNAME       AS "PSVSYSSVCDSTICNAME"    
+		, A.PSVSYSADPTRBZWKGROUPNAME AS "PSVSYSADPTRBZWKGROUPNAME"    
+		, A.FLOVRYN                  AS "FLOVRYN"    
+		, A.CHNGEONOT                AS "CHNGEONOT"    
+		, A.CHNGMSGIDNAME            AS "CHNGMSGIDNAME"    
+		, A.BASCRSPNSMSGCMPRCTNT     AS "BASCRSPNSMSGCMPRCTNT"    
+		, A.BASCRSPNSCHNGEONOT       AS "BASCRSPNSCHNGEONOT"    
+		, A.BASCRSPNSCHNGMSGIDNAME   AS "BASCRSPNSCHNGMSGIDNAME"    
+		, A.ERRRSPNSMSGCMPRCTNT      AS "ERRRSPNSMSGCMPRCTNT"    
+		, A.ERRRSPNSCHNGEONOT        AS "ERRRSPNSCHNGEONOT"    
+		, A.ERRRSPNSCHNGMSGIDNAME    AS "ERRRSPNSCHNGMSGIDNAME"    
+		, A.NEXTSVCPRCSSNO           AS "NEXTSVCPRCSSNO"    
+		, A.OUTBNDROUTNAME           AS "OUTBNDROUTNAME"    
+		, A.TOUTVAL                  AS "TOUTVAL"    
+		, A.CMPENSVCPRCSSDSTICNAME   AS "CMPENSVCPRCSSDSTICNAME"    
+		, A.SUPPLDELYN               AS "SUPPLDELYN"    
+		, A.HDRCTRLDSTCD             AS "HDRCTRLDSTCD"    
+		, A.HDRREFCLSNAME            AS "HDRREFCLSNAME"    
+		, A.RESTOPTION            AS "RESTOPTION"
+		 FROM  $schemaId$.TSEAIHE02 A,     
+		       $schemaId$.TSEAIHE01 B
+		 WHERE A.EAISVCNAME = B.EAISVCNAME
+		   AND A.EAISVCNAME = #eaiSvcName#
+		 ORDER BY A.EAISVCNAME, A.SVCPRCSSNO 
+  </statement> 
+  
+  <statement id="insertSvcClone" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	  INSERT INTO $schemaId$.TSEAIHE02(
+					  EAISVCNAME                   
+					, SVCPRCSSNO                   
+					, PSVINTFACDSTICNAME           
+					, PSVSYSBZWKDSTCD              
+					, PSVSYSIDNAME                 
+					, PSVSYSSVCDSTICNAME           
+					, PSVSYSADPTRBZWKGROUPNAME     
+					, FLOVRYN                      
+					, CHNGEONOT                    
+					, CHNGMSGIDNAME                
+					, BASCRSPNSMSGCMPRCTNT         
+					, BASCRSPNSCHNGEONOT           
+					, BASCRSPNSCHNGMSGIDNAME       
+					, ERRRSPNSMSGCMPRCTNT          
+					, ERRRSPNSCHNGEONOT            
+					, ERRRSPNSCHNGMSGIDNAME        
+					, NEXTSVCPRCSSNO               
+					, OUTBNDROUTNAME               
+					, TOUTVAL                      
+					, CMPENSVCPRCSSDSTICNAME       
+					, SUPPLDELYN                   
+					, HDRCTRLDSTCD                 
+					, HDRREFCLSNAME
+					, RESTOPTION                
+				  )
+			 SELECT #newEaiSvcName#
+				  , SVCPRCSSNO
+				  , PSVINTFACDSTICNAME
+				  , PSVSYSBZWKDSTCD
+				  , PSVSYSIDNAME
+				  , PSVSYSSVCDSTICNAME
+				  , PSVSYSADPTRBZWKGROUPNAME
+				  , FLOVRYN
+				  , CHNGEONOT
+				  , CHNGMSGIDNAME
+				  , BASCRSPNSMSGCMPRCTNT
+				  , BASCRSPNSCHNGEONOT
+				  , BASCRSPNSCHNGMSGIDNAME
+				  , ERRRSPNSMSGCMPRCTNT
+				  , ERRRSPNSCHNGEONOT
+				  , ERRRSPNSCHNGMSGIDNAME
+				  , NEXTSVCPRCSSNO
+				  , OUTBNDROUTNAME
+				  , TOUTVAL
+				  , CMPENSVCPRCSSDSTICNAME
+				  , SUPPLDELYN
+				  , HDRCTRLDSTCD
+				  , HDRREFCLSNAME
+				  , RESTOPTION
+			   FROM $schemaId$.TSEAIHE02
+			  WHERE EAISVCNAME = #oldEaiSvcName#
+  </statement>
+  
+  <statement id="deleteRefForEaiSvcName" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIMS02
+		      WHERE EAISVCNAME = #eaiSvcName# 
+  </statement>  
+
+  
+  <statement id="insertRefClone" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    INSERT INTO $schemaId$.TSEAIMS02(
+		                EAISVCNAME
+		              , SVCPRCSSNO
+		              , REFMSGIDNO
+		              , REFMSGIDNAME
+		              )
+			   SELECT #newEaiSvcName#
+			   		, SVCPRCSSNO
+			   		, REFMSGIDNO
+			   		, REFMSGIDNAME
+			     FROM $schemaId$.TSEAIMS02
+			    WHERE EAISVCNAME = #oldEaiSvcName#
+  </statement>
+  
+  <statement id="deleteCondRuleForEaiSvcName" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIFR01
+		      WHERE EAISVCNAME = #eaiSvcName#
+  </statement>  
+  <statement id="insertCondRuleClone" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    INSERT INTO $schemaId$.TSEAIFR01(
+		                EAISVCNAME
+		              , SVCPRCSSNO
+		              , RULESERNO
+		              , RSULTPRCSSNO
+		              , RULEFLDGROUPNAME
+		              , RULEFLDNAME
+		              , CMPRCTNT
+		              )
+			   SELECT #newEaiSvcName#
+			   		, SVCPRCSSNO
+			   		, RULESERNO
+		            , RSULTPRCSSNO
+		            , RULEFLDGROUPNAME
+		            , RULEFLDNAME
+		            , CMPRCTNT
+			     FROM $schemaId$.TSEAIFR01
+			    WHERE EAISVCNAME = #oldEaiSvcName#
+  </statement>    
+
+  <statement id="selectListAll" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT 
+			  EAISVCNAME                 AS "EAISVCNAME"
+			, EAIBZWKDSTCD               AS "EAIBZWKDSTCD"
+			, SVCHMSEONOT                AS "SVCHMSEONOT"
+			, SVCMOTIVUSEDSTCD           AS "SVCMOTIVUSEDSTCD"
+			, SVCPRCESDSTICNAME          AS "SVCPRCESDSTICNAME"
+			, FLOWCTRLROUTNAME           AS "FLOWCTRLROUTNAME"
+			, INTGRADSTICNAME            AS "INTGRADSTICNAME"
+			, SVCBFCLMNLOGYN             AS "SVCBFCLMNLOGYN"
+			, GSTATSYSADPTRBZWKGROUPNAME AS "GSTATSYSADPTRBZWKGROUPNAME"
+			, SEVRLOGLVELNO              AS "SEVRLOGLVELNO"
+			, SVCLOGLVELNO               AS "SVCLOGLVELNO"
+			, ERREAISVCNAME              AS "ERREAISVCNAME"
+			, DMNDERRCHNGIDNAME          AS "DMNDERRCHNGIDNAME"
+			, DMNDERRFLDNAME             AS "DMNDERRFLDNAME"
+			, RSPNSERRCHNGIDNAME         AS "RSPNSERRCHNGIDNAME"
+			, RSPNSERRFLDNAME            AS "RSPNSERRFLDNAME"
+			, EAISVCDESC                 AS "EAISVCDESC"
+			, SIMYN                      AS "SIMYN"
+			, CREATEBY                   AS "CREATEBY"
+			, UPDATEBY                   AS "UPDATEBY"
+			, CREATEON                   AS "CREATEON"
+			, UPDATEON                   AS "UPDATEON"
+			, REQCHGR                    AS "REQCHGR"
+			, REQCHGRTLNO                AS "REQCHGRTLNO"
+			, RESCHGR                    AS "RESCHGR"
+			, RESCHGRTLNO                AS "RESCHGRTLNO"
+         FROM $schemaId$.TSEAIHE01 
+  </statement>     
+
+<!-- 
+  <statement id="getEaiCondRules" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	  SELECT A.EAISVCNAME "eAISvcCd", A.SVCPRCSSNO "svcPssSeq"
+	       , A.RULESERNO "RuleSerno", A.RSULTPRCSSNO "rsultPrcssNo"
+	       , A.RULEFLDGROUPNAME "ruleGrpNm", A.RULEFLDNAME  "ruleColNm"
+	       , A.CMPRCTNT "ruleCprTxt"
+	  FROM   $schemaId$.TSEAIFR01 A, 
+			     ( SELECT T.EAISVCNAME EAISVCNAME, T.SVCPRCSSNO SVCPRCSSNO 
+			 	       FROM $schemaId$.TSEAIHE01 X
+			 	          , $schemaId$.TSEAIHE02 T
+			 			  WHERE  X.EAISVCNAME = T.EAISVCNAME 
+			 		 ORDER BY T.EAISVCNAME, T.SVCPRCSSNO ) B
+	  WHERE  A.EAISVCNAME = B.EAISVCNAME 
+	     AND A.SVCPRCSSNO = B.SVCPRCSSNO	     
+		<isNotEmpty prepend="AND" property="eAISvcCd">
+		      A.EAISVCNAME = #eAISvcCd#
+		</isNotEmpty>
+ ORDER BY  A.EAISVCNAME , A.RSULTPRCSSNO , A.RULESERNO , A.SVCPRCSSNO, A.RULEFLDGROUPNAME, A.RULEFLDNAME
+  </statement>
+  
+  <statement id="getRefMsgBizKey" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		SELECT REFMSGIDNAME "RefMsgIDName" 
+		  FROM $schemaId$.TSEAIMS02 
+		 WHERE EAISVCNAME = #eAISvcCd# 
+		   AND SVCPRCSSNO = 1 
+		   AND REFMSGIDNO = 1 
+  </statement>
+
+  <statement id="updateCondPerRtg" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		 UPDATE $schemaId$.TSEAIFR01 
+		    SET RULEFLDGROUPNAME = #ruleGrpNm# 
+		      , RULEFLDNAME = #ruleColNm#
+		      , CMPRCTNT = #ruleCprVl# 
+		 WHERE  EAISVCNAME = #eAISvcCd# 
+		   AND  RSULTPRCSSNO = #rsltPssSeq# 
+		   AND RULESERNO = #ruleSNo#
+		   AND SVCPRCSSNO = #svcPssSeq#
+  </statement>
+
+  <statement id="deleteEaiIdvHeaderAll" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM $schemaId$.TSEAIHE02 
+          WHERE EAISVCNAME = #eAISvcCd# 
+  </statement>
+
+  <statement id="deleteEaiRefMsgsSub" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIMS02 
+		      WHERE EAISVCNAME = #eAISvcCd#
+		        AND SVCPRCSSNO = #svcPssSeq#
+  </statement>
+  
+  <statement id="deleteEaiCondRulesSub" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+ 		DELETE FROM $schemaId$.TSEAIFR01
+		      WHERE EAISVCNAME = #eAISvcCd#
+		        AND SVCPRCSSNO = #svcPssSeq#
+  </statement>
+
+  <statement id="checkEAISvcCd" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+  	SELECT COUNT(*) 
+  	  FROM $schemaId$.TSEAIHE01 
+  	 WHERE UPPER(EAISVCNAME) LIKE #eAISvcCd#
+  </statement>
+   -->
+</sqlMap>

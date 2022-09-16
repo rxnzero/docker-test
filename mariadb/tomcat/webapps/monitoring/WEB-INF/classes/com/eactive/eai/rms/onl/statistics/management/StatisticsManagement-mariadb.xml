@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="StatisticsManagement">
+  
+  <statement id="selectStatisticsManagement" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+         SELECT CONCAT( SUBSTR(STATCJOBYMD, 0, 4) , '-' ,  
+         		SUBSTR(STATCJOBYMD, 5, 2)  , '-'  ,  
+         		SUBSTR(STATCJOBYMD, 7) ) AS STATCJOBYMD
+         	  , STATCJOBCYCLDSTCD
+         	  , ( )CASE WHEN STATCJOBCYCLDSTCD =  'M' THEN '월별작업' ELSE '일별작업' END) AS STATCJOBCYCLDSTNM
+<!--          	  , STATCJOBSTARTHMS -->
+<!--          	  , STATCJOBENDHMS -->
+         	  , 
+         	  TIME_FORMAT( TIMEDIFF(
+					STR_TO_DATE(STATCJOBENDHMS , '%Y%m%d%H%i%s%f'), 
+					STR_TO_DATE(STATCJOBSTARTHMS , '%Y%m%d%H%i%s%f')
+				), '%H:%i:%s')  AS STATCJOBHMS
+         	  , SUCSSYN
+         	  , ( CASE WHEN SUCSSYN =  '1' THEN '성공' ELSE '실패' END) AS SUCSSYNNM
+         	  , ERRMSG
+        FROM $schemaId$.TSEAIST01
+        WHERE STATCJOBYMD BETWEEN CONCAT( #searchStart# , '00') AND CONCAT(#searchEnd#  , '99' )
+		<isNotEmpty prepend="AND" property="searchJobTypeCd">
+			   STATCJOBCYCLDSTCD = #searchJobTypeCd#
+		</isNotEmpty>
+        ORDER BY STATCJOBYMD DESC
+        	   , STATCJOBCYCLDSTCD DESC
+  </statement>
+  
+</sqlMap>

@@ -1,0 +1,2 @@
+FROM tomcat:8.5
+RUN sed -i 's/port="8080"/port="10100"/' ${CATALINA_HOME}/conf/server.xml

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AdapterType">
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		 SELECT ADPTRCD AS "ADPTRCD"
+		      , ADPTRNAME AS "ADPTRNAME"
+		   FROM $schemaId$.TSEAIAD03
+		  WHERE ADPTRCD = #adptrCd#
+  </statement>
+
+  <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIAD03( ADPTRCD, ADPTRNAME) 
+		    VALUES( #adptrCd#, #adptrName#)
+  </statement>
+
+  <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    UPDATE $schemaId$.TSEAIAD03 
+       SET ADPTRNAME = #adptrName# 
+     WHERE ADPTRCD = #adptrCd#
+  </statement>
+
+  <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+     DELETE FROM $schemaId$.TSEAIAD03 
+           WHERE ADPTRCD = #adptrCd#
+  </statement>
+
+  <statement id="selectListAdapterTypeProp" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		 SELECT ADPTRCD AS "ADPTRCD"
+		      , ADPTRIODSTCD AS "ADPTRIODSTCD"
+		      , ADPTRPRPTYNAME AS "ADPTRPRPTYNAME"
+		      , ADPTRPRPTYDESC AS "ADPTRPRPTYDESC"
+		      , DMNKND AS "DMNKND"
+		   FROM $schemaId$.TSEAIAD04 
+		   WHERE ADPTRCD = #adptrCd#
+		   ORDER BY ADPTRCD, ADPTRIODSTCD, ADPTRPRPTYNAME
+  </statement>
+
+  <statement id="insertAdapterTypeProp" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIAD04 ( ADPTRCD, ADPTRIODSTCD, ADPTRPRPTYNAME, ADPTRPRPTYDESC ,DMNKND)
+         VALUES (  #adptrCd#, #adptrIoDstCd#, #adptrPrptyName#, #adptrPrptyDesc#,#dmnKnd# )
+  </statement>
+
+  <statement id="deleteAdapterTypeProp" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM $schemaId$.TSEAIAD04 
+          WHERE ADPTRCD = #adptrCd#
+  </statement>
+
+  <statement id="selectAllAdapterTypeProp" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">    
+		SELECT ADPTRCD AS "ADPTRCD" 
+		     , ADPTRIODSTCD AS "ADPTRIODSTCD" 
+		     , ADPTRPRPTYNAME AS "ADPTRPRPTYNAME" 
+		     , ADPTRPRPTYDESC AS "ADPTRPRPTYDESC"
+		     , DMNKND AS "DMNKND"
+		  FROM $schemaId$.TSEAIAD04 
+		 ORDER BY ADPTRCD, ADPTRIODSTCD, ADPTRPRPTYNAME
+  </statement>
+
+  <statement id="selectAdapterTypeProp" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		SELECT ADPTRPRPTYNAME AS "ADPTRPRPTYNAME" , ADPTRPRPTYDESC  AS "ADPTRPRPTYDESC"
+		FROM $schemaId$.TSEAIAD04 
+		WHERE ADPTRCD = #adptrCd# AND ADPTRIODSTCD = #adptrIoDstCd#
+  </statement>
+
+  <statement id="selectListAll" parameterClass="java.util.HashMap" resultClass="java.util.ArrayList">    
+		 SELECT ADPTRCD AS "ADPTRCD" , ADPTRNAME AS "ADPTRNAME"  
+		   FROM $schemaId$.TSEAIAD03
+  </statement>
+   
+  <!-- statement id="getAdapterType" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		 SELECT A.ADPTRCD "AdptrCd", A.ADPTRNAME "AdptrName", B.ADPTRIODSTCD "AdptrIODstcd", B.ADPTRPRPTYNAME "AdptrPrptyName", B.ADPTRPRPTYDESC "AdptrPrptyDesc"
+		   FROM $schemaId$.TSEAIAD03 A LEFT OUTER JOIN     
+		        $schemaId$.TSEAIAD04 B ON A.ADPTRCD = B.ADPTRCD
+		   WHERE A.ADPTRCD = #adptrCd#
+  </statement>
+  
+  
+
+  
+
+  
+  <statement id="checkAdapterType" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">    
+		SELECT COUNT(*) CNT
+		  FROM $schemaId$.TSEAIAD03
+		 WHERE ADPTRCD = #adptrCd#
+  </statement-->
+</sqlMap>

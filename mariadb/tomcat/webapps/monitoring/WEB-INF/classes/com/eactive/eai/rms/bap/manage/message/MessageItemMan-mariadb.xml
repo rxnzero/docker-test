@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="MessageItem">
+
+	<statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT
+	       MSGITEMDSTICNAME,
+	       MSGCLMNNAME,
+	       MSGCLMNATTRIPTRNCD,
+	       MSGCLMNVAL,
+	       THISMSGCLMNUSEYN,
+	       ROWNO
+	  	FROM (
+		    SELECT
+		       MSGITEMDSTICNAME,
+		       MSGCLMNNAME,
+		       MSGCLMNATTRIPTRNCD,
+		       MSGCLMNVAL,
+		       THISMSGCLMNUSEYN,
+		        @NO := @NO + 1 AS ROWNO
+		    FROM $schemaId$.TSEAIBM01,  (SELECT @NO := 0) R
+		    <dynamic prepend="WHERE">
+			    <isNotEmpty prepend="AND" property="searchMsgItemDsticName">
+					MsgItemDsticName LIKE CONCAT('%' , #searchMsgItemDsticName# , '%')
+				</isNotEmpty>
+			    <isNotEmpty prepend="AND" property="searchMsgClmnName">
+					MsgClmnName LIKE CONCAT('%' , #searchMsgClmnName# , '%')
+				</isNotEmpty> 
+			</dynamic> 
+			ORDER BY MsgItemDsticName
+	       ) TMP
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TotalCount"
+		FROM $schemaId$.TSEAIBM01
+	    <dynamic prepend="WHERE">
+			    <isNotEmpty prepend="AND" property="searchMsgItemDsticName">
+					MsgItemDsticName LIKE CONCAT('%' , #searchMsgItemDsticName# , '%')
+				</isNotEmpty>
+			    <isNotEmpty prepend="AND" property="searchMsgClmnName">
+					MsgClmnName LIKE CONCAT('%' , #searchMsgClmnName# , '%')
+				</isNotEmpty> 
+			</dynamic>
+	</statement>	
+
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBM01 (
+			 MsgItemDsticName,
+			 MsgClmnName,
+			 MsgClmnAttriPtrnCd,
+			 MsgClmnVal,
+			 ThisMsgClmnUseYn,
+			 ThisMsgClmnRegsntID,
+			 ThisMsgClmnRegiHMS,
+			 ThisMsgClmnAmndrID,
+			 ThisMsgClmnAmndHMS )
+		VALUES (
+			#msgItemDsticName# ,
+			#msgClmnName# ,
+			#msgClmnAttriPtrnCd# ,
+			#msgClmnVal# ,
+			#thisMsgClmnUseYn# ,
+			#userid# ,
+			SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),
+			#userid# ,
+			SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ) 
+		)
+	</statement>
+	
+	<statement id="update" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBM01 
+		SET    MsgClmnName        = #msgClmnName#,
+		       MsgClmnAttriPtrnCd = #msgClmnAttriPtrnCd#,
+		       MsgClmnVal         = #msgClmnVal#,
+		       ThisMsgClmnUseYn   = #thisMsgClmnUseYn#,
+		       ThisMsgClmnAmndrID = #userid#,
+		       ThisMsgClmnAmndHMS = SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+		WHERE  MsgItemDsticName   = #msgItemDsticName#
+	</statement>
+	
+</sqlMap>

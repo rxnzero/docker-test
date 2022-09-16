@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapKikwan">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT
+	       ROWNO, 
+	       KIKWANCD         ,  
+	       KIKWANNAME       , 
+	       SYSIP            ,  
+	       ENCIP            ,  
+	       THISMSGUSEYN     ,
+	       THISMSGREGSNTID  ,  
+	       THISMSGREGIHMS   ,  
+	       THISMSGAMNDRID   ,
+	       THISMSGAMNDHMS  
+	  	FROM (
+		    SELECT
+		       @NO := @NO + 1 AS ROWNO,  
+		       KIKWANCD         ,  
+		       KIKWANNAME       , 
+		       SYSIP            ,  
+		       ENCIP            ,  
+		       THISMSGUSEYN     ,
+		       THISMSGREGSNTID  ,  
+		       THISMSGREGIHMS   ,  
+		       THISMSGAMNDRID   ,
+		       THISMSGAMNDHMS  
+		      FROM $schemaId$.TSEAIBJ21,  (SELECT @NO := 0) R
+		    <dynamic prepend="WHERE">
+			    <isNotEmpty prepend="AND" property="searchKikwanCd">
+					UPPER(KikwanCd) LIKE CONCAT( '%' , UPPER(#searchKikwanCd#) , '%' )
+				</isNotEmpty>
+			    <isNotEmpty prepend="AND" property="searchKikwanName">
+					KikwanName LIKE CONCAT( '%' , #searchKikwanName# , '%' )
+				</isNotEmpty> 
+			</dynamic> 
+			ORDER BY KikwanCd
+	       ) TMP
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TotalCount
+		FROM $schemaId$.TSEAIBJ21
+	    <dynamic prepend="WHERE">
+		    <isNotEmpty prepend="AND" property="searchKikwanCd">
+				KikwanCd LIKE CONCAT( '%' , UPPER(#searchKikwanCd#) , '%' )
+			</isNotEmpty>
+		    <isNotEmpty prepend="AND" property="searchKikwanName">
+				KikwanName LIKE CONCAT( '%' , #searchKikwanName# , '%' )
+			</isNotEmpty> 
+		</dynamic> 			
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	
+	       KIKWANCD         ,  
+	       KIKWANNAME       , 
+	       SYSIP            ,  
+	       ENCIP            ,  
+	       THISMSGUSEYN     ,
+	       THISMSGREGSNTID  ,  
+	       THISMSGREGIHMS   ,  
+	       THISMSGAMNDRID   ,
+	       THISMSGAMNDHMS  
+        FROM $schemaId$.TSEAIBJ21
+	    WHERE TRIM(KikwanCd) = TRIM(#kikwanCd#)
+	</statement>
+	 
+	<statement id="update" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBJ21 
+		SET
+			 KikwanName = #kikwanName#,
+			 SysIp = #SysIp#,
+			 EncIP = #EncIp#,
+			 ThisMsgUseYn = #thisMsgUseYn#,
+			 ThisMsgAmndrID = #userid#,
+			 ThisMsgAmndHMS = SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+		WHERE KikwanCd = #kikwanCd#
+	</statement>
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBJ21 (
+	       KIKWANCD         ,  
+	       KIKWANNAME       , 
+	       SYSIP            ,  
+	       ENCIP            ,  
+	       THISMSGUSEYN     ,
+	       THISMSGREGSNTID  ,  
+	       THISMSGREGIHMS   ,  
+	       THISMSGAMNDRID   ,
+	       THISMSGAMNDHMS    )
+		VALUES (
+			#kikwanCd# ,
+			#kikwanName# ,
+			#SysIp#,
+			#EncIp#,
+			#thisMsgUseYn# ,
+			#userid# ,
+			SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),
+			#userid# ,
+			SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ) 
+		)
+	</statement>
+	
+
+	<statement id="delete" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBJ21 
+        WHERE KikwanCd = #kikwanCd#
+	</statement>
+
+     <statement id="selectAutoCd" resultClass="java.util.HashMap">
+		SELECT 	
+         REPLACE( CONCAT('KJB',LPAD( CAST( substr( IFNULL(MAX(KikwanCd),'0000'), 4) AS UNSIGNED)+1, 7, '0')), ' ' , '') AS AUTOCD                 
+        FROM $schemaId$.TSEAIBJ21
+        WHERE KikwanCd LIKE 'KJB%'
+	
+    </statement>   
+ 
+</sqlMap>

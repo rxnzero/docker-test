@@ -1,0 +1,115 @@
+
+/******************************************************* 
+/* 기본 스타일    */
+/*******************************************************/
+html, body {height:100%;}
+
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,form,fieldset,p,blockquote{margin:0px;padding:0px;}
+
+body {
+	margin: 0px 0px 0px 0px;	
+	padding: 0px 0px 0px 0px;
+	font-family:돋움, 돋움체, Tahoma, Arial;
+	font-size: 12px;
+	line-height: 18px;
+	color: #fff;
+	background: #FFFFFF url(../image/indexonly/common/bottomBg.jpg) repeat-x bottom left;
+	text-align:center;
+		
+	scrollbar-face-color:#EBEBEB;
+	scrollbar-shadow-color:#CDCDCD;
+	scrollbar-highlight-color:#CDCDCD;
+	scrollbar-3dlight-color:#F3F3F3;
+	scrollbar-darkshadow-color:#F3F3F3;
+	scrollbar-track-color:#F3F3F3;
+	scrollbar-arrow-color:#FFFFFD;
+}
+
+div			{ clear:both; padding: 0px; font: 12px 돋움, 돋움체, Tahoma, Arial	}
+strong		{ letter-spacing:0px;}
+/* 기본 table 스타일 */
+table, th, td, ul, p, h1, h2 {    font: 12px 돋움, 돋움체,Tahoma}
+table 		{ border-collapse: collapse; word-break: break-all;border:0px}
+td			{padding: 0px; border:0px}
+/******************************************************* 
+/* 링크된 텍스트 글자 색상 스타일 */
+/*******************************************************/
+img {	border: 0px; margin: 0px;}
+div img {	vertical-align: middle}
+/******************************************************* 
+/*  link style    */
+/*******************************************************/
+a {	text-decoration: none; padding: 0px; margin: 0px; border:0px;}
+
+a:link		{	color: #888888;}
+a:visited	{	color: #656565;}
+a:hover		{	color: #FF9900;}
+
+.cursorHand{	cursor: hand;}
+
+/******************************************************* 
+/* input style             */
+/*******************************************************/
+
+/******************************************************* 
+/* text style                 */
+/*******************************************************/
+
+/******************************************************* 
+/* layout                */
+/*******************************************************/
+/*  전체 기본 layout             */
+
+/*  middle layout                */
+
+/*  main layout                  */
+				
+/*  bottom layout                */
+
+
+/*******************************************************/    
+/*   box text-align        */
+/*******************************************************/
+.left	{ text-align: left;}
+.center	{ text-align: center;}
+.right	{ text-align: right;}
+
+/* float  style                  */
+.floatLeft	{display: inline; float:left;}
+.floatRight	{display: inline; float:right;}
+
+/***********************************************/
+/* box                 */
+/************************************/
+.bottomImg	{ background: transparent url(../image/indexonly/common/bottomImg.gif) no-repeat bottom left; margin-bottom:39px; width:100%; height:90%;position:absolute;}
+.topBg		{ background: transparent url(../image/indexonly/common/topBg.jpg) repeat-x top left; width:100%; height :100%;}
+.topImg		{ background: transparent url(../image/indexonly/common/topImg.jpg) no-repeat top left; height:100%}
+.topImg img	{ vertical-align:top}
+
+.linkBox	{ width:736px; height:355px; margin:20px 0 0 0px;position:absolute;left :28%}
+.linkBox01	{ background: transparent url(../image/indexonly/common/linkBox11.gif) no-repeat top left; width:358px; height:173px; text-align:center; padding-right:5px; margin-bottom:10px}
+.linkBox02	{ background: transparent url(../image/indexonly/common/linkBox12.gif) no-repeat top left; width:358px; height:173px; text-align:center; padding-left:5px; margin:0px 0px 10px 10px}
+.linkBox03	{ background: transparent url(../image/indexonly/common/linkBox13.gif) no-repeat top left; width:358px; height:165px; text-align:center; padding-right:5px; padding-top:8px;}
+.linkBox04	{ background: transparent url(../image/indexonly/common/linkBox14.gif) no-repeat top left; width:358px; height:165px; text-align:center; padding-left:5px; padding-top:8px; margin-left:10px}
+.linkBox01 img, .linkBox02 img, .linkBox03 img, .linkBox04 img{margin-top:112px}
+/*******************************************************/    
+/*  popup style             */
+/*******************************************************/
+
+/*******************************************************/    
+/*  etc              */
+/*******************************************************/
+.widthAuto{ width: auto; }
+.width100p{ width: 100%; }
+.width98p{ width: 98%; }
+
+.hr01 {width: 100%; height: 1px; color:#eeeeee;}
+.scroll{
+	scrollbar-face-color:#EBEBEB;
+	scrollbar-shadow-color:#CDCDCD;
+	scrollbar-highlight-color:#CDCDCD;
+	scrollbar-3dlight-color:#F3F3F3;
+	scrollbar-darkshadow-color:#F3F3F3;
+	scrollbar-track-color:#F3F3F3;
+	scrollbar-arrow-color:#FFFFFD;
+}

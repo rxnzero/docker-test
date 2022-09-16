@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<Message>
+  <Header>
+    <ServiceName>MessageSync</ServiceName>
+    <Command>insert</Command>
+  </Header>
+  <Body>
+    <Layout>
+      <id>$id$</id>
+      <data>
+        <![CDATA[$layout_data$]]>
+      </data>
+    </Layout>
+  </Body>
+</Message>

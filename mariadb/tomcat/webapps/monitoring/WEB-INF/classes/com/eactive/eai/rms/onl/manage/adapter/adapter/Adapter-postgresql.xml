@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Adapter">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS "CNT"
+		FROM   $schemaId$.TSEAIAD01
+		WHERE  EAIBZWKDSTCD IN ( select EAIBZWKDSTCD from $schemaId$.tseairm06 where USERID = #loginId#)
+			<!-- IOFLAG -->
+			<isNotEmpty prepend="AND" property="searchAdptrIoDstCd">
+			      ADPTRIODSTCD = #searchAdptrIoDstCd#
+			</isNotEmpty>
+			
+			<!-- STDFLAG -->
+			<isNotEmpty prepend="AND" property="searchAdptrMsgPtrnCd">
+			      ADPTRMSGPTRNCD = #searchAdptrMsgPtrnCd#
+			</isNotEmpty>
+			
+			<!-- USEDFLAG -->
+			<isNotEmpty prepend="AND" property="searchAdptrUseYn">
+			      ADPTRUSEYN = #searchAdptrUseYn#
+			</isNotEmpty>
+			
+			<!-- KEYWORD -->
+			<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+			      UPPER(ADPTRBZWKGROUPNAME) LIKE '%'||UPPER(#searchAdptrBzwkGroupName#)||'%'
+			</isNotEmpty>
+			
+			<!-- DESCRIPTION -->
+			<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupDesc">
+			      UPPER(ADPTRBZWKGROUPDESC) LIKE '%'||UPPER(#searchAdptrBzwkGroupDesc#)||'%'
+			</isNotEmpty>
+		
+  </statement>
+  
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROWNO AS "ROWNO"
+		     , ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME"
+		     , ADPTRMSGPTRNCD     AS "ADPTRMSGPTRNCD"
+		     , EAIBZWKDSTCD       AS "EAIBZWKDSTCD"
+		     , ADPTRCD            AS "ADPTRCD"
+		     , ADPTRMSGDSTCD      AS "ADPTRMSGDSTCD"
+		     , ADPTRIODSTCD       AS "ADPTRIODSTCD"
+		     , REFCLSNAME         AS "REFCLSNAME"
+		     , SNDRCVHMSLOGYN     AS "SNDRCVHMSLOGYN"
+		     , ADPTRUSEYN         AS "ADPTRUSEYN"
+		     , SPCFCLUUSEYN       AS "SPCFCLUUSEYN"
+		     , ADPTRBZWKGROUPDESC AS "ADPTRBZWKGROUPDESC"
+		     , OSIDINSTINO        AS "OSIDINSTINO"
+		     , USEREMPID          AS "USEREMPID"
+		FROM ( 
+          SELECT (ROW_NUMBER() OVER (ORDER BY ADPTRBZWKGROUPNAME))  AS ROWNO, ADPTRBZWKGROUPNAME, 
+			         ADPTRMSGPTRNCD, 
+			         EAIBZWKDSTCD, ADPTRCD,  ADPTRMSGDSTCD, 
+			         CASE WHEN ADPTRIODSTCD = 'I' THEN 'INBOUND'
+			              WHEN ADPTRIODSTCD = 'O' THEN 'OUTBOUND'
+			              ELSE ADPTRIODSTCD END ADPTRIODSTCD, 
+			         REFCLSNAME, SNDRCVHMSLOGYN, ADPTRUSEYN, 
+			         SPCFCLUUSEYN, ADPTRBZWKGROUPDESC,
+			         OSIDINSTINO , USEREMPID
+				FROM (SELECT  * FROM $schemaId$.TSEAIAD01 
+				   <isNotEmpty prepend="" property="sortName" >
+				   	  ORDER BY $sortName$ $sortOrder$  
+				   </isNotEmpty> 
+				     )  T
+			   WHERE EAIBZWKDSTCD IN ( select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID = #loginId#)
+				<!-- IOFLAG -->
+				<isNotEmpty prepend="AND" property="searchAdptrIoDstCd">
+				      ADPTRIODSTCD = #searchAdptrIoDstCd#
+				</isNotEmpty>
+				
+				<!-- STDFLAG -->
+				<isNotEmpty prepend="AND" property="searchAdptrMsgPtrnCd">
+				      ADPTRMSGPTRNCD = #searchAdptrMsgPtrnCd#
+				</isNotEmpty>
+				
+				<!-- USEDFLAG -->
+				<isNotEmpty prepend="AND" property="searchAdptrUseYn">
+				      ADPTRUSEYN = #searchAdptrUseYn#
+				</isNotEmpty>
+				
+				<!-- KEYWORD -->
+				<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+				      UPPER(ADPTRBZWKGROUPNAME) LIKE '%'||UPPER(#searchAdptrBzwkGroupName#)||'%'
+				</isNotEmpty>
+				
+				<!-- DESCRIPTION -->
+				<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupDesc">
+				      UPPER(ADPTRBZWKGROUPDESC) LIKE '%'||UPPER(#searchAdptrBzwkGroupDesc#)||'%'
+				</isNotEmpty>
+		) TMP1
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>  
+  
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+     SELECT 
+            ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME"
+			, ADPTRMSGPTRNCD     AS "ADPTRMSGPTRNCD"
+			, EAIBZWKDSTCD       AS "EAIBZWKDSTCD"
+			, ADPTRCD            AS "ADPTRCD"
+			, ADPTRMSGDSTCD      AS "ADPTRMSGDSTCD"
+			, ADPTRIODSTCD       AS "ADPTRIODSTCD"
+			, REFCLSNAME         AS "REFCLSNAME"
+			, SNDRCVHMSLOGYN     AS "SNDRCVHMSLOGYN"
+			, ADPTRUSEYN         AS "ADPTRUSEYN"
+			, SPCFCLUUSEYN       AS "SPCFCLUUSEYN"
+			, ADPTRBZWKGROUPDESC AS "ADPTRBZWKGROUPDESC"
+			, OSIDINSTINO        AS "OSIDINSTINO"
+			, USEREMPID          AS "USEREMPID"
+			, REALTIMEGROUPNAME  AS "REALTIMEGROUPNAME"
+            , COALESCE(REALTIMEBZWKYN,'0') AS "REALTIMEBZWKYN"
+            , COALESCE(REALTIMEBZWKYN,'0') AS "REALTIMEBZWKFLAG"
+            , FILTERCLASS        AS "FILTERCLASS"
+    		, ERROREAISVCNAME    AS "ERROREAISVCNAME"
+			, ERRORLAYOUTNAME    AS "ERRORLAYOUTNAME"
+			, ERRORVALUE         AS "ERRORVALUE"
+			, SESSIONYN          AS "SESSIONYN"
+			, TARGETADAPTERYN    AS "TARGETADAPTERYN"
+		   FROM $schemaId$.TSEAIAD01
+		  WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+  </statement>
+  
+  <statement id="selectListCombo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	  SELECT ADPTRBZWKGROUPNAME  AS "ADPTRBZWKGROUPNAME"
+	       , EAIBZWKDSTCD AS "EAIBZWKDSTCD" 
+	       , ADPTRCD AS "ADPTRCD" 
+	       , ADPTRMSGPTRNCD AS "ADPTRMSGPTRNCD" 
+	       , ADPTRMSGDSTCD AS "ADPTRMSGDSTCD" 
+	       , ADPTRIODSTCD AS "ADPTRIODSTCD" 
+	       , ADPTRBZWKGROUPDESC AS "ADPTRBZWKGROUPDESC" 
+	  FROM $schemaId$.TSEAIAD01
+	  <dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="adptrUseYn">
+		      ADPTRUSEYN = '1'
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="asyncDstcd">
+		      ADPTRBZWKGROUPNAME LIKE '%\_' || #asyncDstcd# || '%' ESCAPE '\'
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="adptrIoDstcd">
+		      (ADPTRBZWKGROUPNAME LIKE '%\_IO\_%' ESCAPE '\' OR ADPTRBZWKGROUPNAME LIKE '%\_'|| #adptrIoDstcd# || '\_%' ESCAPE '\')
+		</isNotEmpty>
+		<isEqual compareValue="1" prepend="AND" property="queryType">
+			  (ADPTRBZWKGROUPNAME LIKE '\_' || #chnlCd# || '%' ESCAPE '\' OR ADPTRBZWKGROUPNAME LIKE '\_CBS%' ESCAPE '\'  
+			  <isNotEmpty prepend="OR" property="chnlCd2">
+			  ADPTRBZWKGROUPNAME LIKE '\_' || #chnlCd2# || '%' ESCAPE '\' 
+			  </isNotEmpty>
+			  ) 
+		</isEqual>
+		<isEqual compareValue="2" prepend="AND" property="queryType">
+		(ADPTRBZWKGROUPNAME LIKE '\_CBS%' ESCAPE '\' AND ADPTRBZWKGROUPNAME LIKE '%{' || (SELECT INSTANCECODE FROM $schemaId$.TSEAIIF06 WHERE EAIBZWKDSTCD=#eaiBzwkDstcd#) || '}' ESCAPE '\' ) 
+		</isEqual>
+		<isEqual compareValue="3" prepend="AND" property="queryType">
+		(
+		 (ADPTRBZWKGROUPNAME LIKE '\_CBS%' ESCAPE '\' AND ADPTRBZWKGROUPNAME LIKE '%{' || (SELECT INSTANCECODE FROM $schemaId$.TSEAIIF06 WHERE EAIBZWKDSTCD=#eaiBzwkDstcd#) || '}' ESCAPE '\' ) 
+		 OR  (ADPTRBZWKGROUPNAME LIKE '\_CBS%' ESCAPE '\' AND ADPTRBZWKGROUPNAME LIKE '%{' || (SELECT INSTANCECODE FROM $schemaId$.TSEAIIF06 WHERE EAIBZWKDSTCD=#chnlCd#) || '}' ESCAPE '\' ) 
+		 OR  ADPTRBZWKGROUPNAME LIKE '\_' || #chnlCd# || '%' ESCAPE '\'
+			  <isNotEmpty prepend="OR" property="chnlCd2">
+			  ADPTRBZWKGROUPNAME LIKE '\_' || #chnlCd2# || '%' ESCAPE '\' 
+			  </isNotEmpty>
+		 )
+		</isEqual>
+	  </dynamic>
+	 ORDER BY 1
+  </statement>
+
+  <statement id="updateAdaptersForSimYn">
+    UPDATE $schemaId$.TSEAIHE01
+       SET SIMYN =#simYn#
+     WHERE EAIBZWKDSTCD LIKE #eaiBzwkDstcd# || '%'
+	   AND EAISVCNAME LIKE #channel# || '%'
+	<isEqual compareValue="EAI" prepend="AND" property="schemaId">
+		EAISVCNAME NOT IN (SELECT EAISVCNAME FROM $schemaId$.TSEAIHE02 WHERE PSVSYSADPTRBZWKGROUPNAME LIKE '_CBS%' AND SVCPRCSSNO=1)
+	  <!--  SUBSTR(EAISVCNAME,LENGTH(EAISVCNAME)-1,2) IN ('S1') -->
+	</isEqual>
+	<isEqual compareValue="FEP" prepend="AND" property="schemaId">
+	   SUBSTR(EAISVCNAME,LENGTH(EAISVCNAME)-1,2) IN ('S2','R2')
+	</isEqual>
+	   
+  </statement>
+  
+    <statement id="selectListForSingleNode" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+    SELECT A.ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME", A2.EAISEVRINSTNCNAME AS "EAISEVRINSTNCNAME" 
+      FROM (
+	  		SELECT AD01.ADPTRBZWKGROUPNAME 
+	  		  FROM $schemaId$.TSEAIAD01 AD01, $schemaId$.TSEAIAD02 AD02
+	         WHERE AD01.ADPTRBZWKGROUPNAME = AD02.ADPTRBZWKGROUPNAME
+	           AND (AD01.ADPTRBZWKGROUPNAME LIKE '%NET_AsC%' OR AD01.ADPTRBZWKGROUPNAME LIKE '%NET_SyC%')
+	           AND AD02.EAISEVRINSTNCNAME != 'ALL'
+	           AND AD01.ADPTRUSEYN ='1'
+	         GROUP BY AD01.ADPTRBZWKGROUPNAME HAVING count(1) =1
+	      ) A , $schemaId$.TSEAIAD02 A2
+      WHERE A.ADPTRBZWKGROUPNAME = A2.ADPTRBZWKGROUPNAME
+    </statement>
+
+  <statement id="updateSingleNode">
+		UPDATE $schemaId$.TSEAIAD02 
+		   SET EAISEVRINSTNCNAME = SUBSTR(EAISevrInstncName,1,9)||#node#||substr(EAISevrInstncName,11,1)  
+		 WHERE ADPTRBZWKGROUPNAME IN (
+		       SELECT AD01.ADPTRBZWKGROUPNAME FROM $schemaId$.TSEAIAD01 AD01 , $schemaId$.TSEAIAD02 AD02
+		        WHERE AD01.ADPTRBZWKGROUPNAME = AD02.ADPTRBZWKGROUPNAME
+		          AND (AD01.ADPTRBZWKGROUPNAME LIKE '%NET_AsC%' OR AD01.ADPTRBZWKGROUPNAME LIKE '%NET_SyC%')
+		          AND AD02.EAISEVRINSTNCNAME != 'ALL'
+		          AND AD01.ADPTRUSEYN ='1'
+		        GROUP BY AD01.ADPTRBZWKGROUPNAME HAVING COUNT(1) =1
+		       )
+  </statement>
+  <statement id="selectTakeOverCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM (
+		        SELECT COUNT(1) FROM $schemaId$.TSEAISY02 
+		        WHERE  EAISEVRINSTNCNAME != 'ALL' 
+		        GROUP BY  SUBSTR(EAISEVRINSTNCNAME,1,9)||'_'||SUBSTR(EAISEVRINSTNCNAME,11,1) 
+		        HAVING COUNT(1) &gt; 1
+		)
+    </statement>
+    
+
+	<statement id="selectListRealTimeGroup" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT REALTIMEGROUPNAME AS "CODE"
+			 , REALTIMEGROUPNAME AS "NAME"
+		  FROM $schemaId$.TSEAIAD01
+		 WHERE (  TRIM(REALTIMEGROUPNAME) != '' 
+		 	   OR TRIM(REALTIMEGROUPNAME) IS NOT NULL )
+		 GROUP BY REALTIMEGROUPNAME
+		 ORDER BY 1
+	</statement>
+
+	<statement id="selectListForChnlInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME" 
+			 , ADPTRBZWKGROUPDESC AS "ADPTRBZWKGROUPDESC" 
+		  FROM $schemaId$.TSEAIAD01
+		 where ADPTRCD ='NET'
+		 AND NOT EAIBZWKDSTCD='IFE'
+		 AND UPPER(ADPTRBZWKGROUPNAME) LIKE '%'||UPPER(#searchAdptrBzwkGroupName#)||'%'
+	</statement>
+</sqlMap>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+			http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+			">
+
+  <bean id="jobDetailAbstract" abstract="true"
+    class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetMethod">
+      <value>run</value>
+    </property>
+    <property name="concurrent">
+      <value>false</value>
+    </property>
+  </bean>
+
+  <bean id="triggerAbstract" abstract="true"
+    class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <property name="startDelay">
+      <value>5000</value>
+    </property>
+    <property name="repeatInterval">
+      <value>30000</value>
+    </property>
+  </bean>
+
+  <bean id="transactionRepositoryBackup10MinJobTrigger"
+    parent="triggerAbstract">
+    <description>10분마다 1번씩 총 거래 건수를 백업 한다.</description>
+    <property name="repeatInterval" value="600000"></property>
+    <property name="jobDetail">
+      <bean parent="jobDetailAbstract">
+        <property name="targetMethod" value="run"></property>
+        <property name="targetObject">
+          <bean
+            class="com.eactive.eai.rms.onl.server.backup.TransactionRepositoryBackupJob10Min">
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+
+  <bean id="scheduler"
+    class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <property name="triggers">
+      <list>
+<!-- //TODO JUN 오라클에서 user정보를 가지고 오는것임
+		<bean id="dailyUserTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+			<property name="jobDetail">
+				<bean name ="dailyUserBatchJob" 
+					class="org.springframework.scheduling.quartz.JobDetailBean" >
+					<property name="jobClass">
+						<value> com.eactive.eai.rms.onl.common.service.DailyUserScheduler</value>
+					</property>
+				</bean>
+			</property>
+			<property name="cronExpression">
+			<value>0 0 04 * * ?</value>
+			</property>
+		</bean>
+ -->
+        <ref bean="transactionRepositoryBackup10MinJobTrigger" />
+      </list>
+    </property>
+    
+    <property name="startupDelay" value="100" />
+    <property name="waitForJobsToCompleteOnShutdown" value="false"></property>
+    <property name="quartzProperties">
+      <props>
+        <!-- JobStore -->
+        <prop key="org.quartz.jobStore.class">
+          org.quartz.simpl.RAMJobStore
+        </prop>
+        <prop key="org.quartz.jobStore.misfireThreshold">5000</prop>
+
+        <!-- JobThread -->
+        <prop key="org.quartz.threadPool.class">
+          org.quartz.simpl.SimpleThreadPool
+        </prop>
+        <prop key="org.quartz.threadPool.threadCount">5</prop>
+        <prop key="org.quartz.threadPool.threadPriority">5</prop>
+        <prop key="org.quartz.threadPool.makeThreadsDaemons">true</prop>
+      </props>
+    </property>
+  </bean>
+
+ 
+  <bean class="com.eactive.eai.rms.onl.common.scheduler.SchedulerBeanFactoryProcessor">
+    <property name="scheduler" ref="scheduler"></property>
+  </bean>
+</beans>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+			http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+			">
+
+  <!-- context:load-time-weaver weaver-class="org.jboss.instrument.classloading.JBoss5LoadTimeWeaver"/-->  
+  <context:property-placeholder location="/WEB-INF/*.properties" />
+  	
+	<bean id="messageLocale" class="java.util.Locale" > 
+		<constructor-arg type="java.lang.String" value="${eai.messageLocale}" /> 
+		<constructor-arg type="java.lang.String" value="" /> 
+	</bean> 
+	
+	<bean id="localeMessage" class="com.eactive.eai.rms.common.spring.LocaleMessage"> 
+		<constructor-arg type="java.util.Locale" ref="messageLocale" /> 
+	</bean>
+	
+<!-- 	JSP Use : <spring:message code="login.userId" />  -->
+<!-- 	<bean id="messageSource" -->
+<!-- 		class="org.springframework.context.support.ReloadableResourceBundleMessageSource"> -->
+<!-- 		<property name="basename" value="classpath:message/LocaleMessage" /> -->
+<!-- 		<property name="defaultEncoding" value="UTF-8" /> -->
+<!-- 	</bean> -->
+	
+  	<bean id="appInitializer" class="com.eactive.eai.rms.common.startup.AppInitializer">
+		<property name="instName" value="${inst.Name}"/>
+		<property name="tableOwner" value="${eai.tableowner}"/>
+		<property name="systemMode" value="${eai.systemmode}"/>
+		<property name="themeColor" value="${theme.color}"/>
+	</bean>
+	
+  <import resource="applicationContext-datasource.xml"/>
+  <import resource="applicationContext-jdbc.xml"/>
+  <import resource="applicationContext-udpip.xml"/>
+  <import resource="applicationContext-schedule-dynamic.xml"/>
+  <!-- import resource="applicationContext-schedule.xml"/-->
+</beans>

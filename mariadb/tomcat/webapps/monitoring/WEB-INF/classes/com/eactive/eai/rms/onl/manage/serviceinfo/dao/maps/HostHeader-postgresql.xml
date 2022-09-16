@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="hostHeader">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	SELECT COUNT(*) CNT
+	  FROM   $schemaId$.TSEAIHL01
+	<dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="eaiBizCode">
+			UPPER(EAIBZWKDSTCD)  LIKE UPPER('%' || #eaiBizCode# || '%')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="searchUbmugign">
+			UPPER(UBMUGIGN)  LIKE UPPER('%' || #searchUbmugign# || '%')
+		</isNotEmpty>
+	</dynamic>
+  </statement>
+
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	SELECT  ROWNO AS "ROWNO"
+		, EAIBZWKDSTCD    AS "EAIBZWKDSTCD"
+		, TRANCODE    AS "TRANCODE"
+		, STARTBIT    AS "STARTBIT"
+		, SYSMODE  AS "SYSMODE"
+		, SYSTYPE         AS "SYSTYPE"
+		, SYSSEND   AS "SYSSEND"
+		, SYSRECV     AS "SYSRECV"
+		, UBMUGIGN    AS "UBMUGIGN"
+		, UBMUSEQ AS "UBMUSEQ"
+	  FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY EAIBZWKDSTCD) ROWNO
+				 , EAIBZWKDSTCD
+				 , TRANCODE
+				 , STARTBIT
+				 , SYSMODE
+				 , SYSTYPE
+				 , SYSSEND
+				 , SYSRECV
+				 , UBMUGIGN
+				 , UBMUSEQ
+			  FROM $schemaId$.TSEAIHL01
+		    <dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="eaiBizCode">
+					UPPER(EAIBZWKDSTCD) LIKE UPPER('%' || #eaiBizCode# || '%')
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchUbmugign">
+					UPPER(UBMUGIGN) LIKE UPPER('%' || #searchUbmugign# || '%')
+				</isNotEmpty>
+			</dynamic>
+		   ) AS TB
+	 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+</sqlMap>

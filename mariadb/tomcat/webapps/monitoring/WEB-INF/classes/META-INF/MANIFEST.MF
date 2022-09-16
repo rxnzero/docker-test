@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Built-By: RMS Team
+Implementation-Title: Realtime Management System
+Implementation-Version: Development
+Implementation-Date: UNKNOWN
+Main-Class: com.eactive.eai.rms.Version

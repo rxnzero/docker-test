@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Role">
+	<!-- 역할 권한 목록 조회  -->
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+		 	<!-- SELECT ROW_NUMBER() OVER (ORDER BY ROLE.ROLEID) ROWNUM, -->
+		 	SELECT ROWNUM, 
+				   ROLE.ROLEID ,
+				   ROLE.ROLENAME , 
+				   ROLE.USEYN , 
+				   ROLE.ROLEDESC 
+			FROM $schemaId$.TSEAIRM05 ROLE
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchRoleId">
+					UPPER(ROLEID) LIKE  '%'||UPPER(#searchRoleId#)||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchRoleName">
+					UPPER(ROLENAME) LIKE  '%'||UPPER(#searchRoleName#)||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchUseYn">
+					USEYN = #searchUseYn#
+				</isNotEmpty>
+			</dynamic>			
+			) ORGTABLE
+		WHERE ROWNUM BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<!--  역할 권한 전체 목록수 얻기 -->
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) CNT
+			FROM $schemaId$.TSEAIRM05 ROLE
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchRoleId">
+					UPPER(ROLEID) LIKE  '%'||UPPER(#searchRoleId#)||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchRoleName">
+					UPPER(ROLENAME) LIKE  '%'||UPPER(#searchRoleName#)||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchUseYn">
+					USEYN = #searchUseYn#
+				</isNotEmpty>
+			</dynamic>	
+	</statement>	
+	
+	<!-- 역할 권한 상세 조회 -->
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+	 	SELECT ROLE.ROLEID ,
+			   ROLE.ROLENAME , 
+			   ROLE.USEYN ,
+			   ROLE.ROLEDESC ,
+               ROLE.MENUID ROLESCREEN               
+		FROM $schemaId$.TSEAIRM05 ROLE
+		WHERE  ROLEID = #roleId# 
+	</statement>  
+		
+	<statement id="selectDetail2" resultClass="java.util.HashMap">
+	 	SELECT ROLE.ROLEID ROLEID,
+			   ROLE.ROLENAME ROLENAME, 
+			   ROLE.USEYN USEYN,
+			   ROLE.ROLEDESC ROLEDESC,
+               ROLE.MENUID ROLESCREEN               
+		FROM $schemaId$.TSEAIRM05 ROLE
+		WHERE   
+		  <iterate open="(" conjunction="," close=")" property="roleId" prepend="ROLEID in ">
+          	#roleId[]#
+          </iterate> 
+          ORDER BY ROLE.MENUID desc
+	</statement>  
+	
+	<!-- 역할 권한 insert  -->
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIRM05(
+				ROLEID, ROLENAME,  
+				<isNotEmpty property="roleDesc">
+				ROLEDESC, 
+				</isNotEmpty>
+				USEYN,
+                MENUID
+				)
+		VALUES	(#roleId#, #roleName#,  
+				<isNotEmpty property="roleDesc">
+				#roleDesc#,
+				</isNotEmpty>
+				#useYn#,
+                #roleScreen#
+				)		
+	</statement>	
+	
+	<!-- 역할 권한 update  -->
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	UPDATE 	$schemaId$.TSEAIRM05 
+	 	SET ROLENAME = #roleName#, 
+	 		USEYN = #useYn#,
+	 		ROLEDESC = #roleDesc#,
+            MENUID = #roleScreen#
+	 	WHERE 	ROLEID = #roleId#
+	</statement>
+	
+	<!--  역할 권한 delete -->
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE	FROM $schemaId$.TSEAIRM05 WHERE ROLEID = #roleId#
+	</statement>
+	
+	<statement id="roleMenuList2" resultClass="java.util.HashMap">
+		SELECT  
+		   T2.MENUNAME AS LEV2_NAME,    
+		   T3.MENUNAME AS LEV3_NAME,   
+		   T4.MENUID AS LEV4_ID,  
+		   T4.MENUNAME AS LEV4_NAME,
+		   T5.AUTH AS "authCode",
+		   <!-- ROW_NUMBER() OVER (ORDER BY T4.MENUID) ROWNUM -->
+		   ROWNUM
+		  FROM $schemaId$.TSEAIRM01 T1
+		  LEFT OUTER JOIN $schemaId$.TSEAIRM01 T2 ON T2.PARENTMENUID = T1.MENUID    
+		  LEFT OUTER JOIN $schemaId$.TSEAIRM01 T3 ON T3.PARENTMENUID = T2.MENUID   
+		  LEFT OUTER JOIN $schemaId$.TSEAIRM01 T4 ON T4.PARENTMENUID = T3.MENUID 
+		  LEFT OUTER JOIN $schemaId$.TSEAIRM03 T5 ON 
+		  ( T4.MENUID = T5.MENUID	AND T5.ROLEID = #roleId# AND T5.AUTH IN ( 'R', 'W'))
+		  WHERE T4.MenuURL !=  'NAN'
+		  	 AND  T1.MENUID = #tbOwner#
+		     AND  T1.DISPLAYYN ='Y' AND  T1.USEYN = 'Y'
+		     AND  T2.DISPLAYYN ='Y' AND  T2.USEYN = 'Y'
+		     AND  T3.DISPLAYYN ='Y' AND  T3.USEYN = 'Y'
+		     AND  T4.DISPLAYYN ='Y' AND  T4.USEYN = 'Y'
+	</statement>  	
+	
+<!-- 			SELECT level - 1 "level" -->
+<!-- 		     , T01.MENUID "id" -->
+<!-- 		     , T01.PARENTMENUID "parent" -->
+<!--              , 'true' "expanded" -->
+<!--              , decode(connect_by_isleaf,1,'true','false') "isLeaf" -->
+<!-- 		     , T01.MENUID  -->
+<!-- 		     , T01.SORTORDER  -->
+<!-- 		     , T01.MenuName  -->
+<!-- 		     , T01.DISPLAYYN  -->
+<!-- 		     , T01.UseYn  -->
+<!-- 		     , decode(level,4,decode(T5.AUTH,'R','true','W','true','false'),'') READ -->
+<!-- 		     , decode(level,4,decode(T5.AUTH,'W','true','R','false','false'),'') WRITE -->
+<!-- 		  FROM $schemaId$.TSEAIRM01 T01 -->
+<!-- 		   LEFT OUTER JOIN $schemaId$.TSEAIRM03 T5 ON  -->
+<!-- 		  ( T01.MENUID = T5.MENUID	AND T5.ROLEID = #roleId# AND T5.AUTH IN ( 'R', 'W')) -->
+<!-- 		   WHERE UseYn ='Y' -->
+<!-- 	    connect by prior T01.MENUID  = PARENTMENUID AND T01.USEYN = 'Y' -->
+<!-- 		start with PARENTMENUID = 'ROOT_DEV' -->
+<!--            order siblings by sortOrder	 -->
+	<statement id="selectRoleMenuTree" resultClass="java.util.HashMap">
+			SELECT 0 AS "level"
+		     , T01.MENUID "id"
+		     , T01.PARENTMENUID "parent"
+             , 'true' AS "expanded"
+             , CASE WHEN (select count(MENUID) from $schemaId$.TSEAIRM01 where PARENTMENUID = T01.MENUID) = 0 then 'true' ELSE 'false' END AS "isLeaf"
+		     , T01.MENUID 
+		     , T01.SORTORDER 
+		     , T01.MENUNAME 
+		     , T01.DISPLAYYN 
+		     , T01.USEYN 
+		     , T5.AUTH as "auth"
+		  FROM $schemaId$.TSEAIRM01 T01
+		   LEFT OUTER JOIN $schemaId$.TSEAIRM03 T5 ON 
+		  ( T01.MENUID = T5.MENUID	AND T5.ROLEID = #roleId# AND T5.AUTH IN ( 'R', 'W'))
+		   WHERE UseYn ='Y'
+	       ORDER BY MENUID, SORTORDER
+	</statement>
+	
+	<statement id="insertRoleMenu" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	INSERT INTO $schemaId$.TSEAIRM03(ROLEID, MENUID, AUTH) 
+		VALUES	(#roleId#, #menuId#,#auth#)	
+	</statement>
+	
+	<statement id="deleteRoleMenu" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE 	FROM $schemaId$.TSEAIRM03 
+	 	WHERE 	ROLEID = #roleId# 
+	</statement>
+	
+	<statement id="tbOwnerCombo" resultClass="java.util.HashMap">
+	 	SELECT	T01.MENUID AS "code", T01.MENUNAME AS "value"
+		FROM 	$schemaId$.TSEAIRM01 T01
+		WHERE 	T01.PARENTMENUID = #serverType#
+	</statement> 	
+	
+	<!--  역할 권한별 메뉴  delete -->
+	<statement id="dataSubDelete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE	FROM $schemaId$.TSEAIRM03 WHERE ROLEID = #roleId#
+        AND AUTH IN ( 'R', 'W')
+	</statement>
+	
+	<statement id="propertyValue" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	 	SELECT PRPTY2VAL "Prpty2Val"
+          FROM $schemaId$.TSEAICM03
+	 	 WHERE PRPTYGROUPNAME = #prptyGroupName#
+		   AND PRPTYNAME      = #prptyName#
+	</statement>	
+</sqlMap>

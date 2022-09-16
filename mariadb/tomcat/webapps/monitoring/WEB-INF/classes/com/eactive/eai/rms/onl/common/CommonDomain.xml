@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CommonDomain">
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT DOMAINNM AS "DOMAINNM" , DOMAINTYPE AS "DOMAINTYPE", 
+			DOMAINOPTION AS "DOMAINOPTION", DOMAINVAL AS "DOMAINVAL"
+		 FROM $schemaId$.TSEAICM23 WHERE DOMAINNM = #domainNM#
+	</statement>
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAICM23 (DOMAINNM, DOMAINTYPE, DOMAINOPTION, DOMAINVAL)
+		VALUES( #domainNM#, #domainType#,#domainOption#, #domainVal#)
+
+	</statement>
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAICM23 					
+		SET 
+			DOMAINTYPE = #domainType#,
+			DOMAINOPTION = #domainOption#,
+			DOMAINVAL = #domainVal#
+
+		WHERE DOMAINNM = #domainNM#
+	</statement>	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAICM23 WHERE DOMAINNM = #domainNM#
+	</statement>		
+
+	<statement id="selectQuery" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" remapResults="true">
+		SELECT * FROM ($sql$)
+	</statement>		
+</sqlMap>

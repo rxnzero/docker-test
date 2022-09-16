@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapBizGbn">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT
+	       ROWNO, 
+	       BJOBBZWKDSTCD  ,  
+	       BJOBBZWKNAME , 
+	       THISMSGUSEYN   ,  
+	       THISMSGREGSNTID,  
+	       THISMSGREGIHMS ,  
+	       THISMSGAMNDRID ,  
+	       THISMSGAMNDHMS
+	  	FROM (
+		    SELECT
+		         @NO := @NO + 1 AS ROWNO, 
+		         BjobBzwkDstcd  ,  
+		         BjobBzwkName   , 
+            	 ThisMsgUseYn   ,  
+            	 ThisMsgRegsntID,  
+            	 ThisMsgRegiHMS ,  
+            	 ThisMsgAmndrID ,  
+            	 ThisMsgAmndHMS
+		      FROM $schemaId$.TSEAIBJ02,  (SELECT @NO := 0) R
+		    <dynamic prepend="WHERE">
+			    <isNotEmpty prepend="AND" property="searchbjobBzwkDstcd">
+					UPPER(BjobBzwkDstcd) LIKE CONCAT(CONCAT('%' , UPPER(#searchbjobBzwkDstcd#) ), '%' )
+				</isNotEmpty>
+			    <isNotEmpty prepend="AND" property="searchbjobBzwkName">
+					BjobBzwkName LIKE CONCAT(CONCAT('%' , #searchbjobBzwkName# ), '%' )
+				</isNotEmpty> 
+			</dynamic> 
+	       ) TMP
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	 	ORDER BY BjobBzwkDstcd
+
+	</statement>	
+
+	<statement id="update" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBJ02 
+		SET
+			 BjobBzwkName = #bjobBzwkName#,
+			 ThisMsgUseYn = #thisMsgUseYn#,
+			 ThisMsgAmndrID = #userid#,
+			 ThisMsgAmndHMS = SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+		WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+	</statement>
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBJ02 (
+			BjobBzwkDstcd, 
+			BjobBzwkName,  
+			ThisMsgUseYn, 
+			ThisMsgRegsntID,  
+			ThisMsgRegiHMS ,  
+			ThisMsgAmndrID ,  
+			ThisMsgAmndHMS  )
+		VALUES (
+			#bjobBzwkDstcd# ,
+			#bjobBzwkName# ,
+			#thisMsgUseYn# ,
+			#userid# ,
+			SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),
+			#userid# ,
+			SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ) 
+		)
+	</statement>
+	
+</sqlMap>

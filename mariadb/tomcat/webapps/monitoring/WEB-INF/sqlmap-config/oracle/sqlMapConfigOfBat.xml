@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+
+<sqlMapConfig>
+  <settings
+    cacheModelsEnabled="true"
+    enhancementEnabled="true"
+    lazyLoadingEnabled="true"
+    maxRequests="512"
+    maxSessions="128"
+    maxTransactions="32"
+    useStatementNamespaces="true" />
+
+  
+<!-- 배치 -->
+   <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/CodeMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/CodeMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/LifecycleMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/LifecycleMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/PropertyMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/PropertyMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/ServerMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/ServerMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/LogDeleteMan.xml" />
+    
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/admin/rule/LayoutSync-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/adapter/Adapter.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/adapter/Adapter-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/inter/Interface.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/inter/Interface-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/interfaceFile/InterfaceFile.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/interfaceFile/InterfaceFile-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/schedule/Schedule.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/schedule/Schedule-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/monitor/CountMonitor-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/monitor/MessageMonitor-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/monitor/InterfaceMonitor-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/monitor/ErrorMonitor-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/cron/CronMan.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/cron/CronMan-oracle.xml" />
+        
+  <!-- BAT형상관리 파일 loader -->    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/loader/BatLoader.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/loader/BatLoader-oracle.xml" />
+  
+  
+</sqlMapConfig>

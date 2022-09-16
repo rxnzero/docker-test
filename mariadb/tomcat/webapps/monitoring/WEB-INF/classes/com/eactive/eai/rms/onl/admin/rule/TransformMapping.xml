@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TransformMapping">
+
+ 	  
+    <statement id="getRefMsgInfo" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+        SELECT EAISVCNAME AS "EAISVCNAME",
+               SVCPRCSSNO AS "SVCPRCSSNO",
+               REFMSGIDNO AS "REFMSGIDNO",
+               REFMSGIDNAME AS "REFMSGIDNAME"
+        FROM $schemaId$.TSEAIMS02
+        WHERE  EAISVCNAME   = #eaiSvcName#
+        ORDER BY 1,2,3
+    </statement>
+    
+    <statement id="getSvcMotivUseDstcd" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.String">
+        SELECT SVCMOTIVUSEDSTCD "SvcMotivUseDstcd"
+          FROM $schemaId$.TSEAIHE01
+         WHERE EAISVCNAME = #eaiSvcName#
+    </statement>
+
+</sqlMap>

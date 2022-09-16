@@ -1,0 +1,1 @@
+docker run --name kafka-ui -p 8080:8080 -e KAFKA_CLUSTERS_0_NAME=dhlee -e KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=192.168.10.87:9092 -d provectuslabs/kafka-ui:latest 

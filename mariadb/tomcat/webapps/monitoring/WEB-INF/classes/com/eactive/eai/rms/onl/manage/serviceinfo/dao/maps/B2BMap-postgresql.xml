@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TSEAIHK05 --><!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="b2bMap">
+  <statement id="findPaginatedTotalCount" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo" resultClass="java.lang.Integer">
+    SELECT COUNT(DISTINCT A.EAISVCNAME) AS "CNT"
+    FROM $schemaId$.TSEAIHK05 A, $schemaId$.TSEAIHE01 B
+    WHERE 
+	     A.EAISVCNAME = B.EAISVCNAME
+      <isNotEmpty prepend="AND" property="eaiSvcCd">
+        UPPER(A.EAISVCNAME) LIKE '%'||#eaiSvcCd#||'%'
+      </isNotEmpty>
+  </statement>
+
+  <statement id="findPaginatedList" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo" resultClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo">
+    SELECT 
+    	B.ROWNO AS "ROWNO",
+    	B.EAISVCCD AS "EAISVCCD", B.EAISVCDESC AS "EAISVCDESC" 
+    FROM ( 
+        <!-- SELECT ROW_NUMBER() OVER (ORDER BY EAISVCCD) ROWNO, A.* --> 
+        SELECT ROW_NUMBER() OVER (ORDER BY EAISVCCD) AS ROWNO, A.* 
+          FROM ( SELECT DISTINCT 
+				    	A.EAISVCNAME AS EAISVCCD,
+				        B.EAISVCDESC AS EAISVCDESC
+			      FROM $schemaId$.TSEAIHK05 A, $schemaId$.TSEAIHE01 B
+			     WHERE  A.EAISVCNAME = B.EAISVCNAME
+			      <isNotEmpty prepend="AND" property="eaiSvcCd">
+			        UPPER(A.EAISVCNAME) LIKE '%'||#eaiSvcCd#||'%'
+			      </isNotEmpty>
+			    ) A
+     ) B 
+     WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+</sqlMap>

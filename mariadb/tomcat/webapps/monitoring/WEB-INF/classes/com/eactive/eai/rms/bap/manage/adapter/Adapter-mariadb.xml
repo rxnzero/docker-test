@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapAdapter">
+	<statement id="adapterGroupDetail" resultClass="java.util.HashMap">
+		SELECT 	ADPTRBZWKGROUPNAME, 
+				ADPTRCD, 
+       			ADPTRUSEYN, 
+       			ADPTRBZWKGROUPDESC 
+		FROM $schemaId$.TSEAIBA01
+    	WHERE AdptrBzwkGroupName=#adptrBzwkGroupName#
+	</statement> 	
+
+	<statement id="adapterDetail" resultClass="java.util.HashMap">
+		SELECT 	A.ADPTRBZWKGROUPNAME, 
+				A.ADPTRBZWKNAME, 
+				A.LSTNERCLSNAME, 
+		      	A.PRPTYGROUPNAME, 
+		      	A.ADPTRDESC, 
+		      	B.PRPTYGROUPDESC  
+		FROM $schemaId$.TSEAIBA02 A LEFT OUTER JOIN $schemaId$.TSEAIBP01 B
+				 ON A.PrptyGroupName = B.PrptyGroupName 
+    	WHERE AdptrBzwkGroupName=#adptrBzwkGroupName#
+	</statement>  
+
+	<statement id="propertyList" resultClass="java.util.HashMap">
+		SELECT 	
+				B.PRPTYNAME,  
+				B.PRPTY2VAL  
+		FROM $schemaId$.TSEAIBA02 A LEFT OUTER JOIN $schemaId$.TSEAIBP02 B
+				 ON A.PrptyGroupName = B.PrptyGroupName 
+    	WHERE A.AdptrBzwkGroupName=#adptrBzwkGroupName#
+	</statement> 
+	
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT ROWNO, ADPTRBZWKGROUPNAME, ADPTRBZWKGROUPDESC, ADPTRUSEYN
+        FROM ( 
+       	SELECT 
+       		   @NO := @NO + 1 AS ROWNO, AdptrBzwkGroupName, AdptrBzwkGroupDesc, AdptrUseYn  
+       	FROM (  
+             SELECT 
+                 AdptrBzwkGroupName, AdptrBzwkGroupDesc, AdptrUseYn
+             FROM $schemaId$.TSEAIBA01
+		    <dynamic prepend="WHERE">
+			    <isNotEmpty prepend="AND" property="adptrUseYn">
+					AdptrUseYn = #adptrUseYn#
+				</isNotEmpty> 
+				<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+					UPPER(AdptrBzwkGroupName) LIKE CONCAT( '%' , #searchAdptrBzwkGroupName# , '%') 
+				</isNotEmpty> 
+			</dynamic> 
+	       ) TMP,  (SELECT @NO := 0) R
+	       ORDER BY AdptrBzwkGroupName 
+	    ) T
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+	
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TotalCount"
+		FROM $schemaId$.TSEAIBA01
+    	<dynamic prepend="WHERE">
+		    <isNotEmpty prepend="AND" property="adptrUseYn">
+				AdptrUseYn = #adptrUseYn#
+			</isNotEmpty> 
+			<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+				UPPER(AdptrBzwkGroupName) LIKE CONCAT( '%' , #searchAdptrBzwkGroupName# , '%')
+			</isNotEmpty> 
+		</dynamic>  			
+	</statement>	
+</sqlMap>

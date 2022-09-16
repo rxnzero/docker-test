@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="B2BExtract">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  @NO := @NO + 1 AS ROWNO,
+						EAISVCNAME , SVCPRCSSNO , SVCROUTCLSNAME , ADPTRROUTCLSNAME 
+						FROM $schemaId$.TSEAIFR06,  (SELECT @NO := 0) R
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchEaiSvcName">
+					EAISVCNAME LIKE UPPER( CONCAT( '%' , #searchEaiSvcName# , '%') )
+				</isNotEmpty>
+			</dynamic>						
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TOTALCOUNT
+			FROM $schemaId$.TSEAIFR06
+		<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchEaiSvcName">
+					EAISVCNAME LIKE UPPER( CONCAT( '%' , #searchEaiSvcName# , '%') )
+				</isNotEmpty>
+		</dynamic>				
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	A.EAISVCNAME , A.SVCPRCSSNO , A.SVCROUTCLSNAME , A.ADPTRROUTCLSNAME,
+				B.EAISVCDESC 
+	      FROM $schemaId$.TSEAIFR06 A RIGHT OUTER JOIN $schemaId$.TSEAIHE01 B
+	    	ON A.EAISVCNAME = B.EAISVCNAME
+	    WHERE   A.EAISVCNAME = #eaiSvcName# 
+        AND   A.SVCPRCSSNO = #svcPrcssNo#
+	</statement>  
+    <statement id="update" parameterClass="java.util.HashMap" >
+        UPDATE  $schemaId$.TSEAIFR06 
+                SET SVCROUTCLSNAME = #svcRoutClsName#, ADPTRROUTCLSNAME = #adptrRoutClsName# 
+        WHERE   EAISVCNAME = #eaiSvcName#
+        AND     SVCPRCSSNO = #svcPrcssNo#
+    </statement>
+    
+    <statement id="insert" parameterClass="java.util.HashMap" >
+        INSERT  INTO $schemaId$.TSEAIFR06(
+                EAISVCNAME, SVCPRCSSNO, SVCROUTCLSNAME, ADPTRROUTCLSNAME) 
+                VALUES(#eaiSvcName#, #svcPrcssNo#, #svcRoutClsName#, #adptrRoutClsName#)
+    </statement>
+    
+    <statement id="delete" parameterClass="java.util.HashMap" >
+        DELETE  FROM $schemaId$.TSEAIFR06 
+        WHERE EAISVCNAME = #eaiSvcName#
+        AND   SVCPRCSSNO = #svcPrcssNo#
+    </statement>
+</sqlMap>

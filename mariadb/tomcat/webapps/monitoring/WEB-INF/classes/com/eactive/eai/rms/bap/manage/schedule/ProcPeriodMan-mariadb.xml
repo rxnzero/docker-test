@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapProcPeriod">
+	<statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS CNT
+		  FROM $schemaId$.TSEAIBS05 A
+			 , $schemaId$.TSEAIBJ01 B
+			 , $schemaId$.TSEAIBJ02 C
+			 , $schemaId$.TSEAIBJ06 D	
+		 WHERE A.BJOBMSGDSTCD	= B.BJOBMSGDSTCD
+		   AND B.BJOBBZWKDSTCD	= C.BJOBBZWKDSTCD
+		   AND B.BJOBBZWKDSTCD	= D.BJOBBZWKDSTCD
+		   AND A.OSIDINSTIDSTCD	= D.OSIDINSTIDSTCD
+		   
+		<isNotEmpty prepend="AND" property="searchBjobBzwkName">
+			C.BJOBBZWKNAME LIKE CONCAT( '%' , #searchBjobBzwkName# , '%')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="searchOsidInstiName">
+			D.OSIDINSTINAME LIKE CONCAT( '%', #searchOsidInstiName# , '%')
+		</isNotEmpty>
+	</statement>
+	
+	<statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT *
+		  FROM (
+				 SELECT @NO := @NO + 1 AS ROWNO
+					  , C.BJOBBZWKNAME
+					  , D.OSIDINSTINAME
+					  , B.BJOBTRANDSTCDNAME
+					  , B.BJOBMSGDSTICNAME
+					  , A.BJOBMSGSCHEID
+					  , A.OSIDINSTIDSTCD
+					  , A.BJOBMSGDSTCD
+					  , A.SENDRECVYN
+					  , LTRIM(RTRIM(A.SNDRCVCYCLTYPNAME))	AS SNDRCVCYCLTYPNAME
+					  , A.SNDRCVSTARTHMS
+					  , A.SNDRCVENDHMS
+					  , A.EAIWARNYN AS WARNYN
+					  , A.THISMSGUSEYN
+					  , A.THISMSGREGSNTID
+					  , A.THISMSGREGIHMS
+					  , A.THISMSGAMNDRID
+					  , A.THISMSGAMNDHMS
+				   FROM $schemaId$.TSEAIBS05 A,  (SELECT @NO := 0) R
+					  , $schemaId$.TSEAIBJ01 B
+					  , $schemaId$.TSEAIBJ02 C
+					  , $schemaId$.TSEAIBJ06 D
+				  WHERE A.BJOBMSGDSTCD		= B.BJOBMSGDSTCD
+					AND B.BJOBBZWKDSTCD		= C.BJOBBZWKDSTCD
+					AND B.BJOBBZWKDSTCD		= D.BJOBBZWKDSTCD
+					AND A.OSIDINSTIDSTCD	= D.OSIDINSTIDSTCD
+					<isNotEmpty prepend="AND" property="searchBjobBzwkName">
+						C.BJOBBZWKNAME LIKE CONCAT( '%' , #searchBjobBzwkName# , '%')
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchOsidInstiName">
+						D.OSIDINSTINAME LIKE CONCAT( '%', #searchOsidInstiName# , '%')
+					</isNotEmpty>
+					ORDER BY C.BJOBBZWKNAME, D.OSIDINSTINAME, A.BJOBMSGSCHEID
+			   ) ORGTABLE
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+
+	<statement id="generatePK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		SELECT CONCAT(BjobBzwkDstcd ,  #sendRecvYn#  , BjobTranDstcdName , 
+				(
+					SELECT
+		        		   CASE LENGTH(
+										CAST(
+											CAST(
+												IFNULL(
+													MAX(
+														SUBSTR(RTRIM(BJOBMSGSCHEID), LENGTH(RTRIM(BJOBMSGSCHEID))-2, 3)
+													), '0'
+												)
+											AS UNSIGNED)
+											+ 1
+										AS CHAR)
+									)
+								WHEN 1
+									THEN CONCAT( '00' ,
+										 	CAST( CAST( IFNULL( MAX(SUBSTR(RTRIM(BJOBMSGSCHEID), LENGTH(RTRIM(BJOBMSGSCHEID))-2, 3)), '0') AS UNSIGNED) + 1 AS CHAR)
+										 )
+								WHEN 2                 
+									THEN CONCAT( '0' ,
+									 	CAST( CAST( IFNULL( MAX(SUBSTR(RTRIM(BJOBMSGSCHEID), LENGTH(RTRIM(BJOBMSGSCHEID))-2, 3)), '0') AS UNSIGNED) + 1 AS CHAR)
+									 )
+								WHEN 3
+									THEN CAST( CAST( IFNULL( MAX(SUBSTR(RTRIM(BJOBMSGSCHEID), LENGTH(RTRIM(BJOBMSGSCHEID))-2, 3)), '0') AS UNSIGNED) + 1 AS CHAR)
+							END
+					  FROM $schemaId$.TSEAIBS05
+					 WHERE BJOBMSGDSTCD = #bjobMsgDstcd#
+				) ) AS LEFTCODE
+		  FROM $schemaId$.TSEAIBJ01
+		 WHERE BJOBMSGDSTCD = #bjobMsgDstcd#
+	</statement>
+	
+	<statement id="checkCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(BJOBMSGSCHEID)
+        FROM   $schemaId$.TSEAIBS05
+        WHERE  LTRIM(RTRIM(BJOBMSGSCHEID)) = #bjobMsgScheID#
+    </statement>
+    
+    <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIBS05(
+				BJOBMSGSCHEID			/* BATCH작업메시지일정ID */
+			  , OSIDINSTIDSTCD			/* 대외기관구분코드 */
+			  , BJOBMSGDSTCD			/* BATCH작업메시지구분코드 */
+			  , SENDRECVYN				/* 송신수신여부 */
+			  , SNDRCVCYCLTYPNAME		/* 송수신주기타입 */
+			  , SNDRCVSTARTHMS			/* 송수신시작시각 */
+			  , SNDRCVENDHMS			/* 송수신종료시각 */
+			  , EAIWARNYN				/* 경고여부 */
+			  , THISMSGUSEYN			/* 당메시지사용여부 */
+			  , THISMSGREGSNTID			/* 당메시지등록자ID */
+			  , THISMSGREGIHMS			/* 당메시지등록시각 */
+			  , THISMSGAMNDRID			/* 당메시지수정자ID */
+			  , THISMSGAMNDHMS			/* 당메시지수정시각 */
+		) VALUES(
+				#bjobMsgScheID#
+			  , #osidInstiDstcd#
+			  , #bjobMsgDstcd#
+			  , #sendRecvYn#
+			  , #sndrcvCyclTypName#
+			  , #sndrcvStartHMS#
+			  , #sndrcvEndHMS#
+			  , #warnYn#
+			  , #thisMsgUseYn#
+			  , #loginId#
+			  , SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+			  , #loginId#
+			  , SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+		)
+	</statement>
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBS05
+		   SET OSIDINSTIDSTCD    = #osidInstiDstcd#
+			 , BJOBMSGDSTCD      = #bjobMsgDstcd#
+			 , SENDRECVYN        = #sendRecvYn#
+			 , SNDRCVCYCLTYPNAME = #sndrcvCyclTypName#
+			 , SNDRCVSTARTHMS    = #sndrcvStartHMS#
+			 , SNDRCVENDHMS      = #sndrcvEndHMS#
+			 , EAIWARNYN         = #warnYn#
+			 , THISMSGUSEYN      = #thisMsgUseYn#
+			 , THISMSGAMNDRID    = #loginId#
+			 , THISMSGAMNDHMS    = SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+		 WHERE LTRIM(RTRIM(BJOBMSGSCHEID)) = LTRIM(RTRIM(#bjobMsgScheID#))
+	</statement> 
+  
+    
+</sqlMap>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="hostHeader">
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	SELECT   EAIBZWKDSTCD    AS "EAIBZWKDSTCD"
+		, TRANCODE    AS "TRANCODE"
+		, STARTBIT    AS "STARTBIT"
+		, SYSMODE  AS "SYSMODE"
+		, SYSTYPE         AS "SYSTYPE"
+		, SYSSEND   AS "SYSSEND"
+		, SYSRECV     AS "SYSRECV"
+		, UBMUGIGN    AS "UBMUGIGN"
+		, UBMUSEQ AS "UBMUSEQ"
+	  FROM $schemaId$.TSEAIHL01
+    <dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="eaiBizCode">
+			EAIBZWKDSTCD = #eaiBizCode#
+		</isNotEmpty>
+	</dynamic>
+  </statement>
+  
+  <insert id="insert" parameterClass="java.util.HashMap">
+		INSERT INTO $schemaId$.TSEAIHL01 ( 
+		           EAIBZWKDSTCD
+				 , TRANCODE
+				 , STARTBIT
+				 , SYSMODE
+				 , SYSTYPE
+				 , SYSSEND
+				 , SYSRECV
+				 , UBMUGIGN
+				 , UBMUSEQ
+		) VALUES ( 
+		           #eaiBizCode#
+				 , #tranCode#
+				 , #startBit#
+				 , #sysMode#
+				 , #sysType#
+				 , #sysSend#
+				 , #sysRecv#
+				 , #ubmugign#
+				 , #ubmuSeq#
+		)
+  </insert>
+
+  <update id="update" parameterClass="java.util.HashMap">
+		UPDATE $schemaId$.TSEAIHL01 SET 
+               TRANCODE		= #tranCode#
+             , STARTBIT		= #startBit#
+             , SYSMODE			= #sysMode#
+             , SYSTYPE			= #sysType#
+             , SYSSEND		= #sysSend#
+             , SYSRECV		= #sysRecv#
+             , UBMUGIGN		= #ubmugign#
+             , UBMUSEQ	= #ubmuSeq#
+		 WHERE EAIBZWKDSTCD = #eaiBizCode# 
+  </update>
+  
+  <delete id="delete" parameterClass="java.util.HashMap">
+		DELETE FROM $schemaId$.TSEAIHL01 
+		 WHERE EAIBZWKDSTCD=#eaiBizCode#
+  </delete>
+
+  <delete id="deleteRestoreTable" parameterClass="java.util.HashMap">
+		DELETE FROM $schemaId$.TSEAIHL02 
+		 WHERE STORGYMD &lt;= #targetDay#
+  </delete>
+  
+</sqlMap>

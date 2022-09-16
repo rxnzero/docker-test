@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TSEAIS001">
+
+  <statement id="getEaiServerIpList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">    
+		SELECT EAISEVRINSTNCNAME AS "EAISVRINSTNM",  EAISEVRIP  AS "EAISVRIP"   ,
+		       SEVRLSNPORTNAME   AS "EAISVRLSNPORT", FLOVRSEVRNAME AS "FAILOVERSVRNM",
+		       HOSTNAME  AS "HOSTNAME"        
+		FROM   $schemaId$.TSEAISY02
+		WHERE  EAISEVRINSTNCNAME != 'ALL'
+		AND    EAISEVRIP != '*'
+		ORDER   BY EAISEVRIP, SEVRLSNPORTNAME ASC
+  </statement>
+  
+  <statement id="getHostServerIpList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT   HOSTNAME AS "HOSTNAME", EAISEVRIP AS "EAISVRIP"
+    FROM     $schemaId$.TSEAISY02
+    WHERE    EAISEVRINSTNCNAME != 'ALL'
+    AND      EAISEVRIP != '*'
+    GROUP BY HOSTNAME, EAISEVRIP
+    ORDER BY HOSTNAME ASC
+  </statement>  
+  
+  <statement id="getSnaHostList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT SNAADPTRSEVRNAME AS "HOSTNAME", SNAADPTRSEVRIPNAME AS "EAISVRIP"
+		FROM   $schemaId$.TSEAIAD13
+		ORDER  BY SNAADPTRSEVRNAME ASC
+  </statement>
+</sqlMap>

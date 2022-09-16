@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Unifbwk">
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	EAIBZWKDSTCD AS "EAIBZWKDSTCD" , BZWKDSTICNAME AS "BZWKDSTICNAME" ,
+				TRACKASISKEY1NAME AS "TRACKASISKEY1NAME" , 
+				TRACKASISKEY2NAME AS "TRACKASISKEY2NAME" , BZWKDSTICDESC AS "BZWKDSTICDESC"
+	            FROM $schemaId$.TSEAICM01   
+	    WHERE EAIBZWKDSTCD = #eaiBzwkDstcd#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap" >
+		UPDATE 	$schemaId$.TSEAICM01 
+				SET BZWKDSTICNAME = #bzwkDsticName#, 
+				TRACKASISKEY1NAME = #trackAsisKey1Name#, 
+				TRACKASISKEY2NAME = #trackAsisKey2Name#, 
+				BZWKDSTICDESC = #bzwkDsticDesc#
+		WHERE 	EAIBZWKDSTCD = #eaiBzwkDstcd#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" >
+		INSERT 	INTO $schemaId$.TSEAICM01(
+				EAIBZWKDSTCD, BZWKDSTICNAME,
+				TRACKASISKEY1NAME, TRACKASISKEY2NAME, 
+				BZWKDSTICDESC) 
+				VALUES(#eaiBzwkDstcd# ,#bzwkDsticName#,
+					   #trackAsisKey1Name#, #trackAsisKey2Name#,
+					   #bzwkDsticDesc#
+					   )
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" >
+		DELETE 	FROM $schemaId$.TSEAICM01 WHERE EAIBZWKDSTCD = #eaiBzwkDstcd#
+	</statement>
+	
+</sqlMap>

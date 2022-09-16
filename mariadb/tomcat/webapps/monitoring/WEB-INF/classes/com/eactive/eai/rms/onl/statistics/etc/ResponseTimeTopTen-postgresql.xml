@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ResponseTimeTopTen">
+  
+  <statement id="findRequestTime2Second" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.etc.vo.ResponseTimeTopTenVO"><![CDATA[
+        SELECT A.ROWNUM AS "ROWNUM",
+        A.EAIBZWKDSTCD AS "EAIBZWKDSTCD",
+        A.EAISVCNAME AS "EAISVCNAME",
+        A.SLOWTOTALCOUNT AS "SLOWTOTALCOUNT",
+        A.SLOWCOUNT AS "SLOWCOUNT",
+        COALESCE(B.EAISVCDESC, 'UNKNOWN') AS "EAISVCDESC"
+        FROM (
+        	SELECT * FROM (
+            	SELECT
+            	ROW_NUMBER() OVER() ROWNUM,
+                A.EAIBZWKDSTCD,
+                A.EAISVCNAME,
+                COUNT(*) AS SLOWTOTALCOUNT,
+                SUM(CASE WHEN TO_CHAR(
+                            TO_TIMESTAMP(
+                                SUBSTR (
+                                    (TO_TIMESTAMP(D.MSGPRCSSYMS, 'YYYYMMDDHH24MISSMS')
+                                    - TO_TIMESTAMP(A.MSGDPSTYMS, 'YYYYMMDDHH24MISSMS'))
+                                , 12, 11 )
+                            , 'HH24:MI:SS.MS')
+                          , 'HH24MISS.MS') >= 2.000 THEN 1
+                     ELSE 0
+                     END) AS SLOWCOUNT
+	            FROM $schemaId$.$tableName$   A
+		           , $schemaId$.$tableName$   B
+		           , $schemaId$.$tableName$   C
+	               , $schemaId$.$tableName$   D
+	            WHERE A.EAISVCSERNO = B.EAISVCSERNO
+	                AND A.EAISVCSERNO = C.EAISVCSERNO
+	                AND A.EAISVCSERNO = D.EAISVCSERNO
+	                AND A.LOGPRCSSSERNO = 100
+	                AND B.LOGPRCSSSERNO = 200
+	                AND C.LOGPRCSSSERNO = 300
+	                AND D.LOGPRCSSSERNO = 400
+	                AND A.MSGDPSTYMS >= #msgDpstYMS#  ||'00000000000'
+	                AND A.MSGDPSTYMS <= #msgDpstYMS#  ||'99999999999'
+	                AND A.LOGPRCSSSERNO != 900
+	                AND SUBSTR(A.SVCMOTIVUSEDSTCD, 1, 1) = 'S'
+	                AND SUBSTR(A.PSVINTFACDSTICNAME, 1, 1) = 'S'
+	            GROUP BY A.EAIBZWKDSTCD, A.EAISVCNAME
+	            ORDER BY SLOWCOUNT DESC
+        	) A
+        	WHERE ROWNUM <= 10
+            AND SLOWCOUNT > 0
+        ) A LEFT OUTER JOIN $schemaId$.TSEAIHE01 B
+        ON  A.EAISVCNAME = B.EAISVCNAME
+		]]>
+  </statement>
+</sqlMap>

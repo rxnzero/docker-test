@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BapSystemInst">
+
+    <statement id="selectList" resultClass="java.util.HashMap">
+        SELECT OsidInstiName AS "OSIDINSTINAME" ,
+               OsidInstiDstcd AS "OSIDINSTIDSTCD" ,
+               BjobBzwkName AS "BJOBBZWKNAME" ,
+               BjobBzwkDstcd AS "BJOBBZWKDSTCD" ,
+               SendPrcssRuleCd AS "SENDPRCSSRULECD" ,
+               RecvPrcssRuleCd AS "RECVPRCSSRULECD" ,
+               EAIFileSendPtrnDstcd AS "EAIFILESENDPTRNDSTCD" ,
+               EAIFileRecvPtrnDstcd AS "EAIFILERECVPTRNDSTCD" ,
+               ThisMsgUseYn AS "THISMSGUSEYN" ,
+               ROWNO AS "ROWNO"
+        FROM (
+            SELECT A.OsidInstiName        AS OsidInstiName       ,
+                   A.OsidInstiDstcd       AS OsidInstiDstcd      ,
+                   B.BjobBzwkName         AS BjobBzwkName        ,
+                   A.BjobBzwkDstcd        AS BjobBzwkDstcd       ,
+                   A.SendPrcssRuleCd      AS SendPrcssRuleCd     ,
+                   A.RecvPrcssRuleCd      AS RecvPrcssRuleCd     ,
+                   A.EAIFileSendPtrnDstcd AS EAIFileSendPtrnDstcd,
+                   A.EAIFileRecvPtrnDstcd AS EAIFileRecvPtrnDstcd,
+                   A.ThisMsgUseYn         AS ThisMsgUseYn        ,
+                   ROW_NUMBER() OVER(ORDER BY A.OsidInstiName, A.OsidInstiDstcd, A.BjobBzwkDstcd ) ROWNO
+            FROM   $schemaId$.TSEAIBJ06 A, $schemaId$.TSEAIBJ02 B
+            WHERE  A.BjobBzwkDstcd  = B.BjobBzwkDstcd
+            AND    A.OsidInstiName  LIKE '%' || #searchOsidInstiName#  || '%'
+            AND    A.OsidInstiDstcd LIKE '%' || #searchOsidInstiDstcd#  || '%'
+            AND    B.BjobBzwkName   LIKE '%' || #searchBjobBzwkName#  || '%'
+           ) TMP
+         WHERE ROWNO BETWEEN #startNum# AND #endNum#
+    </statement>
+
+    <statement id="selectListCount" resultClass="java.lang.Integer">
+        SELECT  COUNT(*) AS "TOTALCOUNT"
+        FROM    $schemaId$.TSEAIBJ06 A,
+                $schemaId$.TSEAIBJ02 B
+        WHERE   A.BjobBzwkDstcd  =    B.BjobBzwkDstcd
+        AND     A.OsidInstiName  LIKE '%' || #searchOsidInstiName#  || '%'
+        AND     A.OsidInstiDstcd LIKE '%' || #searchOsidInstiDstcd#  || '%'
+        AND     B.BjobBzwkName   LIKE '%' || #searchBjobBzwkName#  || '%'
+    </statement>
+
+    <statement id="selectDetail" resultClass="java.util.HashMap">
+        SELECT
+            BJOBBZWKDSTCD AS "BJOBBZWKDSTCD" ,
+            OSIDINSTIDSTCD  AS "OSIDINSTIDSTCD" ,
+            OSIDINSTINAME AS "OSIDINSTINAME" ,
+            ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME" ,
+            SENDPRCSSRULECD AS "SENDPRCSSRULECD" ,
+            RECVPRCSSRULECD AS "RECVPRCSSRULECD" ,
+            EAIFILESENDPTRNDSTCD  AS "EAIFILESENDPTRNDSTCD",
+            EAIFILERECVPTRNDSTCD  AS "EAIFILERECVPTRNDSTCD",
+            TELGMBLCKSIZE AS "TELGMBLCKSIZE" ,
+            TELGMSERNOSIZE AS "TELGMSERNOSIZE" ,
+            TELGMPCKETSIZE AS "TELGMPCKETSIZE" ,
+            TRANSTARTINDX AS "TRANSTARTINDX" ,
+            TRANENDINDX AS "TRANENDINDX" ,
+            THISMSGUSEYN AS "THISMSGUSEYN" ,
+            THISMSGREGSNTID AS "THISMSGREGSNTID" ,
+            THISMSGREGIHMS AS "THISMSGREGIHMS" ,
+            THISMSGAMNDRID AS "THISMSGAMNDRID" ,
+            THISMSGAMNDHMS AS "THISMSGAMNDHMS"
+        FROM $schemaId$.TSEAIBJ06
+        WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+        AND   LTRIM(RTRIM(OsidInstiDstcd))= #osidInstiDstcd#
+    </statement>
+
+    <statement id="detailSysconn" resultClass="java.util.HashMap">
+        SELECT SYSLNKGDSTCD AS "SYSLNKGDSTCD" ,
+               RQSTRSPNSDSTCD AS "RQSTRSPNSDSTCD" ,
+               LNKGIPINFONAME AS "LNKGIPINFONAME" ,
+               LNKGPORTINFONAME AS "LNKGPORTINFONAME" ,
+               LNKGID AS "LNKGID" ,
+               LNKGPWD  AS "LNKGPWD" ,
+               TCIRTLNKGSTUSCD AS "TCIRTLNKGSTUSCD" ,
+               ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME" ,
+               ADPTRBZWKNAME AS "ADPTRBZWKNAME" ,
+               THISMSGUSEYN AS "THISMSGUSEYN" ,
+               THISMSGREGSNTID  AS "THISMSGREGSNTID" ,
+               THISMSGREGIHMS  AS "THISMSGREGIHMS" ,
+               THISMSGAMNDRID AS "THISMSGAMNDRID" ,
+               THISMSGAMNDHMS  AS "THISMSGAMNDHMS"
+        FROM $schemaId$.TSEAIBJ05
+        WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+        AND   LTRIM(RTRIM(OsidInstiDstcd))= #osidInstiDstcd#
+        ORDER BY SysLnkgDstcd
+    </statement>
+
+    <statement id="insert" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAIBJ06 (
+            BjobBzwkDstcd         ,
+            OsidInstiDstcd        ,
+            OsidInstiName         ,
+            AdptrBzwkGroupName    ,
+            SendPrcssRuleCd       ,
+            RecvPrcssRuleCd       ,
+            EAIFileSendPtrnDstcd  ,
+            EAIFileRecvPtrnDstcd  ,
+            TelgmBlckSize         ,
+            TelgmSernoSize        ,
+            TelgmPcketSize        ,
+            TranStartIndx         ,
+            TranEndIndx           ,
+            ThisMsgUseYn          ,
+            ThisMsgRegsntID       ,
+            ThisMsgRegiHMS        ,
+            ThisMsgAmndrID        ,
+            ThisMsgAmndHMS        )
+        VALUES (
+            #bjobBzwkDstcd#         ,
+            #osidInstiDstcd#        ,
+            #osidInstiName#         ,
+            #adptrBzwkGroupName#    ,
+            #sendPrcssRuleCd#       ,
+            #recvPrcssRuleCd#       ,
+            #fileSendPtrnDstcd#     ,
+            #fileRecvPtrnDstcd#     ,
+            #telgmBlckSize#         ,
+            #telgmSernoSize#        ,
+            #telgmPcketSize#        ,
+            #tranStartIndx#         ,
+            #tranEndIndx#           ,
+            #thisMsgUseYn#          ,
+            #userid#       ,
+            TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS'),
+            #userid#        ,
+            TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+        )
+    </statement>
+
+    <statement id="insertSysconn" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAIBJ05 (
+           SysLnkgDstcd         ,
+           BjobBzwkDstcd        ,
+           OsidInstiDstcd       ,
+           RqstRspnsDstcd       ,
+           LnkgIPInfoName       ,
+           LnkgPortInfoName     ,
+           LnkgID               ,
+           LnkgPwd              ,
+           ToutVal              ,
+           TCirtLnkgStusCd      ,
+           AdptrBzwkGroupName   ,
+           AdptrBzwkName        ,
+           ThisMsgUseYn         ,
+           ThisMsgRegsntID      ,
+           ThisMsgRegiHMS       ,
+           ThisMsgAmndrID       ,
+           ThisMsgAmndHMS    )
+        VALUES (
+           #sysLnkgDstcd#         ,
+           #bjobBzwkDstcd#        ,
+           #osidInstiDstcd#       ,
+           #rqstRspnsDstcd#       ,
+           #lnkgIPInfoName#       ,
+           #lnkgPortInfoName#     ,
+           COALESCE(#lnkgID#  ,' '  ) ,
+           COALESCE(#lnkgPwd# ,' '  ) ,
+           #toutVal#              ,
+           #tcirtLnkgStusCd#      ,
+           COALESCE(#adptrBzwkGroupName#, ' '  ) ,
+           COALESCE(#adptrBzwkName#, ' '  ) ,
+           #thisMsgUseYn#         ,
+           #userid#               ,
+           TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS'),
+           #userid#       ,
+           TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+        )
+    </statement>
+
+    <statement id="update" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAIBJ06
+        SET BjobBzwkDstcd          = #bjobBzwkDstcd#         ,
+            OsidInstiDstcd         = #osidInstiDstcd#        ,
+            OsidInstiName          = #osidInstiName#         ,
+            AdptrBzwkGroupName     = #adptrBzwkGroupName#    ,
+            SendPrcssRuleCd        = #sendPrcssRuleCd#       ,
+            RecvPrcssRuleCd        = #recvPrcssRuleCd#       ,
+            EAIFileSendPtrnDstcd   = #fileSendPtrnDstcd#     ,
+            EAIFileRecvPtrnDstcd   = #fileRecvPtrnDstcd#     ,
+            TelgmBlckSize          = #telgmBlckSize#         ,
+            TelgmSernoSize         = #telgmSernoSize#        ,
+            TelgmPcketSize         = #telgmPcketSize#        ,
+            TranStartIndx          = #tranStartIndx#         ,
+            TranEndIndx            = #tranEndIndx#           ,
+            ThisMsgUseYn           = #thisMsgUseYn#          ,
+            ThisMsgAmndrID         = #userid#        ,
+            ThisMsgAmndHMS         = TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+        WHERE BjobBzwkDstcd        = #bjobBzwkDstcd#
+        AND   TRIM(OsidInstiDstcd) = TRIM(#osidInstiDstcd#)
+    </statement>
+
+    <statement id="delete" resultClass="java.lang.Integer">
+        DELETE  FROM $schemaId$.TSEAIBJ06
+        WHERE   BjobBzwkDstcd                = #bjobBzwkDstcd#
+        AND     LTRIM(RTRIM(OsidInstiDstcd)) = #osidInstiDstcd#
+    </statement>
+
+    <statement id="deleteSysconn" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAIBJ05
+        WHERE  BjobBzwkDstcd                = #bjobBzwkDstcd#
+        AND    LTRIM(RTRIM(OsidInstiDstcd)) = #osidInstiDstcd#
+    </statement>
+
+    <statement id="checkCount" resultClass="java.lang.Integer">
+        SELECT COUNT(BjobBzwkDstcd)
+        FROM   $schemaId$.TSEAIBJ06
+        WHERE  BjobBzwkDstcd = #bjobBzwkDstcd#
+        AND    LTRIM(RTRIM(OsidInstiDstcd))= #osidInstiDstcd#
+    </statement>
+
+    <statement id="checkSysconn" resultClass="java.lang.Integer">
+        SELECT COUNT(BjobBzwkDstcd)
+        FROM   $schemaId$.TSEAIBJ05
+        WHERE  BjobBzwkDstcd = #bjobBzwkDstcd#
+        AND    LTRIM(RTRIM(OsidInstiDstcd))= #osidInstiDstcd#
+    </statement>
+
+    <statement id="getBzwkDstcd" resultClass="java.util.HashMap">
+         SELECT BJOBBZWKDSTCD AS "BJOBBZWKDSTCD",
+                BJOBBZWKNAME AS "BJOBBZWKNAME"
+         FROM   $schemaId$.TSEAIBJ02
+         ORDER BY BjobBzwkDstcd
+    </statement>
+
+    <statement id="getPrcssRule" resultClass="java.util.HashMap">
+         SELECT BJOBBZWKPRCSSDSTCD AS "BJOBBZWKPRCSSDSTCD"
+         FROM   $schemaId$.TSEAIBR04
+         ORDER BY BjobBzwkPrcssDstcd
+    </statement>
+
+    <statement id="getAdaptorGroup" resultClass="java.util.HashMap">
+         SELECT AdptrBzwkGroupName AS "CODE",
+                '[' || AdptrBzwkGroupName || ']' || AdptrBzwkGroupDesc AS "NAME"
+         FROM   $schemaId$.TSEAIBA01
+         WHERE  AdptrUseYn = '1'
+         ORDER BY AdptrBzwkGroupName
+    </statement>
+
+    <statement id="getAdaptor"  resultClass="java.util.HashMap">
+        SELECT AdptrBzwkName AS "ADPTRBZWKNAME" , AdptrDesc AS "ADPTRDESC"
+        FROM   $schemaId$.TSEAIBA02
+        WHERE  AdptrBzwkGroupName = #adptrBzwkGroupName#
+        ORDER BY AdptrBzwkName
+    </statement>
+
+    <statement id="getProps" resultClass="java.util.HashMap">
+        SELECT COALESCE(A.PrptyName, B.PrptyName) AS "PRPTYNAME",
+               A.PrptyDesc AS "PRPTYDESC",
+               B.Prpty2Val AS "PRPTY2VAL"
+        FROM ( SELECT PrptyName,
+                      PrptyDesc
+               FROM $schemaId$.TSEAIBP06
+               WHERE  BjobBzwkDstcd = #bjobBzwkDstcd#
+               AND    PrptyTypDstcd = 'O' ) A
+             FULL OUTER JOIN
+             ( SELECT PrptyName,
+                      Prpty2Val
+               FROM   $schemaId$.TSEAIBP02
+               WHERE  PrptyGroupName = #prptyGroupName# ) B
+             ON A.PrptyName = B.PrptyName
+             ORDER BY A.PrptyName
+    </statement>
+
+    <statement id="serverlist" resultClass="java.util.HashMap">
+         SELECT EAISevrInstncName AS "EAISEVRINSTNCNAME",
+                EAISevrIP AS "EAISEVRIP" ,
+                SevrLsnPortName AS "SEVRLSNPORTNAME" ,
+                FlovrSevrName AS "FLOVRSEVRNAME" ,
+                HostName AS "HOSTNAME"
+         FROM   $schemaId$.TSEAIBP03
+         ORDER BY EAISevrInstncName
+    </statement>
+</sqlMap>

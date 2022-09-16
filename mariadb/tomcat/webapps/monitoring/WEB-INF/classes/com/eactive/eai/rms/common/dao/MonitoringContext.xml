@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MonitoringContext">
+
+  <statement id="getProperty" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    SELECT PRPTY2VAL "Prpty2Val"
+	FROM   $schemaId$.TSEAIRM08
+	WHERE  PRPTYNAME = #key#
+    AND    PRPTYGROUPNAME = #PrptyGroupName#
+  </statement>
+  
+  <statement id="getProperties" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT PRPTYNAME "PrptyName", PRPTY2VAL "Prpty2Val"
+	FROM   $schemaId$.TSEAIRM08
+	WHERE  PRPTYGROUPNAME = #PrptyGroupName#
+  </statement>
+  
+  <statement id="getPortMap" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT SUBSTR(PRPTYGROUPNAME, 12, LENGTH(PRPTYGROUPNAME)-12) AS "AA",
+	       PRPTY2VAL "Prpty2Val"
+	FROM   $schemaId$.TSEAIRM08
+	WHERE  PRPTYNAME = 'WEBSERVERPORT'
+  </statement>  
+
+</sqlMap>

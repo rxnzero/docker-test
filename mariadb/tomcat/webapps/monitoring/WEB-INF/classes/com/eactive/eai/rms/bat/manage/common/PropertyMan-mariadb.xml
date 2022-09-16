@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatProperty">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  @NO := @NO + 1 AS ROWNO, 
+						PRPTYGROUPID, PRPTYGROUPNAME  
+						FROM $schemaId$.TSEAIEA09,  (SELECT @NO := 0) R
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchPrptyGroupId">
+					UPPER(PrptyGroupId) LIKE CONCAT( '%' , #searchPrptyGroupId# , '%')
+				</isNotEmpty>
+			</dynamic>
+				ORDER BY PrptyGroupId						
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TOTALCOUNT
+			FROM $schemaId$.TSEAIEA09
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchPrptyGroupId">
+				UPPER(PrptyGroupId) LIKE CONCAT( '%' , #searchPrptyGroupId# , '%')
+			</isNotEmpty>
+		</dynamic>				
+	</statement>	
+
+</sqlMap>

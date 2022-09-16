@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="User">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT 
+		ROWNO AS "ROWNO"  
+     , USERID AS "USERID"
+	 , USERNAME AS "USERNAME"
+	 , DEPTNAME AS "DEPTNAME"
+	 , POSITIONNAME AS "POSITIONNAME"
+		FROM (
+		 	<!-- SELECT ROW_NUMBER() OVER (ORDER BY T02.USERID) ROWNUM, -->
+		 	SELECT ROW_NUMBER() OVER (ORDER BY T02.USERID) AS ROWNO 
+		 	     , T02.USERID
+				 , T02.USERNAME
+				 , T02.DEPTNAME
+				 , T02.POSITIONNAME
+			FROM $schemaId$.TSEAIRM02	 T02 
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchUserId">
+					UPPER(USERID) LIKE  '%'||UPPER(#searchUserId#)||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchUserName">
+					UPPER(USERNAME) LIKE  '%'||UPPER(#searchUserName#)||'%'
+				</isNotEmpty>
+			</dynamic>				
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TOTALCOUNT"
+				FROM   $schemaId$.TSEAIRM02 T02 
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchUserId">
+					UPPER(USERID) LIKE  '%'||UPPER(#searchUserId#)||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchUserName">
+					UPPER(USERNAME) LIKE  '%'||UPPER(#searchUserName#)||'%'
+				</isNotEmpty>
+			</dynamic>				
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+	 	SELECT 
+			T02.USERID       AS "USERID" ,
+			T02.USERNAME     AS "USERNAME" ,
+			T02.PASSWORD     AS "PASSWORD" ,
+			T02.BRANCHCODE   AS "BRANCHCODE" ,
+			T02.MOBILE       AS "MOBILE" ,
+			T02.PHONE        AS "PHONE" ,
+			T02.EMAIL        AS "EMAIL" ,
+			T02.POSITIONNAME AS "POSITIONNAME" ,
+			T02.DEPTNAME     AS "DEPTNAME" ,
+			T02.USEYN        AS "USEYN" ,
+			T02.CREATEBY     AS "CREATEBY" ,
+			T02.UPDATEBY     AS "UPDATEBY" ,
+			T02.CREATEON     AS "CREATEON" ,
+			T02.UPDATEON     AS "UPDATEON"
+		FROM $schemaId$.TSEAIRM02 T02 
+		WHERE USERID = #userId#
+	</statement>  
+	
+	<insert id="insert" parameterClass="java.util.HashMap">
+		INSERT INTO $schemaId$.TSEAIRM02(
+			        USERID,USERNAME,PASSWORD,BRANCHCODE,MOBILE,
+			        PHONE,EMAIL,POSITIONNAME,DEPTNAME,USEYN,CREATEBY
+			        ,CREATEON,UPDATEBY,UPDATEON
+			         )
+    VALUES ( #userId#, #userName#, #password#, #branchCode#, #mobile#
+           , #phone#, #email#, #positionName#, #deptName#, #useYn#, #loginId#
+           , TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS'),#loginId#,TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS'))
+	</insert>	
+		
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	UPDATE $schemaId$.TSEAIRM02 
+	 	   SET USERNAME     = #userName#
+	        , BRANCHCODE   = #branchCode#
+	        , MOBILE       = #mobile#
+	        , PHONE        = #phone#
+	        , EMAIL        = #email#
+	        , POSITIONNAME = #positionName#
+	        , DEPTNAME     = #deptName#
+	        , USEYN		   = #useYn#
+	        , UPDATEBY     = #loginId#
+	        , UPDATEON     = TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS')
+	   WHERE USERID        = #userId#
+	</statement>
+	
+	<statement id="updatePassword" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	UPDATE $schemaId$.TSEAIRM02 
+	 	   SET PASSWORD      = #password#
+	        , LOGINFAILCOUNT = 0
+	        , UPDATEBY     = #loginId#
+	        , UPDATEON     = TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS')
+	   WHERE USERID        = #userId#
+	</statement>
+	
+	<statement id="selectUserRoleList" resultClass="java.util.HashMap">
+			SELECT R05.ROLEID AS "ROLEID"
+				 , R05.ROLENAME AS "ROLENAME"
+				 , R05.ROLEDESC AS "ROLEDESC"
+				 , CASE WHEN R04.ROLEID IS NULL THEN 'false' ELSE 'true' END AS "CHK"
+		      FROM $schemaId$.TSEAIRM05 R05
+		      LEFT OUTER JOIN $schemaId$.TSEAIRM04 R04 ON 
+		       ( R05.ROLEID = R04.ROLEID	AND R04.USERID = #userId# )
+		   WHERE R05.UseYn ='Y'		   
+	</statement>	
+	<statement id="insertUserRole" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	INSERT INTO $schemaId$.TSEAIRM04(USERID, ROLEID) 
+		VALUES	(#userId#, #roleId#)	
+	</statement>		
+	
+	
+	<statement id="deleteUserRole" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE 	FROM $schemaId$.TSEAIRM04 
+	 	WHERE 	USERID = #userId# 
+	</statement>	
+	
+
+
+</sqlMap>

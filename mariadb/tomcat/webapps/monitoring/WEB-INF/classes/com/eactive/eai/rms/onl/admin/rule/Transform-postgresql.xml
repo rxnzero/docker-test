@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Transform">
+
+ 	<statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+          SELECT ROWNO AS "ROWNO"
+               , EAISVCNAME AS "EAISVCNAME"
+               , EAIBZWKDSTCD AS "EAIBZWKDSTCD"
+               , EAISVCDESC AS "EAISVCDESC"
+               , CNVSNNAME AS "CNVSNNAME"
+               , CNVSNDESC AS "CNVSNDESC"
+               , SVCPRCSSNO AS "SVCPRCSSNO"
+               , LASTAMNDHMS AS "LASTAMNDHMS" 
+             FROM ( 
+                SELECT ROW_NUMBER() OVER()  AS ROWNO, 
+                T.EAISVCNAME, T.EAISVCDESC, T.EAIBZWKDSTCD, A.CNVSNNAME, A.CNVSNDESC , T.SVCPRCSSNO, A.LASTAMNDHMS 
+                    FROM $schemaId$.TSEAITR01 A  LEFT OUTER JOIN (
+                        SELECT DISTINCT EAISVCNAME, EAISVCDESC, EAIBZWKDSTCD, SVCPRCSSNO, CHNGMSGIDNAME FROM (
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.CHNGMSGIDNAME  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        UNION ALL
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.BASCRSPNSCHNGMSGIDNAME CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        UNION ALL
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.ERRRSPNSCHNGMSGIDNAME  CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        ) TMP
+                    ) T
+                    ON  A.CNVSNNAME = T.CHNGMSGIDNAME 
+                    <dynamic prepend="WHERE">
+                    <isNotEmpty prepend="AND" property="searchCnvsnName">
+                            UPPER(A.CNVSNNAME) LIKE UPPER('%'||#searchCnvsnName#||'%')
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchCnvsnDesc">
+                            UPPER(A.CNVSNDESC) LIKE UPPER('%'||#searchCnvsnDesc#||'%')
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchBizCode">
+                            UPPER(T.EAIBZWKDSTCD) LIKE UPPER('%'||#searchBizCode#||'%')
+                    </isNotEmpty>  
+                    </dynamic> 
+          ) TMP2 WHERE  ROWNO BETWEEN  #startNum# AND #endNum#
+ 	</statement>
+ 	<statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+          SELECT  COUNT(*) 
+             FROM ( 
+                <!-- SELECT ROW_NUMBER() OVER (ORDER BY T.EAISVCNAME) ROWNO, -->
+                SELECT 
+                T.EAISVCNAME, T.EAISVCDESC, T.EAIBZWKDSTCD, A.CNVSNNAME , A.CNVSNDESC , T.SVCPRCSSNO, A.LASTAMNDHMS 
+                    FROM $schemaId$.TSEAITR01 A  LEFT OUTER JOIN (
+                        SELECT DISTINCT EAISVCNAME, EAISVCDESC, EAIBZWKDSTCD, SVCPRCSSNO, CHNGMSGIDNAME FROM (
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.CHNGMSGIDNAME  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        UNION ALL
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.BASCRSPNSCHNGMSGIDNAME CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        UNION ALL
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.ERRRSPNSCHNGMSGIDNAME  CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        ) TMP
+                    ) T
+                    ON  A.CNVSNNAME = T.CHNGMSGIDNAME 
+                    <dynamic prepend="WHERE">
+                    <isNotEmpty prepend="AND" property="searchCnvsnName">
+                            UPPER(A.CNVSNNAME) LIKE UPPER('%'||#searchCnvsnName#||'%')
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchCnvsnDesc">
+                            UPPER(A.CNVSNDESC) LIKE UPPER('%'||#searchCnvsnDesc#||'%')
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchBizCode">
+                            UPPER(T.EAIBZWKDSTCD) LIKE UPPER('%'||#searchBizCode#||'%')
+                    </isNotEmpty>  
+                    </dynamic>    
+          ) TMP2
+ 	</statement> 	
+ 	
+<!--  	select level - 1 "level" -->
+<!--              , LoutItemIDName "id" -->
+<!--              , ParntLoutItemIDName "parent" -->
+<!--              , 'true' "expanded" -->
+<!--              , decode(LoutItemNodePtrnIDName,2203,'true','false') "isLeaf" -->
+<!-- 		     , substr( SYS_CONNECT_BY_PATH(decode (level,1,LoutName,LoutItemName), '.'),2) LoutItemPath -->
+<!-- 		     , LoutName  -->
+<!-- 		     , LoutItemIDName  -->
+<!-- 		     , LoutItemName  -->
+<!-- 		     , LoutItemDesc  -->
+<!-- 		     , LoutItemSerno  -->
+<!-- 		     , LoutItemLenCnt  -->
+<!-- 		     , LoutItemNodePtrnIDName  -->
+<!-- 		     , LoutItemPtrnIDName  -->
+<!-- 		     , decode(LoutItemNodePtrnIDName -->
+<!-- 					,2201,'MESSAGE' -->
+<!-- 					,2202,'GROUP' -->
+<!-- 					,2203,'FIELD' -->
+<!-- 					,2204,'ATTR' -->
+<!-- 					,'UNKNOWN' -->
+<!-- 		             ) LoutItemNodePtrnIDDesc  -->
+<!-- 		     , decode(LoutItemPtrnIDName  -->
+<!-- 		             ,2100,'UNKNOWN' -->
+<!-- 					 ,2101,'STRING' -->
+<!-- 					 ,2102,'INT' -->
+<!-- 					 ,2103,'LONG' -->
+<!-- 					 ,2104,'SHORT' -->
+<!-- 					 ,2105,'DOUBLE' -->
+<!-- 					 ,2106,'FLOAT' -->
+<!-- 					 ,2107,'CHAR' -->
+<!-- 					 ,2108,'BYTE' -->
+<!-- 					 ,2109,'DATE' -->
+<!-- 					 ,2110,'TIME' -->
+<!-- 					 ,2111,'TIMESTAMP' -->
+<!-- 					 ,2112,'NUMBER' -->
+<!-- 					 ,2113,'BYTEARRAY' -->
+<!-- 					 ,2114,'NUMERIC' -->
+<!-- 					 ,2115,'PACKDECIMAL' -->
+<!-- 					 ,2116,'OBJECT' -->
+<!-- 					 ,2117,'BOOLEAN' -->
+<!-- 					 ,2118,'BIGDECIMAL' -->
+<!-- 					 ,'UNKNOWN' -->
+<!-- 		       )LoutItemPtrnIDDesc  -->
+<!-- 		     , ParntLoutItemIDName  -->
+<!-- 		     , LoutItemOccurPtrnDstcd  -->
+<!--              , LoutItemMinOccurNoitm  -->
+<!--              , LoutItemMaxOccurNoitm  -->
+<!--              , LoutItemRefInfo2  -->
+<!--              , '' CNVSNNAME -->
+<!--              , '' CNVSNRSULTITEMPATHNAME -->
+<!--              , '' CNVSNCMDNAME -->
+<!--              , '' CNVSNITEMBASCVAL -->
+<!--              , '' CNVSNITEMSERNO               -->
+<!-- 		 from (                                                          -->
+<!-- 		    	select *                                                    -->
+<!-- 		    	  from $schemaId$.TSEAITR08 -->
+<!-- 		    	 where LoutName = #loutName#                                  -->
+<!-- 		      )         -->
+<!-- 	    connect by prior LoutItemIDName  = ParntLoutItemIDName  -->
+<!-- 		start with ParntLoutItemIDName = '0'		 -->
+<!-- 		order siblings by LoutItemSerno  -->
+	<statement id="selectLayoutItems" resultClass="java.util.HashMap">
+		select  0 AS "level"
+             , CAST(LoutItemIDName AS TEXT) AS "id"
+             , CAST(ParntLoutItemIDName AS TEXT) AS "parent"
+             , 'true' AS "expanded"
+             , (case WHEN LoutItemNodePtrnIDName = 2203 THEN 'true' ELSE 'false' END) AS "isLeaf"
+		     , LoutItemName AS "LOUTITEMPATH"
+		     , LOUTNAME AS "LOUTNAME" 
+		     , LOUTITEMIDNAME AS "LOUTITEMIDNAME" 
+		     , LOUTITEMNAME AS "LOUTITEMNAME" 
+		     , LOUTITEMDESC AS "LOUTITEMDESC" 
+		     , LOUTITEMSERNO AS "LOUTITEMSERNO" 
+		     , LOUTITEMLENCNT AS "LOUTITEMLENCNT" 
+		     , LOUTITEMNODEPTRNIDNAME AS "LOUTITEMNODEPTRNIDNAME" 
+		     , LOUTITEMPTRNIDNAME AS "LOUTITEMPTRNIDNAME" 
+		     , (CASE LoutItemNodePtrnIDName
+					WHEN 2201 THEN 'MESSAGE'
+					WHEN 2202 THEN 'GROUP'
+					WHEN 2203 THEN 'FIELD'
+					WHEN 2204 THEN 'ATTR'
+					ELSE 'UNKNOWN' END
+		             ) AS "LOUTITEMNODEPTRNIDDESC" 
+		     , (CASE LoutItemPtrnIDName 
+		       WHEN 2100 THEN 'UNKNOWN'
+					 WHEN 2101 THEN 'STRING'
+					 WHEN 2102 THEN 'INT'
+					 WHEN 2103 THEN 'LONG'
+					 WHEN 2104 THEN 'SHORT'
+					 WHEN 2105 THEN 'DOUBLE'
+					 WHEN 2106 THEN 'FLOAT'
+					 WHEN 2107 THEN 'CHAR'
+					 WHEN 2108 THEN 'BYTE'
+					 WHEN 2109 THEN 'DATE'
+					 WHEN 2110 THEN 'TIME'
+					 WHEN 2111 THEN 'TIMESTAMP'
+					 WHEN 2112 THEN 'NUMBER'
+					 WHEN 2113 THEN 'BYTEARRAY'
+					 WHEN 2114 THEN 'NUMERIC'
+					 WHEN 2115 THEN 'PACKDECIMAL'
+					 WHEN 2116 THEN 'OBJECT'
+					 WHEN 2117 THEN 'BOOLEAN'
+					 WHEN 2118 THEN 'BIGDECIMAL'
+					 ELSE 'UNKNOWN' END
+		       ) AS "LOUTITEMPTRNIDDESC" 
+		     , PARNTLOUTITEMIDNAME AS "PARNTLOUTITEMIDNAME" 
+		     , LOUTITEMOCCURPTRNDSTCD AS "LOUTITEMOCCURPTRNDSTCD" 
+             , LOUTITEMMINOCCURNOITM AS "LOUTITEMMINOCCURNOITM" 
+             , LOUTITEMMAXOCCURNOITM AS "LOUTITEMMAXOCCURNOITM" 
+             , LOUTITEMREFINFO2 AS "LOUTITEMREFINFO2" 
+             , '' AS "CNVSNNAME"
+             , '' AS "CNVSNRSULTITEMPATHNAME"
+             , '' AS "CNVSNCMDNAME"
+             , '' AS "CNVSNITEMBASCVAL"
+             , '' AS "CNVSNITEMSERNO"
+		 from (                                                         
+		    	select *                                                   
+		    	  from $schemaId$.TSEAITR08
+		    	 where LoutName = #loutName#                                 
+		      )  T     
+	    order by LoutItemSerno
+	</statement>    
+	<statement id="selectLayoutCombo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROWNO AS "ROWNO", LOUTNAME  AS "CODE", LOUTDESC AS "NAME" 
+		  FROM (
+			        SELECT ROW_NUMBER() OVER (ORDER BY L.LOUTNAME) ROWNO
+			        	 , L.LOUTNAME 
+			             , L.LOUTDESC 
+			        FROM  $schemaId$.TSEAITR07 L 
+					WHERE L.EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 WHERE USERID = #loginId#)
+					<isNotEmpty prepend="AND" property="loutName">
+						( UPPER(L.LOUTNAME) LIKE UPPER('%'||#loutName#||'%') OR UPPER(L.LOUTDESC) LIKE UPPER('%'||#loutName#||'%') ) 
+					</isNotEmpty>
+			        ORDER BY L.LOUTNAME
+		        )
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>  
+
+	<statement id="selectLayoutList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+          SELECT 
+	          FA.ROWNO AS "ROWNO",
+	          FA.LOUTNAME AS "LOUTNAME", 
+	          FA.LOUTPTRNNAME AS "LOUTPTRNNAME", 
+	          FA.LOUTDESC  AS "LOUTDESC", 
+	          FA.LOUTPTRNDESC AS "LOUTPTRNDESC", 
+	          FA.LASTAMNDHMS AS "LASTAMNDHMS", 
+	          FA.EAIBZWKDSTCD AS "EAIBZWKDSTCD", 
+	          FA.UAPPLNAME  AS "UAPPLNAME", 
+	          FA.SYSINTFACNAME AS "SYSINTFACNAME",  
+	          FB.BZWKDSTICNAME AS "BZWKDSTICNAME" 
+          FROM (
+              SELECT ROWNO, LOUTNAME  , LOUTPTRNNAME , LOUTDESC  , 
+              LOUTPTRNDESC , LASTAMNDHMS , EAIBZWKDSTCD , 
+              UAPPLNAME , SYSINTFACNAME 
+                 FROM ( 
+                   SELECT (ROW_NUMBER() OVER()) AS ROWNO, 
+                   LOUTNAME, LOUTPTRNNAME, LOUTDESC , 
+    	           LOUTPTRNDESC , LASTAMNDHMS , EAIBZWKDSTCD , 
+    	           UAPPLNAME , SYSINTFACNAME 
+                   FROM ( 
+                     SELECT A.LOUTNAME, A.LOUTPTRNNAME, A.LOUTDESC, B.LOUTPTRNDESC, 
+    	          			A.LASTAMNDHMS , A.EAIBZWKDSTCD , A.UAPPLNAME , A.SYSINTFACNAME 
+                     FROM $schemaId$.TSEAITR07 A, $schemaId$.TSEAITR06 B
+                     WHERE A.LOUTPTRNNAME = B.LOUTPTRNNAME		 
+    				<isNotEmpty prepend="AND" property="searchLoutName">
+    				    A.LOUTNAME LIKE UPPER('%'||#searchLoutName#||'%')
+    				</isNotEmpty>
+
+                    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+                        A.EAIBZWKDSTCD LIKE UPPER('%'||#searchEaiBzwkDstcd#||'%')
+                    </isNotEmpty>
+
+                    <isNotEmpty prepend="AND" property="searchLoutDesc">
+                        A.LOUTDESC LIKE UPPER('%'||#searchLoutDesc#||'%')
+                    </isNotEmpty>
+             
+                   ) TMP1 
+              ) TMP2 WHERE ROWNO BETWEEN  #startNum# AND #endNum#
+         ) FA  LEFT OUTER JOIN $schemaId$.TSEAICM01 FB
+         ON FA.EAIBZWKDSTCD = FB.EAIBZWKDSTCD
+         ORDER BY 1
+	</statement>	
+
+	<!--   전체 목록수 얻기 -->
+	<statement id="selectLayoutListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(*) 
+        FROM $schemaId$.TSEAITR07 
+        WHERE 1=1
+		 <isNotEmpty prepend="AND" property="searchLoutName">
+		     LOUTNAME LIKE UPPER('%'||#searchLoutName#||'%')
+		 </isNotEmpty>
+
+         <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+             EAIBZWKDSTCD LIKE UPPER('%'||#searchEaiBzwkDstcd#||'%')
+         </isNotEmpty>
+
+         <isNotEmpty prepend="AND" property="searchLoutDesc">
+             LOUTDESC LIKE UPPER('%'||#searchLoutDesc#||'%')
+         </isNotEmpty>
+           
+	</statement>	
+	<statement id="selectFunctionCombo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		 SELECT	TB.CNVSNFUNTNNAME AS "CODE", 
+				TB.CNVSNFUNTNDESC AS "NAME"
+		 FROM $schemaId$.TSEAITR04 TB
+		 ORDER BY TB.CNVSNFUNTNNAME           
+	</statement>	
+	<statement id="selectTransformForEaiSvcNameCombo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT A.CNVSNNAME AS "CODE"
+             , A.CNVSNDESC AS "NAME" 
+          FROM $schemaId$.TSEAITR01 A
+             , $schemaId$.TSEAIHE02 B
+        WHERE  B.EAISVCNAME = #eaiSvcName#
+        AND    B.SVCPRCSSNO = 1
+        AND  ( B.CHNGMSGIDNAME =  A.CNVSNNAME 
+        OR     B.BASCRSPNSCHNGMSGIDNAME =  A.CNVSNNAME 
+        OR     B.ERRRSPNSCHNGMSGIDNAME =  A.CNVSNNAME )
+        ORDER BY A.CNVSNNAME           
+	</statement>  	
+	<statement id="selectTransformSourceResult" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    SELECT 
+	    	TR02.CNVSNNAME AS "CNVSNNAME", 
+	    	TR02.LOUTNAME AS "LOUTNAME", 
+	    	TR02.SOURCRSULTDSTCD AS "SOURCRSULTDSTCD",
+	    	TR07.LOUTDESC AS "LOUTDESC"
+	      FROM $schemaId$.TSEAITR02 TR02 RIGHT OUTER JOIN
+	      	   $schemaId$.TSEAITR07 TR07
+         ON TR02.LOUTNAME = TR07.LOUTNAME
+         WHERE CNVSNNAME=#cnvsnName#
+        	<isNotEmpty prepend="AND" property="layoutType">
+               SOURCRSULTDSTCD = #layoutType#
+            </isNotEmpty>
+	</statement>  		
+	<statement id="selectTransformItems" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT T.CNVSNNAME AS "CNVSNNAME"
+             , I.CNVSNRSULTITEMPATHNAME AS "CNVSNRSULTITEMPATHNAME"
+             , I.CNVSNCMDNAME AS "CNVSNCMDNAME"
+             , I.CNVSNITEMBASCVAL AS "CNVSNITEMBASCVAL"
+             , I.CNVSNITEMSERNO AS "CNVSNITEMSERNO" 
+        FROM $schemaId$.TSEAITR01  T
+           , $schemaId$.TSEAITR03 I 
+        WHERE T.CNVSNNAME = I.CNVSNNAME          
+          AND T.CNVSNNAME = #cnvsnName# 
+        ORDER BY T.CNVSNNAME,  I.CNVSNITEMSERNO
+	</statement>  	
+	<statement id="insertTransform" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR01 ( 
+            CNVSNNAME, CNVSNDESC, LASTAMNDHMS, CREATEBY, UPDATEBY
+        ) VALUES (#cnvsnName#, #cnvsnDesc#, TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS') , #loginId#, #loginId#) 
+	</statement>	
+	<statement id="updateTransform" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAITR01 SET CNVSNDESC = #cnvsnDesc#, LASTAMNDHMS =  TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS')  , UPDATEBY = #loginId#
+        WHERE  CNVSNNAME = #cnvsnName#
+	</statement>	
+	<statement id="deleteTransform" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR01 
+        WHERE  CNVSNNAME = #cnvsnName#
+	</statement>	
+	
+	<statement id="insertTransformSourceResult" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR02 ( CNVSNNAME, LOUTNAME, SOURCRSULTDSTCD )
+        VALUES ( #cnvsnName#, #loutName#, #sourcRsultDstcd# )    
+	</statement>	
+	<statement id="deleteTransformSourceResult" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR02 
+         WHERE  CNVSNNAME = #cnvsnName#
+         <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="sourcRsultDstcd">
+               SOURCRSULTDSTCD = #sourcRsultDstcd#
+            </isNotEmpty>
+         </dynamic> 
+	</statement>	
+	<statement id="insertTransformItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR03 ( 
+            CNVSNNAME, CNVSNRSULTITEMPATHNAME, CNVSNCMDNAME, CNVSNITEMBASCVAL, CNVSNITEMSERNO
+        ) VALUES (#cnvsnName#, #cnvsnRsultItemPathName#, #cnvsnCmdName#, #cnvsnItemBascVal#, CAST(#cnvsnItemSerno# AS NUMERIC)) 
+	</statement>	
+	<statement id="deleteTransformItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR03 
+         WHERE  CNVSNNAME = #cnvsnName#
+	</statement>
+		
+	<statement id="updateTransfromEaiSvcName" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAIHE02
+           SET  
+			<isEqual compareValue="REQ" property="cnvsnType">
+ 				CHNGEONOT = #chngEonot#,
+           		CHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+			<isEqual compareValue="RES" property="cnvsnType">
+				BASCRSPNSCHNGEONOT = #chngEonot#,
+           		BASCRSPNSCHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+			<isEqual compareValue="ERR" property="cnvsnType">
+				ERRRSPNSCHNGEONOT = #chngEonot#,
+           		ERRRSPNSCHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+         WHERE  EAISVCNAME = #eaiSvcName#
+         AND    SVCPRCSSNO = 1
+	</statement>	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR01 ( 
+            CNVSNNAME, CNVSNDESC, LASTAMNDHMS, CREATEBY, UPDATEBY
+        ) VALUES (#cnvsnName#, #cnvsnDesc#, TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS') , #loginId#, #loginId#) 
+	</statement>		
+	
+    <!--  TransformItemInsert-->
+    <statement id="TransformItemInsert" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR03 ( 
+            CNVSNNAME, CNVSNRSULTITEMPATHNAME, CNVSNCMDNAME, CNVSNITEMBASCVAL, CNVSNITEMSERNO
+        ) VALUES (#cnvsnName#, #cnvsnRsultItemPathName#, #cnvsnCmdName#, #cnvsnItemBascVal#, CAST(#cnvsnItemSerno# AS NUMERIC)) 
+    </statement>  
+
+    <!--  TransformItemUpdate-->
+    <statement id="TransformItemUpdate" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAITR03 
+           SET  CNVSNCMDNAME = #cnvsnCmdName#, 
+                CNVSNITEMBASCVAL = #cnvsnItemBascVal#, 
+                CNVSNITEMSERNO = CAST(#cnvsnItemSerno# AS NUMERIC)
+         WHERE  CNVSNNAME = #cnvsnName#
+           AND  CNVSNRSULTITEMPATHNAME = #cnvsnRsultItemPathName# 
+    </statement>  
+    
+    <!--  RefMsgIDDelete-->
+    <statement id="RefMsgIDDelete" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAIMS02 
+         WHERE  EAISVCNAME = #eaiSvcName#
+         AND    SVCPRCSSNO = CAST(#svcPrcssNo# AS NUMERIC)
+         AND    REFMSGIDNO = CAST(#refMsgIDNo# AS NUMERIC)
+    </statement>  
+
+    <!--  RefMsgIDInsert-->
+    <statement id="RefMsgIDInsert" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAIMS02 ( 
+            EAISVCNAME, SVCPRCSSNO, REFMSGIDNO,REFMSGIDNAME
+        ) VALUES (#eaiSvcName#, CAST(#svcPrcssNo# AS NUMERIC), CAST(#refMsgIDNo# AS NUMERIC), #refMsgIDName#) 
+    </statement>  
+	
+</sqlMap>

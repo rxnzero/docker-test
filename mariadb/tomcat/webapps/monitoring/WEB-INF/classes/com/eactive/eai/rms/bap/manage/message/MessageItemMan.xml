@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="MessageItem">
+    
+	<statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT 	
+			MSGITEMDSTICNAME AS "MSGITEMDSTICNAME",
+			MSGCLMNNAME AS "MSGCLMNNAME",
+			MSGCLMNATTRIPTRNCD AS "MSGCLMNATTRIPTRNCD",
+			MSGCLMNVAL AS "MSGCLMNVAL",
+			THISMSGCLMNUSEYN AS "THISMSGCLMNUSEYN",
+			THISMSGCLMNREGSNTID AS "THISMSGCLMNREGSNTID",
+			THISMSGCLMNREGIHMS AS "THISMSGCLMNREGIHMS",
+			THISMSGCLMNAMNDRID AS "THISMSGCLMNAMNDRID",
+			THISMSGCLMNAMNDHMS AS "THISMSGCLMNAMNDHMS" 
+        FROM $schemaId$.TSEAIBM01
+	    WHERE MsgItemDsticName = #MsgItemDsticName#
+	</statement>  
+	
+	<statement id="getMsgGroupDstcd" resultClass="java.util.HashMap">
+         SELECT MSGGROUPDSTCD AS "MSGGROUPDSTCD"
+         FROM $schemaId$.TSEAIBM02
+		<isNotEmpty prepend="WHERE" property="msgItemDsticName">
+        	MsgItemDsticName = #msgItemDsticName#
+		</isNotEmpty>
+	</statement>
+	
+	<statement id="delete"  resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBM01 
+        WHERE MsgItemDsticName = #msgItemDsticName#
+	</statement>
+	
+    <statement id="checkCount" resultClass="java.lang.Integer">
+        SELECT COUNT(MsgItemDsticName)
+        FROM   $schemaId$.TSEAIBM01
+        WHERE MsgItemDsticName = #msgItemDsticName#
+    </statement>
+
+</sqlMap>

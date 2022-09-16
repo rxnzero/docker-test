@@ -1,0 +1,24 @@
+@charset "utf-8";
+
+.gnb .depth1 > li:hover > a{color:#e74c3c;} /* theme */
+.gnb .depth1 > li > .red_box{background:#e74c3c;}/* theme */
+.gnb .depth2 > li > a:hover{color:#e74c3c;}/* theme */
+
+.left_box .title{color:#fff; background:#e74c3c;}/* theme */
+.left_box .depth3 > li:hover > a, .left_box .depth3 > li.on > a{color:#e74c3c;}/* theme */
+
+.content_top{background:#e74c3c;}/* theme */
+.content_top .path > li a{color:rgba(255,255,255,0.7);}/* theme */
+.content_top .path > li a:hover{color:rgba(255,255,255,1);}/* theme */
+.content_middle .title{color:#e74c3c;}/* theme */
+ul.tabs li.active {color:#e74c3c;}/* 활성중인 탭 */
+.search_condition th{background: rgba(231,76,60,0.1);}
+.table_row th{background: rgba(231,76,60,0.1);}
+
+/* jq grid */
+.popup_box .title {color: #e74c3c;} /* 팝업창 내 타이틀 */
+
+.ui-widget-header {background: #e74c3c; color: #fff;} /* 팝업창 header */
+.ui-widget-content .ui-state-default{background: rgba(231,76,60,0.1);}/* table column title */
+.ui-widget-content .ui-state-hover, .ui-widget-content .ui-state-focus{background: rgba(231,76,60,0.1);}/* table cell */
+.ui-state-active, .ui-widget-content .ui-state-active{border:0;  background: #e74c3c;  color: #ffffff;} /* 조회중 */

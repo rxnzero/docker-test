@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+
+<sqlMapConfig>
+  <settings
+    cacheModelsEnabled="true"
+    enhancementEnabled="true"
+    lazyLoadingEnabled="true"
+    maxRequests="512"
+    maxSessions="128"
+    maxTransactions="32"
+    useStatementNamespaces="true" />
+
+<!-- 일괄전송 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/adapter/InstStatus-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/CodeMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/CodeMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/LifecycleMan.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/LifecycleMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/PropertyMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/PropertyMan-oracle.xml" />
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/ServerMan.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/ServerMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/SysinfoMan.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/SysinfoMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/common/LogDeleteMan.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/adapter/Adapter.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/bap/manage/adapter/Adapter-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/ScheduleMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/ScheduleMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/HolidayMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/HolidayMan-oracle.xml" />
+     
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/ProcPeriodMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/schedule/ProcPeriodMan-oracle.xml" />
+
+  
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/ClassInfoMan.xml" />    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/ClassInfoMan-oracle.xml" />    
+  
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/ClassMapMan.xml" />   
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/ClassMapMan-oracle.xml" />   
+    
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/FlowStepMan.xml" />    
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/FlowStepMan-oracle.xml" />    
+  
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/FlowRuleMan.xml" />   
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/FlowRuleMan-oracle.xml" />   
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/MessageItemMan.xml" />    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/MessageItemMan-oracle.xml" />    
+  
+   <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/MessageMetaMan.xml" />      
+ <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/message/MessageMetaMan-oracle.xml" />      
+    
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/BizGbnMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/BizGbnMan-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/KikwanMan-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/MessageProcMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/MessageProcMan-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/manage/work/SystemInstMan-oracle.xml" />
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/transaction/ProcWorkMan-oracle.xml" />
+  
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/transaction/TransactionStatusMan-oracle.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/transaction/TransactionTraceMan-oracle.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bap/transaction/TransactionWaitMan-oracle.xml" />
+
+</sqlMapConfig>

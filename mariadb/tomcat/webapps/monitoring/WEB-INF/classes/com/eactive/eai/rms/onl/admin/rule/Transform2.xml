@@ -1,0 +1,873 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Transform">
+<!--  #### 변환규칙  ###  -->
+    <!--  변환규칙 목록수 조회  -->
+    <statement id="TransformCheckCount" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+                 SELECT COUNT(CNVSNNAME) CNT 
+                 FROM $schemaId$.TSEAITR01
+                 WHERE CNVSNNAME = #cnvsnName#
+    </statement>
+
+	<!--  목록 조회  -->
+	<statement id="TransformList" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+                 SELECT CNVSNNAME CNVSNNAME, CNVSNDESC CNVSNDESC 
+                 FROM $schemaId$.TSEAITR01
+                 ORDER BY CNVSNNAME           
+	</statement>	
+	
+	<!--  상세 조회 -->
+	<statement id="TransformItemList" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+        SELECT T.CNVSNNAME CNVSNNAME, T.CNVSNDESC CNVSNDESC, 
+        	I.CNVSNRSULTITEMPATHNAME CNVSNRSULTITEMPATHNAME, I.CNVSNCMDNAME CNVSNCMDNAME, 
+        	I.CNVSNITEMBASCVAL CNVSNITEMBASCVAL, I.CNVSNITEMSERNO CNVSNITEMSERNO 
+        FROM $schemaId$.TSEAITR01  T, $schemaId$.TSEAITR03 I 
+        WHERE T.CNVSNNAME = I.CNVSNNAME          AND T.CNVSNNAME = #cnvsnName# 
+        ORDER BY T.CNVSNNAME,  I.CNVSNITEMSERNO
+	</statement>  
+	
+	<!--  Layout  조회 -->
+	<statement id="TransformLayout" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+        SELECT L.LOUTNAME LOUTNAME, L.SOURCRSULTDSTCD SOURCRSULTDSTCD  
+        FROM $schemaId$.TSEAITR01 T, $schemaId$.TSEAITR02 L 
+        WHERE T.CNVSNNAME = L.CNVSNNAME 
+        AND T.CNVSNNAME=#cnvsnName#
+        AND L.SOURCRSULTDSTCD = #layoutType#
+	</statement>   
+
+	<!--  Layout Item 조회 -->
+	<statement id="TransformLayoutItems" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+        SELECT L.LOUTNAME LOUTNAME, M.LOUTITEMREFINFO LOUTITEMREFINFO, M.LOUTITEMREFINFO2 LOUTITEMREFINFO2, 
+        L.SOURCRSULTDSTCD SOURCRSULTDSTCD  , M.LOUTITEMNAME LOUTITEMNAME , M.LOUTITEMDESC LOUTITEMDESC,
+        M.LOUTITEMSERNO LOUTITEMSERNO, M.LOUTITEMNODEPTRNIDNAME LOUTITEMNODEPTRNIDNAME, M.LOUTITEMPTRNIDNAME LOUTITEMPTRNIDNAME
+        FROM $schemaId$.TSEAITR01 T, $schemaId$.TSEAITR02 L, $schemaId$.TSEAITR08 M  
+        WHERE T.CNVSNNAME = L.CNVSNNAME 
+        AND T.CNVSNNAME=#cnvsnName#
+        AND L.LOUTNAME = M.LOUTNAME
+        AND L.SOURCRSULTDSTCD = #layoutType#
+        AND M.LOUTITEMPTRNIDNAME != 2100
+        ORDER BY L.LOUTNAME, M.LOUTITEMSERNO 
+	</statement>   
+
+	<!--  Layout Item 조회 -->
+	<statement id="TransformLayoutItem" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+        SELECT M.LOUTNAME LOUTNAME, M.LOUTITEMREFINFO LOUTITEMREFINFO, M.LOUTITEMREFINFO2 LOUTITEMREFINFO2, 
+        M.LOUTITEMNAME LOUTITEMNAME , M.LOUTITEMDESC LOUTITEMDESC,
+        M.LOUTITEMSERNO LOUTITEMSERNO, M.LOUTITEMNODEPTRNIDNAME LOUTITEMNODEPTRNIDNAME, M.LOUTITEMPTRNIDNAME LOUTITEMPTRNIDNAME,
+        M.LOUTITEMLENCNT LOUTITEMLENCNT
+        FROM $schemaId$.TSEAITR08 M  
+        WHERE  M.LOUTNAME = #loutName#
+        AND M.LOUTITEMPTRNIDNAME != 2100
+        ORDER BY M.LOUTITEMSERNO 
+	</statement>   
+
+
+	<!-- statement id="TransformLayoutItemLevel" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+		WITH N("LEVEL", LOUTITEMIDNAME, LOUTITEMPATH) AS
+			(
+			  SELECT 1 AS "LEVEL", LOUTITEMIDNAME
+			  ,CAST(LOUTNAME AS VARCHAR(2000)) AS LOUTITEMPATH
+			    FROM $schemaId$.TSEAITR08
+			    WHERE LOUTNAME = #loutName#
+			      AND PARNTLOUTITEMIDNAME = 0
+			  UNION ALL
+			  SELECT N."LEVEL"+1 AS "LEVEL", NN.LOUTITEMIDNAME
+			  ,CAST(N.LOUTITEMPATH || '.' || NN.LOUTITEMNAME AS VARCHAR(2000)) AS LOUTITEMPATH
+			    FROM $schemaId$.TSEAITR08 NN, N
+			  WHERE NN.LOUTNAME = #loutName#
+			    AND N.LOUTITEMIDNAME = NN.PARNTLOUTITEMIDNAME
+			)
+		SELECT "LEVEL"
+		     , N.LOUTITEMPATH
+	         , A.LOUTNAME LOUTNAME
+             , A.LOUTITEMIDNAME 
+             , A.LOUTITEMNAME 
+             , A.LOUTITEMDESC 
+             , A.LOUTITEMSERNO 
+             , A.LOUTITEMLENCNT 
+             , A.LOUTITEMNODEPTRNIDNAME 
+             , A.LOUTITEMPTRNIDNAME 
+             , A.PARNTLOUTITEMIDNAME 
+             , A.LOUTITEMOCCURPTRNDSTCD 
+		FROM N, $schemaId$.TSEAITR08 A
+		WHERE A.LOUTITEMIDNAME = N.LOUTITEMIDNAME
+		  AND LOUTNAME = #loutName#
+	</statement-->   
+	
+	<statement id="TransformLayoutItemLevel" resultClass="java.util.HashMap">
+		select level "level"
+             , LoutItemIDName "id"
+             , ParntLoutItemIDName "parent"
+             , 'true' "expanded"
+             , decode(LoutItemNodePtrnIDName,2203,'true','false') "isLeaf"
+		     , substr( SYS_CONNECT_BY_PATH(decode (level,1,LoutName,LoutItemName), '.'),2) LoutItemPath
+		     , LoutName 
+		     , LoutItemIDName 
+		     , LoutItemName 
+		     , LoutItemDesc 
+		     , LoutItemSerno 
+		     , LoutItemLenCnt 
+		     , LoutItemNodePtrnIDName 
+		     , LoutItemPtrnIDName 
+		     , ParntLoutItemIDName 
+		     , LoutItemOccurPtrnDstcd 
+             , LoutItemMinOccurNoitm 
+             , LoutItemMaxOccurNoitm 
+             , LoutItemRefInfo2 
+		 from (                                                         
+		    	select *                                                   
+		    	  from $schemaId$.TSEAITR08
+		    	 where LoutName = #loutName#                                 
+		      )        
+	    connect by prior LoutItemIDName  = ParntLoutItemIDName 
+		start with ParntLoutItemIDName = '0'		
+		order siblings by LoutItemSerno 
+	</statement>
+
+	<!--  변환항목  조회 -->
+	<statement id="TransformCnvsnItem" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+		WITH N("LEVEL", LOUTITEMIDNAME, CNVSNRSULTITEMPATHNAME) AS
+			(
+			  SELECT 1 AS "LEVEL", LOUTITEMIDNAME
+			  ,CAST(LOUTNAME AS VARCHAR(2000)) AS CNVSNRSULTITEMPATHNAME
+			    FROM $schemaId$.TSEAITR08
+			    WHERE LOUTNAME = #loutName#
+			      AND PARNTLOUTITEMIDNAME = 0
+			  UNION ALL
+			  SELECT N."LEVEL"+1 AS "LEVEL", NN.LOUTITEMIDNAME
+			  ,CAST(N.CNVSNRSULTITEMPATHNAME || '.' || NN.LOUTITEMNAME AS VARCHAR(2000)) AS CNVSNRSULTITEMPATHNAME
+			    FROM $schemaId$.TSEAITR08 NN, N
+			  WHERE NN.LOUTNAME = #loutName#
+			    AND N.LOUTITEMIDNAME = NN.PARNTLOUTITEMIDNAME
+			)
+		SELECT "LEVEL", L.CNVSNRSULTITEMPATHNAME CNVSNRSULTITEMPATHNAME
+		         , L.CNVSNCMDNAME CNVSNCMDNAME  
+		         , L.CNVSNITEMBASCVAL CNVSNITEMBASCVAL 
+		         , L.CNVSNITEMSERNO CNVSNITEMSERNO 
+		         , A.LOUTITEMLENCNT LOUTITEMLENCNT
+		FROM N, $schemaId$.TSEAITR08 A, $schemaId$.TSEAITR03 L
+		WHERE A.LOUTITEMIDNAME = N.LOUTITEMIDNAME
+		  AND L.CNVSNRSULTITEMPATHNAME = N.CNVSNRSULTITEMPATHNAME
+		  AND A.LOUTNAME = #loutName#
+		  AND L.CNVSNNAME = #cnvsnName#
+		  AND A.LOUTITEMPTRNIDNAME != 2100
+		ORDER BY L.CNVSNITEMSERNO
+	</statement>   
+
+    <statement id="bizKeyLayout" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+       WITH N("LEVEL", LOUTITEMIDNAME, LOUTITEMPATH) AS
+            (
+              SELECT 1 AS "LEVEL", LOUTITEMIDNAME
+              ,CAST(LOUTNAME AS VARCHAR(2000)) AS LOUTITEMPATH
+                FROM $schemaId$.TSEAITR08
+                WHERE LOUTNAME = #loutName#
+                  AND PARNTLOUTITEMIDNAME = 0
+              UNION ALL
+              SELECT N."LEVEL"+1 AS "LEVEL", NN.LOUTITEMIDNAME
+              ,CAST(N.LOUTITEMPATH || '.' || NN.LOUTITEMNAME AS VARCHAR(2000)) AS LOUTITEMPATH
+                FROM $schemaId$.TSEAITR08 NN, N
+              WHERE NN.LOUTNAME = #loutName#
+                AND N.LOUTITEMIDNAME = NN.PARNTLOUTITEMIDNAME
+            )
+        SELECT "LEVEL"-1 AS "LEVEL"
+		      ,N.CNVSNRSULTITEMPATHNAME
+		      ,A.LOUTNAME
+		      ,A.PARNTLOUTITEMIDNAME
+		      ,A.LOUTITEMIDNAME
+		      ,A.LOUTITEMNAME
+		      ,A.LOUTITEMDESC
+		      ,999 CNVSNITEMSERNO
+		      ,A.LOUTITEMSERNO
+		      ,A.LOUTITEMPTRNIDNAME
+		      ,A.LOUTITEMLENCNT
+        FROM N, $schemaId$.TSEAITR08 A
+        WHERE A.LOUTITEMIDNAME = N.LOUTITEMIDNAME
+          AND A.LOUTNAME = #loutName#
+          AND A.LOUTITEMPTRNIDNAME != 2100
+    </statement>
+
+
+	<!--  신규 변환항목 조회 -->
+	<statement id="TransformNewCnvsnItem" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+      WITH N("LEVEL", LOUTITEMIDNAME, CNVSNRSULTITEMPATHNAME) AS
+            (
+              SELECT 1 AS "LEVEL", LOUTITEMIDNAME
+              ,CAST(LOUTNAME AS VARCHAR(2000)) AS CNVSNRSULTITEMPATHNAME
+                FROM $schemaId$.TSEAITR08
+                WHERE LOUTNAME = #loutName#
+                  AND PARNTLOUTITEMIDNAME = 0
+              UNION ALL
+              SELECT N."LEVEL"+1 AS "LEVEL", NN.LOUTITEMIDNAME
+              ,CAST(N.CNVSNRSULTITEMPATHNAME || '.' || NN.LOUTITEMNAME AS VARCHAR(2000)) AS CNVSNRSULTITEMPATHNAME
+                FROM $schemaId$.TSEAITR08 NN, N
+              WHERE NN.LOUTNAME = #loutName#
+                AND N.LOUTITEMIDNAME = NN.PARNTLOUTITEMIDNAME
+            )
+        SELECT "LEVEL"-1 AS "LEVEL"
+              ,N.CNVSNRSULTITEMPATHNAME
+		      ,A.PARNTLOUTITEMIDNAME
+		      ,A.LOUTITEMIDNAME
+		      ,A.LOUTITEMNAME
+		      ,A.LOUTITEMDESC
+		      ,999 CNVSNITEMSERNO
+		      ,A.LOUTITEMSERNO
+		      ,A.LOUTITEMPTRNIDNAME
+		      ,A.LOUTNAME
+		      ,A.LOUTITEMLENCNT  
+        FROM N, $schemaId$.TSEAITR08 A
+        WHERE A.LOUTITEMIDNAME = N.LOUTITEMIDNAME
+          AND A.LOUTNAME = #loutName#
+          AND A.LOUTITEMPTRNIDNAME != 2100
+	</statement>
+
+	<!--  TransformInsert-->
+	<statement id="TransformInsert" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR01 ( 
+            CNVSNNAME, CNVSNDESC, LASTAMNDHMS, CREATEBY, UPDATEBY
+        ) VALUES (#cnvsnName#, #cnvsnDesc#, #lastAmndHMS#, #createBy#, #updateBy#) 
+	</statement>
+
+    <!--  Transform Description update -->
+    <statement id="TransformDescUpdate" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAITR01 SET CNVSNDESC = #cnvsnDesc#, LASTAMNDHMS = #lastAmndHMS#, UPDATEBY = #updateBy#
+        WHERE  CNVSNNAME = #cnvsnName#
+    </statement>
+
+	<!--  TransformDelete-->
+	<statement id="TransformDelete" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR01 
+         WHERE  CNVSNNAME = #cnvsnName#
+	</statement>  
+	
+	<!--  TransformLayoutInsert-->
+	<statement id="TransformLayoutInsert" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR02 ( 
+            CNVSNNAME, LOUTNAME, SOURCRSULTDSTCD
+        ) VALUES (#cnvsnName#, #loutName#, #sourcRsultDstcd#) 
+	</statement>  
+
+	<!--  TransformLayoutDelete-->
+	<statement id="TransformLayoutDelete" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR02 
+         WHERE  CNVSNNAME = #cnvsnName#
+           AND  SOURCRSULTDSTCD = #sourcRsultDstcd# 
+	</statement>  
+
+	<!--  TransformLayoutDeleteAll-->
+	<statement id="TransformLayoutDeleteAll" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR02 
+         WHERE  CNVSNNAME = #cnvsnName#
+	</statement>  
+
+	<!--  TransformItemDelete-->
+	<statement id="TransformItemDelete" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR03 
+         WHERE  CNVSNNAME = #cnvsnName#
+           AND  CNVSNRSULTITEMPATHNAME = #cnvsnRsultItemPathName# 
+	</statement>  
+
+	<!--  TransformItemDeleteAll-->
+	<statement id="TransformItemDeleteAll" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR03 
+         WHERE  CNVSNNAME = #cnvsnName#
+	</statement>  
+	
+	<!--  EaiServiceNameAll-->
+	<statement id="EaiServiceNameAll" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+        SELECT EAISVCNAME EAISVCNAME, EAISVCDESC EAISVCDESC, EAIBZWKDSTCD EAIBZWKDSTCD, SVCMOTIVUSEDSTCD SVCMOTIVUSEDSTCD 
+        FROM $schemaId$.TSEAIHE01 
+	    WHERE EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 WHERE USERID = #loginId#)
+	</statement>  
+
+    <!--  EaiServiceNameAll  first service number only from kang -->
+    <statement id="EaiServiceNameSub" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+        SELECT EAISVCNAME EAISVCNAME, SVCPRCSSNO SVCPRCSSNO, PSVINTFACDSTICNAME PSVINTFACDSTICNAME 
+        FROM $schemaId$.TSEAIHE02
+        WHERE SVCPRCSSNO = 1 
+    </statement>  
+
+
+	<!--  EAISERVICEUpdate-->
+	<statement id="ServiceMsgNameUpdate" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAIHE02
+           SET  
+			<isEqual compareValue="REQ" property="cnvsnType">
+ 				CHNGEONOT = #chngEonot#,
+           		CHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+			<isEqual compareValue="RES" property="cnvsnType">
+				BASCRSPNSCHNGEONOT = #chngEonot#,
+           		BASCRSPNSCHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+			<isEqual compareValue="ERR" property="cnvsnType">
+				ERRRSPNSCHNGEONOT = #chngEonot#,
+           		ERRRSPNSCHNGMSGIDNAME = #cnvsnName#
+           	</isEqual>
+         WHERE  EAISVCNAME = #eaiSvcName#
+         AND    SVCPRCSSNO = 1
+	</statement>
+
+	<!--  RefMsgIDDeleteAll-->
+	<statement id="RefMsgIDDeleteAll" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAIMS02 
+         WHERE  EAISVCNAME = #eaiSvcName#
+	</statement>  
+
+
+	<!--  ServiceMsgNameSelect-->
+	<statement id="ServiceMsgNameSelect" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+        SELECT A.CNVSNNAME CNVSNNAME, A.CNVSNDESC CNVSNDESC 
+        FROM $schemaId$.TSEAITR01 A,  $schemaId$.TSEAIHE02 B
+        WHERE  B.EAISVCNAME = #eaiSvcName#
+        AND    B.SVCPRCSSNO = 1
+        AND  ( B.CHNGMSGIDNAME =  A.CNVSNNAME 
+        OR     B.BASCRSPNSCHNGMSGIDNAME =  A.CNVSNNAME 
+        OR     B.ERRRSPNSCHNGMSGIDNAME =  A.CNVSNNAME )
+        ORDER BY A.CNVSNNAME           
+	</statement>  
+	
+	<!--  Transform list -->
+ 	<statement id="TransformPageList" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+          SELECT ROWNO, EAISVCNAME EAISVCNAME, EAIBZWKDSTCD EAIBZWKDSTCD, EAISVCDESC EAISVCDESC, 
+                        CNVSNNAME CNVSNNAME, CNVSNDESC CNVSNDESC, SVCPRCSSNO SVCPRCSSNOSTR, LASTAMNDHMS LASTAMNDHMS 
+             FROM ( 
+                <!-- SELECT ROW_NUMBER() OVER (ORDER BY T.EAISVCNAME) ROWNO, -->
+                SELECT ROWNUM AS ROWNO, 
+                T.EAISVCNAME, T.EAISVCDESC, T.EAIBZWKDSTCD, A.CNVSNNAME, A.CNVSNDESC , T.SVCPRCSSNO, A.LASTAMNDHMS 
+                    FROM $schemaId$.TSEAITR01 A  LEFT OUTER JOIN (
+                        SELECT DISTINCT EAISVCNAME, EAISVCDESC, EAIBZWKDSTCD, SVCPRCSSNO, CHNGMSGIDNAME FROM (
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.CHNGMSGIDNAME  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        UNION ALL
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.BASCRSPNSCHNGMSGIDNAME CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        UNION ALL
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.ERRRSPNSCHNGMSGIDNAME  CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        ) TMP
+                    ) T
+                    ON  A.CNVSNNAME = T.CHNGMSGIDNAME 
+                    WHERE 1 = 1
+                    <isNotEmpty prepend="AND" property="cnvsnName">
+                            UPPER(A.CNVSNNAME) LIKE #cnvsnName#
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="cnvsnDesc">
+                            UPPER(A.CNVSNDESC) LIKE #cnvsnDesc#
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchBizCode">
+                            UPPER(T.EAIBZWKDSTCD) LIKE #searchBizCode#
+                    </isNotEmpty>
+          ) TMP2 WHERE  ROWNO BETWEEN  #startNum# AND #endNum#
+ 	</statement>
+	
+	<!--  Transform Count -->
+ 	<statement id="TransformCount" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+          SELECT  COUNT(*) 
+             FROM ( 
+                <!-- SELECT ROW_NUMBER() OVER (ORDER BY T.EAISVCNAME) ROWNO, -->
+                SELECT ROWNUM AS ROWNO, 
+                T.EAISVCNAME, T.EAISVCDESC, T.EAIBZWKDSTCD, A.CNVSNNAME , A.CNVSNDESC , T.SVCPRCSSNO, A.LASTAMNDHMS 
+                    FROM $schemaId$.TSEAITR01 A  LEFT OUTER JOIN (
+                        SELECT DISTINCT EAISVCNAME, EAISVCDESC, EAIBZWKDSTCD, SVCPRCSSNO, CHNGMSGIDNAME FROM (
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.CHNGMSGIDNAME  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        UNION ALL
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.BASCRSPNSCHNGMSGIDNAME CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        UNION ALL
+                        SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.ERRRSPNSCHNGMSGIDNAME  CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                        ) TMP
+                    ) T
+                    ON  A.CNVSNNAME = T.CHNGMSGIDNAME 
+                    WHERE 1 = 1
+                    <isNotEmpty prepend="AND" property="cnvsnName">
+                            UPPER(A.CNVSNNAME) LIKE #cnvsnName#
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="cnvsnDesc">
+                            UPPER(A.CNVSNDESC) LIKE #cnvsnDesc#
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchBizCode">
+                            UPPER(T.EAIBZWKDSTCD) LIKE #searchBizCode#
+                    </isNotEmpty>         
+          ) TMP2
+ 	</statement>
+  
+    <!--  LoadLayout-->
+    <statement id="LoadLayout" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT L.LOUTNAME "loutName", L.LOUTDESC "loutDesc", L.LOUTPTRNNAME "loutPtrnName"
+        FROM   $schemaId$.TSEAITR07 L, $schemaId$.TSEAITR06 T, $schemaId$.TSEAITR08 I
+        WHERE  I.LOUTITEMIDNAME = 1000
+        AND    L.LOUTNAME = #loutName#
+        AND    L.LOUTNAME = I.LOUTNAME
+        AND    L.LOUTPTRNNAME = T.LOUTPTRNNAME
+        ORDER BY L.LOUTNAME
+    </statement>
+    
+    <!--  for excel file upload  -->
+    <statement id="LayoutItemList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		   SELECT "LEVEL"                                                   
+    	  , LOUTITEMIDNAME          "LoutItemIDName"                                         
+    	  , PARNTLOUTITEMIDNAME     "ParntLoutItemIDName"                                    
+    	  , LOUTITEMNAME            "LoutItemName"                                           
+    	  , LOUTITEMPTRNIDNAME      "LoutItemPtrnIDName"                                     
+    	  , LOUTITEMDESC            "LoutItemDesc"                                           
+    	  , LOUTITEMPATHNAME        "LoutItemPathName"                                       
+    	  , LOUTITEMNODEPTRNIDNAME  "LoutItemNodePtrnIDName"                                 
+    	  , LOUTITEMLENCNT          "LoutItemLenCnt"                                         
+    	  , LOUTITEMREFINFO         "LoutItemRefInfo"                                        
+    	  , LOUTITEMREFINFO2        "LoutItemRefInfo2"                                       
+    	  , LOUTITEMSERNO           "LoutItemSerno"                                          
+    	  , LOUTITEMOCCURPTRNDSTCD  "LoutItemOccurPtrnDstcd"                                 
+    	  , LOUTITEMMAXOCCURNOITM   "LoutItemMaxOccurNoitm"                                  
+    	  , LOUTITEMMINOCCURNOITM   "LoutItemMinOccurNoitm"                                  
+    	  , LOUTITEMBASCVAL         "LoutItemBascVal"                                        
+    	  , LOUTNAME                "LoutName"                                               
+    	  , LOUTITEMMSKYN           "LoutItemMskYn"                                          
+    	  , LYOUTDPTCNT             "LyoutDptCnt"                                            
+    	  , DECPTLENCNT             "DecptLenCnt"                                            
+    	  , LYOUTITEMREFPTRNIDNAME  "LyoutItemRefPtrnIDName"                                 
+    	  FROM (                                                         
+    	      SELECT *                                                   
+    	      FROM $schemaId$.TSEAITR08                                           
+    	      WHERE LOUTNAME = #loutName#                             
+    	  )                                                              
+    	  CONNECT BY PRIOR LOUTITEMIDNAME  = PARNTLOUTITEMIDNAME
+    	  START WITH PARNTLOUTITEMIDNAME = '0'	           
+    </statement>
+    
+    <statement id="bizCodeAll" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT EAIBZWKDSTCD "EAIBzwkDstcd", BZWKDSTICNAME "BzwkDsticName" FROM $schemaId$.TSEAICM01
+    </statement>
+    
+    <statement id="EaiServiceReportCount" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT EAIBZWKDSTCD "EAIBzwkDstcd", COUNT(EAISVCNAME) "Cnt" FROM $schemaId$.TSEAIHE01
+        GROUP BY EAIBZWKDSTCD
+    </statement>
+    
+    <statement id="TransformReportCount" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT T.EAIBZWKDSTCD "EAIBzwkDstcd", COUNT(A.CNVSNNAME) "Cnt" 
+        FROM $schemaId$.TSEAITR01 A  LEFT OUTER JOIN (
+            SELECT DISTINCT EAISVCNAME, EAISVCDESC, EAIBZWKDSTCD, SVCPRCSSNO, CHNGMSGIDNAME FROM (
+                SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.CHNGMSGIDNAME  FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                UNION ALL
+                SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.BASCRSPNSCHNGMSGIDNAME CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                UNION ALL
+                SELECT A.EAISVCNAME, A.EAISVCDESC, A.EAIBZWKDSTCD, B.SVCPRCSSNO, B.ERRRSPNSCHNGMSGIDNAME  CHNGMSGIDNAME FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIHE02 B WHERE A.EAISVCNAME = B.EAISVCNAME AND B.SVCPRCSSNO = 1
+                ) TMP
+            ) T
+        ON  A.CNVSNNAME = T.CHNGMSGIDNAME 
+        GROUP BY T.EAIBZWKDSTCD
+    </statement>
+    
+    <statement id="EaiServiceByBiz" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT EAISVCNAME "EAISvcName", EAISVCDESC "EAISvcDesc", SVCMOTIVUSEDSTCD "SvcMotivUseDstcd"
+        FROM   $schemaId$.TSEAIHE01
+        WHERE EAIBZWKDSTCD = #EAIBzwkDstcd#
+        ORDER BY EAISVCNAME
+    </statement>
+    
+    <!-- 서비스호출안함 -->
+    <statement id="listRuleTestReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+          SELECT  A.EAIBZWKDSTCD "eaiBzwkDstcd",
+                  A.EAISVCNAME "eaiSvcName",
+                  A.SUCCESS "success",
+                  B.BZWKDSTICNAME "bzwkDsticName"
+          FROM (
+              SELECT H1.EAIBZWKDSTCD EAIBZWKDSTCD, 
+                     H1.EAISVCNAME   EAISVCNAME,
+                     CASE WHEN (COALESCE(L1.SUCC,0) &gt; 0) THEN 1 ELSE 0 END AS SUCCESS
+              FROM 
+              $schemaId$.TSEAIHE01 H1 LEFT OUTER JOIN
+              (
+                  SELECT 
+                  LG1.EAISVCNAME, LG1.LOGPRCSSSERNO,
+                  COUNT(RSPNSERRCDNAME) AS SUCC 
+                  FROM  $schemaId$.$tableName$ LG1,
+                  (
+                      SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME,  MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                      FROM   $schemaId$.$tableName$
+                      GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME
+                  ) LG2
+                  WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                  AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                  AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                  AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                  AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                  AND    LG1.RSPNSERRCDNAME  NOT LIKE 'REC%'
+                  AND    LG1.LOGPRCSSSERNO IN ('200', '400')
+                  GROUP BY LG1.EAISVCNAME, LG1.LOGPRCSSSERNO
+              ) L1
+              ON H1.EAISVCNAME = L1.EAISVCNAME
+          ) A, $schemaId$.TSEAICM01 B
+          WHERE A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+          ORDER BY 1, 2   
+    </statement>
+    
+    <!-- DAO없음 -->
+    <statement id="listRuleTestCountReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+         SELECT A.EAIBZWKDSTCD "eaiBzwkDstcd", B.BZWKDSTICNAME "bzwkDsticName", A.EAISVCNAME "eaiSvcName", SUM(TOTAL) AS "totalCount", SUM(SUCC) AS "successCount"
+          FROM (
+                  SELECT  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, 0 AS TOTAL, COUNT(RSPNSERRCDNAME) AS SUCC 
+                  FROM  $schemaId$.$tableName$ LG1,
+                  (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME,  MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                    FROM   $schemaId$.$tableName$
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME
+                  ) LG2
+                  WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                  AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                  AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                  AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                  AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                  AND    LG1.RSPNSERRCDNAME  NOT LIKE 'REC%'
+                  AND    LG1.LOGPRCSSSERNO IN ('200', '400')
+                  GROUP BY LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.LOGPRCSSSERNO
+                  UNION ALL
+                  SELECT 
+                  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, COUNT(RSPNSERRCDNAME) AS TOTAL, 0 AS SUCC 
+                  FROM  $schemaId$.$tableName$ LG1,
+                  (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME,  MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                    FROM   $schemaId$.$tableName$
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME
+                  ) LG2
+                  WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                  AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                  AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                  AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                  AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                  GROUP BY LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.LOGPRCSSSERNO
+                  UNION ALL
+                  SELECT DISTINCT EAIBZWKDSTCD, EAISVCNAME ,0 AS TOTAL, 0 AS SUCC FROM $schemaId$.TSEAIHE01
+          ) A, $schemaId$.TSEAICM01 B
+          WHERE A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+          GROUP BY A.EAIBZWKDSTCD, B.BZWKDSTICNAME, A.EAISVCNAME
+          ORDER BY 1, 2   
+    </statement>        
+    
+    
+    <!-- 서비스호출안함 -->
+    <statement id="listRuleTestAdapterCountReport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT A.EAIBZWKDSTCD "eaiBzwkDstcd", B.BZWKDSTICNAME "bzwkDsticName", A.EAISVCNAME "eaiSvcName", A.GSTATSYSADPTRBZWKGROUPNAME "gstatSysAdptrBzwkGroupName", A.PSVSYSADPTRBZWKGROUPNAME "psvSysAdptrBzwkGroupName", SUM(TOTAL) AS "totalCount", SUM(SUCC) AS "successCount"
+        FROM (
+               SELECT  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.GSTATSYSADPTRBZWKGROUPNAME,
+                       LG1.SVCPRCSSNO, 
+                       LG1.PSVSYSADPTRBZWKGROUPNAME, 
+                       0 AS TOTAL, COUNT(RSPNSERRCDNAME) AS SUCC 
+               FROM  $schemaId$.$tableName$ LG1,
+               (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME,  MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                    FROM   $schemaId$.$tableName$
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME
+                ) LG2
+                WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                AND    LG1.GSTATSYSADPTRBZWKGROUPNAME = LG2.GSTATSYSADPTRBZWKGROUPNAME
+                AND    LG1.PSVSYSADPTRBZWKGROUPNAME = LG2.PSVSYSADPTRBZWKGROUPNAME
+                AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                AND    LG1.RSPNSERRCDNAME  NOT LIKE 'REC%'
+                AND    LG1.LOGPRCSSSERNO != '100'
+                GROUP BY 
+                    LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.GSTATSYSADPTRBZWKGROUPNAME, 
+                    LG1.SVCPRCSSNO, 
+                    LG1.PSVSYSADPTRBZWKGROUPNAME
+        
+                UNION ALL
+                  
+                SELECT LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.GSTATSYSADPTRBZWKGROUPNAME,
+                LG1.SVCPRCSSNO, 
+                LG1.PSVSYSADPTRBZWKGROUPNAME, 
+                COUNT(RSPNSERRCDNAME) AS TOTAL, 0 AS SUCC 
+                FROM  $schemaId$.$tableName$ LG1,
+                (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                    FROM   $schemaId$.$tableName$
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME
+                ) LG2
+                WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                AND    LG1.GSTATSYSADPTRBZWKGROUPNAME = LG2.GSTATSYSADPTRBZWKGROUPNAME
+                AND    LG1.PSVSYSADPTRBZWKGROUPNAME = LG2.PSVSYSADPTRBZWKGROUPNAME
+                AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                AND    LG1.LOGPRCSSSERNO != '100'
+                GROUP BY 
+                  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.GSTATSYSADPTRBZWKGROUPNAME, 
+                  LG1.SVCPRCSSNO,
+                  LG1.PSVSYSADPTRBZWKGROUPNAME
+        ) A, $schemaId$.TSEAICM01 B
+        WHERE A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+        AND A.SVCPRCSSNO = '1'
+        GROUP BY A.EAIBZWKDSTCD, B.BZWKDSTICNAME, A.EAISVCNAME, A.GSTATSYSADPTRBZWKGROUPNAME, A.PSVSYSADPTRBZWKGROUPNAME
+        ORDER BY 1,2,3
+    </statement>
+    
+
+    <!-- 서비스호출안함 -->
+    <statement id="listRuleTestAdapterCountReportTemp" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT A.EAIBZWKDSTCD "eaiBzwkDstcd", B.BZWKDSTICNAME "bzwkDsticName", A.EAISVCNAME "eaiSvcName", A.INTFACSENDTRANCD "intfacSendTranCd", A.GSTATSYSADPTRBZWKGROUPNAME "gstatSysAdptrBzwkGroupName", A.PSVSYSADPTRBZWKGROUPNAME "psvSysAdptrBzwkGroupName", SUM(TOTAL) AS "totalCount", SUM(SUCC) AS "successCount"
+        FROM (
+               SELECT  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME,
+                       LG1.SVCPRCSSNO, 
+                       LG1.PSVSYSADPTRBZWKGROUPNAME, 
+                       0 AS TOTAL, COUNT(RSPNSERRCDNAME) AS SUCC 
+               FROM  $schemaId$.$tableName$ LG1,
+               (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME,  MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                    FROM   $schemaId$.$tableName$
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME
+                ) LG2
+                WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                AND    LG1.INTFACSENDTRANCD = LG2.INTFACSENDTRANCD
+                AND    LG1.GSTATSYSADPTRBZWKGROUPNAME = LG2.GSTATSYSADPTRBZWKGROUPNAME
+                AND    LG1.PSVSYSADPTRBZWKGROUPNAME = LG2.PSVSYSADPTRBZWKGROUPNAME
+                AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                AND    LG1.RSPNSERRCDNAME  NOT LIKE 'REC%'
+                AND    LG1.LOGPRCSSSERNO != '100'
+                GROUP BY 
+                    LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME, 
+                    LG1.SVCPRCSSNO, 
+                    LG1.PSVSYSADPTRBZWKGROUPNAME
+        
+                UNION ALL
+                  
+                SELECT LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME,
+                LG1.SVCPRCSSNO, 
+                LG1.PSVSYSADPTRBZWKGROUPNAME, 
+                COUNT(RSPNSERRCDNAME) AS TOTAL, 0 AS SUCC 
+                FROM  $schemaId$.$tableName$ LG1,
+                (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                    FROM   $schemaId$.$tableName$
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME
+                ) LG2
+                WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                AND    LG1.INTFACSENDTRANCD = LG2.INTFACSENDTRANCD
+                AND    LG1.GSTATSYSADPTRBZWKGROUPNAME = LG2.GSTATSYSADPTRBZWKGROUPNAME
+                AND    LG1.PSVSYSADPTRBZWKGROUPNAME = LG2.PSVSYSADPTRBZWKGROUPNAME
+                AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                AND    LG1.LOGPRCSSSERNO != '100'
+                GROUP BY 
+                  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME, 
+                  LG1.SVCPRCSSNO,
+                  LG1.PSVSYSADPTRBZWKGROUPNAME
+        )  A, $schemaId$.TSEAICM01 B
+        WHERE A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+        AND A.SVCPRCSSNO = '1'
+        GROUP BY A.EAIBZWKDSTCD, B.BZWKDSTICNAME, A.EAISVCNAME, A.INTFACSENDTRANCD, A.GSTATSYSADPTRBZWKGROUPNAME, A.PSVSYSADPTRBZWKGROUPNAME
+        ORDER BY 1,2,3,4
+    </statement>
+    
+    <!-- 서비스호출안함 -->
+    <statement id="listRuleTestAdapterCountReportTempDaily" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+SELECT H.EAISEVRDSTCD "eaiSevrDstcd", L.*, L."totalCount" - L."successCount" AS "errorCount"  
+FROM $schemaId$.TSEAIHE01 H, (
+        SELECT A.EAIBZWKDSTCD "eaiBzwkDstcd", B.BZWKDSTICNAME "bzwkDsticName", A.EAISVCNAME "eaiSvcName", A.INTFACSENDTRANCD "intfacSendTranCd", A.GSTATSYSADPTRBZWKGROUPNAME "gstatSysAdptrBzwkGroupName", A.PSVSYSADPTRBZWKGROUPNAME "psvSysAdptrBzwkGroupName", A.SCRENNO "screnNo", SUM(TOTAL) AS "totalCount", SUM(SUCC) AS "successCount"
+        FROM (
+               SELECT  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME,
+                       LG1.SVCPRCSSNO, 
+                       LG1.PSVSYSADPTRBZWKGROUPNAME,
+                       LG1.SCRENNO,
+                       0 AS TOTAL, COUNT(RSPNSERRCDNAME) AS SUCC 
+               FROM (  
+                    SELECT EAIBZWKDSTCD, EAISVCNAME, MSGDPSTYMS, EAISVCSERNO,
+                           INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, 
+                           SVCPRCSSNO, PSVSYSADPTRBZWKGROUPNAME, LOGPRCSSSERNO, RSPNSERRCDNAME,
+                    CASE WHEN EAISVCNAME LIKE '%S02' AND SUBSTR(GUID,12,2) = '01' THEN SCRENNO
+                    ELSE '' END AS SCRENNO
+                    FROM $schemaId$.$tableName$) LG1, (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, SCRENNO,
+                    MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO , COUNT(LOGPRCSSSERNO) AS LOGCOUNT
+                    FROM   (
+                        SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, GUID, LOGPRCSSSERNO,
+                        CASE WHEN EAISVCNAME LIKE '%S02' AND SUBSTR(GUID,12,2) = '01' THEN SCRENNO
+                        ELSE '' END AS SCRENNO
+                        FROM $schemaId$.$tableName$
+                    ) END_A 
+                    WHERE MSGDPSTYMS BETWEEN #startTime# AND #endTime#
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, SCRENNO
+                ) LG2
+                WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                AND    LG1.INTFACSENDTRANCD = LG2.INTFACSENDTRANCD
+                AND    LG1.GSTATSYSADPTRBZWKGROUPNAME = LG2.GSTATSYSADPTRBZWKGROUPNAME
+                AND    LG1.PSVSYSADPTRBZWKGROUPNAME = LG2.PSVSYSADPTRBZWKGROUPNAME
+                AND    LG1.SCRENNO = LG2.SCRENNO
+                AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                AND    LG1.RSPNSERRCDNAME  NOT LIKE 'REC%'
+                AND    NOT ( LG2.LOGCOUNT = 1 AND LG2.LOGPRCSSSERNO IN ( '100', '300' )) 
+                GROUP BY 
+                    LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME, 
+                    LG1.SVCPRCSSNO, 
+                    LG1.PSVSYSADPTRBZWKGROUPNAME,
+                    LG1.SCRENNO
+        
+                UNION ALL
+                  
+                SELECT LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME,
+                LG1.SVCPRCSSNO, 
+                LG1.PSVSYSADPTRBZWKGROUPNAME, 
+                LG1.SCRENNO,
+                COUNT(RSPNSERRCDNAME) AS TOTAL, 0 AS SUCC 
+               FROM (  
+                    SELECT EAIBZWKDSTCD, EAISVCNAME, MSGDPSTYMS, EAISVCSERNO,
+                           INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, 
+                           SVCPRCSSNO, PSVSYSADPTRBZWKGROUPNAME, LOGPRCSSSERNO, RSPNSERRCDNAME,
+                    CASE WHEN EAISVCNAME LIKE '%S02' AND SUBSTR(GUID,12,2) = '01' THEN SCRENNO
+                    ELSE '' END AS SCRENNO
+                    FROM $schemaId$.$tableName$) LG1, (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, SCRENNO,
+                    MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO , COUNT(LOGPRCSSSERNO) AS LOGCOUNT
+                    FROM   (
+                        SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, GUID, LOGPRCSSSERNO,
+                        CASE WHEN EAISVCNAME LIKE '%S02' AND SUBSTR(GUID,12,2) = '01' THEN SCRENNO
+                        ELSE '' END AS SCRENNO
+                        FROM $schemaId$.$tableName$
+                    ) END_B 
+                    WHERE MSGDPSTYMS BETWEEN #startTime# AND #endTime#
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, SCRENNO
+                ) LG2
+                WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                AND    LG1.INTFACSENDTRANCD = LG2.INTFACSENDTRANCD
+                AND    LG1.GSTATSYSADPTRBZWKGROUPNAME = LG2.GSTATSYSADPTRBZWKGROUPNAME
+                AND    LG1.PSVSYSADPTRBZWKGROUPNAME = LG2.PSVSYSADPTRBZWKGROUPNAME
+                AND    LG1.SCRENNO = LG2.SCRENNO                
+                AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                AND    NOT ( LG2.LOGCOUNT = 1 AND LG2.LOGPRCSSSERNO IN ( '100', '300' )) 
+                GROUP BY 
+                  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME, 
+                  LG1.SVCPRCSSNO,
+                  LG1.PSVSYSADPTRBZWKGROUPNAME,
+                  LG1.SCRENNO
+        ) A, $schemaId$.TSEAICM01 B
+        WHERE A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+        AND A.SVCPRCSSNO = '1'
+        GROUP BY A.EAIBZWKDSTCD, B.BZWKDSTICNAME, A.EAISVCNAME, A.INTFACSENDTRANCD, A.GSTATSYSADPTRBZWKGROUPNAME, A.PSVSYSADPTRBZWKGROUPNAME, A.SCRENNO
+        ORDER BY 1,2,3,4
+) L
+WHERE H.EAISVCNAME = L.EAISVCNAME
+
+    </statement>
+    
+    <!-- DAO없음 -->
+        <statement id="listRuleTestAdapterCountReportTempDailyBackup2010" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+SELECT BB.EAISEVRDSTCD "eaiSevrDstcd", AA.* 
+FROM (
+        SELECT A.EAIBZWKDSTCD "eaiBzwkDstcd", B.BZWKDSTICNAME "bzwkDsticName", A.EAISVCNAME "eaiSvcName", A.INTFACSENDTRANCD "intfacSendTranCd", A.GSTATSYSADPTRBZWKGROUPNAME "gstatSysAdptrBzwkGroupName", A.PSVSYSADPTRBZWKGROUPNAME "psvSysAdptrBzwkGroupName", SUM(TOTAL) AS "totalCount", SUM(SUCC) AS "successCount"
+        FROM (
+               SELECT  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME,
+                       LG1.SVCPRCSSNO, 
+                       LG1.PSVSYSADPTRBZWKGROUPNAME, 
+                       0 AS TOTAL, COUNT(RSPNSERRCDNAME) AS SUCC 
+               FROM  $schemaId$.$tableName$ LG1,
+               (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME,  MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                    FROM   $schemaId$.$tableName$
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME
+                ) LG2
+                WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                AND    LG1.INTFACSENDTRANCD = LG2.INTFACSENDTRANCD
+                AND    LG1.GSTATSYSADPTRBZWKGROUPNAME = LG2.GSTATSYSADPTRBZWKGROUPNAME
+                AND    LG1.PSVSYSADPTRBZWKGROUPNAME = LG2.PSVSYSADPTRBZWKGROUPNAME
+                AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                AND    LG1.RSPNSERRCDNAME  NOT LIKE 'REC%'
+                AND    LG1.LOGPRCSSSERNO != '100'
+                GROUP BY 
+                    LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME, 
+                    LG1.SVCPRCSSNO, 
+                    LG1.PSVSYSADPTRBZWKGROUPNAME
+        
+                UNION ALL
+                  
+                SELECT LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME,
+                LG1.SVCPRCSSNO, 
+                LG1.PSVSYSADPTRBZWKGROUPNAME, 
+                COUNT(RSPNSERRCDNAME) AS TOTAL, 0 AS SUCC 
+                FROM  $schemaId$.$tableName$ LG1,
+                (
+                    SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME, MAX(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+                    FROM   $schemaId$.$tableName$
+                    GROUP BY EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO, EAISVCNAME, INTFACSENDTRANCD, GSTATSYSADPTRBZWKGROUPNAME, PSVSYSADPTRBZWKGROUPNAME
+                ) LG2
+                WHERE  LG1.EAIBZWKDSTCD = LG2.EAIBZWKDSTCD
+                AND    LG1.MSGDPSTYMS = LG2.MSGDPSTYMS
+                AND    LG1.EAISVCSERNO = LG2.EAISVCSERNO
+                AND    LG1.EAISVCNAME = LG2.EAISVCNAME
+                AND    LG1.INTFACSENDTRANCD = LG2.INTFACSENDTRANCD
+                AND    LG1.GSTATSYSADPTRBZWKGROUPNAME = LG2.GSTATSYSADPTRBZWKGROUPNAME
+                AND    LG1.PSVSYSADPTRBZWKGROUPNAME = LG2.PSVSYSADPTRBZWKGROUPNAME
+                AND    LG1.LOGPRCSSSERNO = LG2.LOGPRCSSSERNO
+                AND    LG1.LOGPRCSSSERNO != '100'
+                GROUP BY 
+                  LG1.EAIBZWKDSTCD, LG1.EAISVCNAME, LG1.INTFACSENDTRANCD, LG1.GSTATSYSADPTRBZWKGROUPNAME, 
+                  LG1.SVCPRCSSNO,
+                  LG1.PSVSYSADPTRBZWKGROUPNAME
+        ) A, $schemaId$.TSEAICM01 B
+        WHERE A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+        AND A.SVCPRCSSNO = '1'
+        GROUP BY A.EAIBZWKDSTCD, B.BZWKDSTICNAME, A.EAISVCNAME, A.INTFACSENDTRANCD, A.GSTATSYSADPTRBZWKGROUPNAME, A.PSVSYSADPTRBZWKGROUPNAME
+        ORDER BY 1,2,3,4
+ ) AA, $schemaId$.TSEAIHE01 BB
+WHERE AA.EAISVCNAME = BB.EAISVCNAME
+    </statement>
+    
+    <statement id="listEaiSvcCode" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">    
+        SELECT EAISVCNAME "EAISvcName", GSTATSYSADPTRBZWKGROUPNAME "GstatSysAdptrBzwkGroupName", EAISVCDESC"EAISvcDesc", EAIBZWKDSTCD "EAIBzwkDstcd", EAISEVRDSTCD "EAISevrDstcd"
+        FROM   $schemaId$.TSEAIHE01
+        ORDER BY 1    
+    </statement>
+    
+    <statement id="listEaiSvcCount" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT EAIBZWKDSTCD "EAIBzwkDstcd", APPCODE "AppCode", "Type1" , "Type2", COUNT(EAISVCNAME) "EaiSvcCount"  
+        FROM (
+            SELECT EAIBZWKDSTCD, APPCODE,
+                    CASE WHEN APPCODE = APPCODE2 THEN '개설' ELSE '취급' END AS "Type1",
+                    CASE WHEN REQTYPE  = 'S' THEN '요청' ELSE '응답' END AS "Type2",
+                    EAISVCNAME
+            FROM (
+                SELECT EAIBZWKDSTCD, 
+                       EAISVCNAME,
+                       SUBSTR(EAISVCNAME, 1, 3) APPCODE, 
+                       SUBSTR(EAISVCNAME, LENGTH(EAISVCNAME)-5,3) APPCODE2,
+                       SUBSTR(EAISVCNAME, LENGTH(EAISVCNAME)-2,1) REQTYPE
+                FROM $schemaId$.TSEAIHE01
+                ORDER BY 1,2,3,5
+            ) AA
+            ORDER BY 1,2,3,4
+        ) BB
+        GROUP BY EAIBZWKDSTCD, APPCODE, TYPE1, TYPE2
+    </statement>
+    
+    <statement id="listEaiSvcCountSimple" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT EAIBZWKDSTCD "EAIBzwkDstcd", APPCODE "AppCode", "Type1", COUNT(EAISVCNAME) "Cnt"  
+        FROM (
+            SELECT EAIBZWKDSTCD, APPCODE,
+                    CASE WHEN APPCODE = APPCODE2 THEN '개설' ELSE '취급' END AS "Type1",
+                    EAISVCNAME
+            FROM (
+                SELECT EAIBZWKDSTCD, 
+                       EAISVCNAME,
+                       SUBSTR(EAISVCNAME, 1, 3) APPCODE, 
+                       SUBSTR(EAISVCNAME, LENGTH(EAISVCNAME)-5,3) APPCODE2
+                FROM $schemaId$.TSEAIHE01
+                ORDER BY 1,2
+            ) AA
+            ORDER BY 1,2,3,4
+        ) BB
+        GROUP BY EAIBZWKDSTCD, APPCODE, TYPE1
+    </statement>
+    
+    
+</sqlMap>

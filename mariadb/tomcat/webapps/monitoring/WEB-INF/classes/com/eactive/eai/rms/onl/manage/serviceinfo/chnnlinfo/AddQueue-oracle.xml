@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AddQueue">
+
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+			SELECT COUNT(*) 
+			FROM(
+				select 
+				ROW_NUMBER() OVER (ORDER BY CODENAME) ROWNO
+		        ,substr(CODENAME,1,LENGTH(CODENAME)-2) CHNNL
+		        ,substr(CODENAME,-2)    GUBUN
+		        ,NODENO
+		        ,QUEUENO
+		 		from $schemaId$.TSEAIFR08
+				<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchChnnl">
+		        		UPPER(CODENAME)   LIKE '%'||UPPER(#searchChnnl#)||'%' 
+		         </isNotEmpty>	
+				<isNotEmpty prepend="AND" property="searchNodeNo">
+		        		UPPER(NODENO)   LIKE '%'||UPPER(#searchNodeNo#)||'%' 
+		         </isNotEmpty>	
+				<isNotEmpty prepend="AND" property="searchQueueNo">
+		        		UPPER(QUEUENO)   LIKE '%'||UPPER(#searchQueueNo#)||'%' 
+		         </isNotEmpty>	
+		         </dynamic>		 		
+			)
+		 
+	
+  </statement>
+  
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROWNO,CHNNL,GUBUN,NODENO,QUEUENO
+		FROM(
+			select 
+			ROW_NUMBER() OVER (ORDER BY CODENAME) ROWNO
+	        ,substr(CODENAME,1,LENGTH(CODENAME)-2) CHNNL
+	        ,substr(CODENAME,-2)    GUBUN
+	        ,NODENO
+	        ,QUEUENO
+	 		from $schemaId$.TSEAIFR08
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchChnnl">
+	        		UPPER(CODENAME)   LIKE '%'||UPPER(#searchChnnl#)||'%' 
+	         </isNotEmpty>	
+			<isNotEmpty prepend="AND" property="searchNodeNo">
+	        		UPPER(NODENO)   LIKE '%'||UPPER(#searchNodeNo#)||'%' 
+	         </isNotEmpty>	
+			<isNotEmpty prepend="AND" property="searchQueueNo">
+	        		UPPER(QUEUENO)   LIKE '%'||UPPER(#searchQueueNo#)||'%' 
+	         </isNotEmpty>	                  
+	         </dynamic>	
+
+		 )	
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>   
+  
+  <statement id="selectChnnlList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+ 		SELECT * FROM (
+ 		SELECT distinct regexp_substr(ADPTRBZWKGROUPNAME,'[^_]+') CHNNL FROM $schemaId$.TSEAIAD01
+		WHERE ADPTRCD ='NET' AND not ADPTRBZWKGROUPNAME ='SOCKET_MONITOR'
+ 	
+		)
+		ORDER BY 1
+  </statement>  
+
+
+  <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		 INSERT INTO $schemaId$.TSEAIFR08
+					( CODENAME
+					, QUEUENO             
+					, NODENO                 
+					)
+		     VALUES( #CODENM#                 
+					, #QUEUENO#               
+					, #NODENO#                
+					)
+  </statement>
+  <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">    
+    UPDATE $schemaId$.TSEAIFR08
+       SET NODENO                      = #NODENO#                  
+		 , QUEUENO                       = #QUEUENO#                   
+             
+     WHERE CODENAME                   = #CODENM#  
+  </statement>
+  <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM  $schemaId$.TSEAIFR08
+          WHERE substr(CODENAME,1,LENGTH(CODENAME)-2) =#chnnl#
+  </statement>
+  
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT CHNNL,GUBUN,NODENO,QUEUENO
+		FROM(
+			select 
+		        substr(CODENAME,1,LENGTH(CODENAME)-2) CHNNL
+                        ,substr(CODENAME,-2)    GUBUN
+                        ,NODENO
+                        ,QUEUENO
+	 		from $schemaId$.TSEAIFR08
+        )
+        WHERE 	CHNNL = #chnnl#
+		ORDER BY 1,2
+  </statement>  
+  
+   <statement id="selectPrptyFormFR08" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT 'rms.flowcontrol.queue.'||#target#||'.'||substr('000'||queueno,-3) PRPTYNAME ,substr (sys_connect_by_path(codename,','),2) PRPTY2VAL 
+        FROM(
+        	SELECT  codename,queueno , row_number() over(partition by queueno order by codename ) rn ,count(*) over(partition by queueno)  cnt from $schemaId$.tseaifr08 
+        ) A
+        where rn = cnt
+        start with rn ='1'
+        connect by prior queueno =   queueno and prior rn= rn-1
+  </statement> 
+    
+</sqlMap>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BapSchedule">
+    <statement id="selectList" resultClass="java.util.HashMap">
+        SELECT 
+			BjobMsgScheID AS "BJOBMSGSCHEID",
+	        BjobMsgDstcd AS "BJOBMSGDSTCD",
+	        OsidInstiDstcd AS "OSIDINSTIDSTCD",
+	        SndrcvStartHMS AS "SNDRCVSTARTHMS",
+	        SndrcvEndHMS AS "SndrcvEndHMS",
+	        MsgSndrID AS "MSGSNDRID" ,
+	        ScheFrstRegiHMS AS "SCHEFRSTREGIHMS" ,
+	        ThisMsgUseYn AS "THISMSGUSEYN" ,
+	        ThisMsgScheDesc AS "THISMSGSCHEDESC" ,
+	        BjobBzwkDstcd AS "BJOBBZWKDSTCD",
+	        BjobTranDstcdName  AS "BJOBTRANDSTCDNAME",
+	        BjobBzwkName AS "BJOBBZWKNAME",
+	        OsidInstiName AS "OSIDINSTINAME" ,
+	        BjobMsgDsticName AS "BJOBMSGDSTICNAME" ,
+	        BjobPtrnDstcd AS "BJOBPTRNDSTCD" ,
+	        GroupCoCd AS "GROUPCOCD" ,
+	        ROWNO AS "ROW_NUMBER"
+        FROM (
+            SELECT
+                A.BjobMsgScheID      ,
+                A.BjobMsgDstcd       ,
+                A.OsidInstiDstcd     ,
+                A.SndrcvStartHMS     ,
+                A.SndrcvEndHMS       ,
+                A.MsgSndrID          ,
+                A.ScheFrstRegiHMS    ,
+                A.ThisMsgUseYn       ,
+                A.ThisMsgScheDesc    ,
+                B.BjobBzwkDstcd      ,
+                B.BjobTranDstcdName  ,
+                C.BjobBzwkName       ,
+                D.OsidInstiName      ,
+                B.BjobMsgDsticName   ,
+                A.BjobPtrnDstcd      ,
+                B.GroupCoCd          ,
+                ROW_NUMBER() OVER(order by BjobBzwkName, OsidInstiName,BjobTranDstcdName) ROWNO
+            FROM $schemaId$.TSEAIBS01 A,
+                 $schemaId$.TSEAIBJ01 B,
+                 $schemaId$.TSEAIBJ02 C,
+                 $schemaId$.TSEAIBJ06 D
+            WHERE A.BjobMsgDstcd = B.BjobMsgDstcd
+            AND   B.BjobBzwkDstcd = C.BjobBzwkDstcd
+            AND   B.BjobBzwkDstcd = D.BjobBzwkDstcd
+            AND   A.OsidInstiDstcd = D.OsidInstiDstcd
+            <dynamic>
+                <isNotEmpty prepend="AND" property="searchBjobBzwkName">
+                    C.BjobBzwkName LIKE '%' || #searchBjobBzwkName# || '%' 
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchOsidInstiName">
+                    D.OsidInstiName LIKE '%' || #searchOsidInstiName# || '%' 
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobTranDstcdName">
+                    B.BjobTranDstcdName LIKE '%' || #searchBjobTranDstcdName# || '%'
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobMsgDsticName">
+                     B.BjobMsgDsticName LIKE '%' || #searchBjobMsgDsticName# || '%'
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobPtrnDstcd">
+                     A.BjobPtrnDstcd = #searchBjobPtrnDstcd#
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchGroupCoCd">
+                     B.GroupCoCd = #searchGroupCoCd#
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchStartHMS">
+                     A.SndrcvStartHMS BETWEEN #searchStartHMS# AND #searchEndHMS#
+                </isNotEmpty>
+            </dynamic>
+             ) TMP
+        WHERE ROWNO BETWEEN #startNum# AND #endNum#
+    </statement>
+
+    <statement id="selectListCount" resultClass="java.lang.Integer">
+        SELECT COUNT(*) AS "TOTALCOUNT"
+        FROM (
+            SELECT *
+            FROM (
+                SELECT
+                    A.BjobMsgScheID     ,
+                    A.BjobMsgDstcd      ,
+                    A.OsidInstiDstcd    ,
+                    A.SndrcvStartHMS    ,
+                    A.SndrcvEndHMS      ,
+                    A.MsgSndrID         ,
+                    A.ScheFrstRegiHMS   ,
+                    A.ThisMsgUseYn      ,
+                    A.ThisMsgScheDesc   ,
+                    B.BjobBzwkDstcd     ,
+                    B.BjobTranDstcdName ,
+                    C.BjobBzwkName      ,
+                    D.OsidInstiName     ,
+                    B.BjobMsgDsticName  ,
+                    A.BjobPtrnDstcd
+                FROM $schemaId$.TSEAIBS01 A,
+                     $schemaId$.TSEAIBJ01 B,
+                     $schemaId$.TSEAIBJ02 C,
+                     $schemaId$.TSEAIBJ06 D
+                WHERE A.BjobMsgDstcd   = B.BjobMsgDstcd
+                AND   B.BjobBzwkDstcd  = C.BjobBzwkDstcd
+                AND   B.BjobBzwkDstcd  = D.BjobBzwkDstcd
+                AND   A.OsidInstiDstcd = D.OsidInstiDstcd
+            <dynamic>
+                <isNotEmpty prepend="AND" property="searchBjobBzwkName">
+                    C.BjobBzwkName LIKE '%' || #searchBjobBzwkName# || '%' 
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchOsidInstiName">
+                    D.OsidInstiName LIKE '%' || #searchOsidInstiName# || '%' 
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobTranDstcdName">
+                    B.BjobTranDstcdName LIKE '%' || #searchBjobTranDstcdName# || '%'
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobMsgDsticName">
+                     B.BjobMsgDsticName LIKE '%' || #searchBjobMsgDsticName# || '%'
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchBjobPtrnDstcd">
+                     A.BjobPtrnDstcd = #searchBjobPtrnDstcd#
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchGroupCoCd">
+                     B.GroupCoCd = #searchGroupCoCd#
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchStartHMS">
+                     A.SndrcvStartHMS BETWEEN #searchStartHMS# AND #searchEndHMS#
+                </isNotEmpty>
+            </dynamic>
+           )  TMP ) T
+    </statement>
+
+    <statement id="selectDetail" resultClass="java.util.HashMap">
+        SELECT
+            BS01.BjobMsgScheID AS "BJOBMSGSCHEID",
+            BJ01.BjobBzwkDstcd AS "BJOBBZWKDSTCD" ,
+            BS01.BjobMsgDstcd AS "BJOBMSGDSTCD",
+            BS01.OsidInstiDstcd AS "OSIDINSTIDSTCD",
+            BS01.BjobPtrnDstcd AS "BJOBPTRNDSTCD",
+            SUBSTR(BS01.SndrcvStartHMS,0,2)||':'||SUBSTR(BS01.SndrcvStartHMS,3,2) AS "SNDRCVSTARTHMS1",
+            SUBSTR(BS01.SndrcvEndHMS,0,2)||':'||SUBSTR(BS01.SndrcvEndHMS,3,2) AS "SNDRCVENDHMS1",
+            RTRIM(BS01.SndrcvStartHMS) AS "SNDRCVSTARTHMS",
+            RTRIM(BS01.SndrcvEndHMS) AS "SNDRCVENDHMS",
+            BS01.StartDlayNoday AS "STARTDLAYNODAY",
+            BS01.EndDlayNoday AS "ENDDLAYNODAY" ,
+            BS01.RqstRecvReTralCnt AS "RQSTRECVRETRALCNT" ,
+            BS01.RqstRecvReTralUseYn AS "RQSTRECVRETRALUSEYN" ,
+            BS01.RqstRecvReTralIntvalTtm AS "RQSTRECVRETRALINTVALTTM" ,
+            BS01.HoldyPrcssDstcd AS "HOLDYPRCSSDSTCD" ,
+            BS01.RpttYn AS "RPTTYN" ,
+            BS01.ThisMsgUseYn AS "THISMSGUSEYN" ,
+            BS01.ScheFrstRegiHMS AS "SCHEFRSTREGIHMS" ,
+            BS01.MsgSndrID AS "MSGSNDRID"
+        FROM  $schemaId$.TSEAIBS01 BS01 ,
+              $schemaId$.TSEAIBJ01 BJ01
+        WHERE BS01.BjobMsgDstcd   = BJ01.BjobMsgDstcd
+        AND   RTRIM(BS01.BjobMsgScheID) = RTRIM(#bJobMsgScheId#)
+    </statement>
+
+    <statement id="checkCount" resultClass="java.lang.Integer">
+        SELECT COUNT(BjobMsgScheID)
+        FROM   $schemaId$.TSEAIBS01
+        WHERE  LTRIM(RTRIM(BjobMsgScheID)) = #bjobMsgScheID#
+    </statement>
+
+    <statement id="selectBjobMsgDstcd" resultClass="java.util.HashMap">
+        SELECT
+            BjobMsgDstcd AS "CODE",
+            '[' || BjobTranDstcdName || '] ' || BjobMsgDsticName AS "NAME"
+        FROM $schemaId$.TSEAIBJ01
+        WHERE LTRIM(RTRIM(BjobBzwkDstcd)) = #bjobBzwkDstcd#
+        ORDER BY BjobTranDstcdName
+    </statement>
+
+    <statement id="selectOsidInstiDstcd" resultClass="java.util.HashMap">
+        SELECT
+            OsidInstiDstcd AS "CODE",
+            '[' || OsidInstiDstcd || '] ' || OsidInstiName AS "NAME"
+        FROM $schemaId$.TSEAIBJ06
+        WHERE LTRIM(RTRIM(BjobBzwkDstcd)) = #bjobBzwkDstcd#
+        ORDER BY OsidInstiDstcd
+    </statement>
+
+    <statement id="selectBjobPtrnDstcd" resultClass="java.util.HashMap">
+        SELECT  
+        	'RS'       AS "CODE",
+            '송신'    AS "NAME"
+        FROM    $schemaId$.TSEAIBJ01
+        WHERE   EAIFileSendUseYn = '1'
+        AND     BjobMsgDstcd = #bjobMsgDstcd#
+        UNION
+        SELECT  
+        	'RR'      AS "CODE",
+            '수신'    AS "NAME"
+        FROM    $schemaId$.TSEAIBJ01
+        WHERE   EAIFileRecvUseYn = '1'
+        AND     BjobMsgDstcd = #bjobMsgDstcd#
+        ORDER BY "NAME"
+    </statement>
+
+    <statement id="generatePK" resultClass="java.lang.String">
+        SELECT BjobBzwkDstcd|| #bjobPtrnDstcd# ||BjobTranDstcdName||
+            (
+                SELECT
+                    CASE LENGTH(TO_CHAR(TO_NUMBER(COALESCE(MAX(SUBSTR(RTRIM(BjobMsgScheID), LENGTH(RTRIM(BjobMsgScheID))-2, 3)), '0')) + 1))
+                        WHEN 1
+                            THEN '00' || TO_CHAR(TO_NUMBER(COALESCE(MAX(SUBSTR(RTRIM(BjobMsgScheID), LENGTH(RTRIM(BjobMsgScheID))-2, 3)), '0')) + 1)
+                        WHEN 2
+                            THEN '0' || TO_CHAR(TO_NUMBER(COALESCE(MAX(SUBSTR(RTRIM(BjobMsgScheID), LENGTH(RTRIM(BjobMsgScheID))-2, 3)), '0')) + 1)
+                        WHEN 3
+                            THEN TO_CHAR(TO_NUMBER(COALESCE(MAX(SUBSTR(RTRIM(BjobMsgScheID), LENGTH(RTRIM(BjobMsgScheID))-2, 3)), '0')) + 1)
+                    END
+                FROM $schemaId$.TSEAIBS01
+                WHERE BjobMsgDstcd = #bjobMsgDstcd#
+            ) LEFTCODE
+        FROM $schemaId$.TSEAIBJ01
+        WHERE BjobMsgDstcd = #bjobMsgDstcd#
+    </statement>
+
+</sqlMap>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Combo">
+
+  <statement id="selectListComboForTable" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT $codeColumn$ CODE, $nameColumn$ NAME
+      FROM $schemaId$.$tableName$
+   	<isNotEmpty prepend="WHERE" property="where">
+   		$where$
+	</isNotEmpty>
+	<isEmpty prepend=" " property="sortColumn">
+	 ORDER BY $nameColumn$ ASC
+	</isEmpty>
+	<isNotEmpty prepend=" " property="sortColumn">
+     ORDER BY $sortColumn$ ASC
+    </isNotEmpty>
+  </statement>
+  
+  <statement id="selectListComboForTableWithCode" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT $codeColumn$ CODE, '[' || $codeColumn$ || ']' || $nameColumn$ NAME
+      FROM $schemaId$.$tableName$
+   	<isNotEmpty prepend="WHERE" property="where">
+   		$where$
+	</isNotEmpty>
+     ORDER BY NAME ASC
+  </statement>
+  
+  <statement id="selectListCombo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT CODE CODE, CODENAME NAME
+      FROM $schemaId$.TSEAICM20
+     WHERE CODEGROUP = #codeGroup#
+     ORDER BY SEQ
+  </statement>  
+  
+  <statement id="selectMeta04ComboList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT VLD_VAL  CODE, VLD_VAL_NM NAME 
+      FROM $schemaId$.TSEAIMX04
+	 WHERE DEL_YN ='N'
+    	<isNotEmpty prepend="AND" property="upperVal">
+	       UPPER_VLD_VAL = #upperVal#
+		</isNotEmpty>
+	   AND $searchType$ = #param#
+		ORDER BY 1
+  </statement>  
+  
+  
+</sqlMap>

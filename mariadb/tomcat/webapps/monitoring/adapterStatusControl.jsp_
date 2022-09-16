@@ -1,0 +1,637 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.io.*, 
+java.util.*,
+javax.xml.parsers.*,
+org.w3c.dom.*,
+javax.xml.xpath.*,
+java.sql.*,
+javax.sql.*,
+javax.naming.*,
+com.eactive.eai.agent.adapter.*,
+com.eactive.eai.agent.command.*,
+com.eactive.eai.agent.*,
+com.eactive.eai.rms.onl.common.util.*,
+com.eactive.eai.rms.onl.common.service.OnlAgentUtilServiceImpl,
+com.eactive.eai.agent.AgentUtil,
+org.apache.commons.httpclient.NameValuePair,
+com.eactive.eai.agent.eaimessage.*,
+org.apache.commons.logging.Log,
+org.apache.commons.logging.LogFactory
+"%>
+<%!
+
+/*
+	어뎁터 컨트롤 기능
+	
+	URL호출 
+	입력값 serverType(dev/test), controlType(0/1) , adapterName
+	ex) ?serverType=dev&controlType=1&adapterName=_IFW_IN_NET_AsS
+	
+	결과값 : success(성공), else 실패
+
+*/
+private static final Log logger = LogFactory.getLog("adapterStatusControl.jsp");
+
+//개발 DB
+private String dev_url       = "jdbc:oracle:thin:@172.31.32.103:1527/DCHN";
+private String dev_driver    = "oracle.jdbc.OracleDriver";
+private String dev_user      = "fep";
+private String dev_pwd       = "fep123!";
+//검증 DB
+private String test_url      = "jdbc:oracle:thin:@172.31.33.103:1527/QCHN";
+private String test_driver   = "oracle.jdbc.OracleDriver";
+private String test_user     = "fep";
+private String test_pwd      = "dusrP123!";
+
+//개발 동기화 서버 ,,, 메모리 상세현황 보는 주소 (팝업 디스플레이)
+private String[] DEV_IP      = {"172.31.32.111:20111"};
+private String[] TEST_IP     = {"172.31.33.111:20111"};
+private String   NEW_LINE    = "\n";
+private static Object obj = new Object();
+/*
+ *  select 쿼리 로직 
+ *
+ */
+public Vector<String[]> getSqlSelect(String sql,boolean isDev ) throws Exception {
+	Connection conn = null;
+	Statement stmt = null;
+	ResultSet rs = null;
+	int rownum = 0;
+	try	{
+    	if (isDev){
+			Class.forName(dev_driver);
+			conn = DriverManager.getConnection(dev_url, dev_user, dev_pwd);
+    	}else{
+			Class.forName(test_driver);
+			conn = DriverManager.getConnection(test_url, test_user, test_pwd);
+    	}
+		stmt = conn.createStatement();
+  		stmt.execute(sql);
+  		rs = stmt.getResultSet();
+  		Vector<String[]> vt = new Vector<String[]>();
+  		int maxColumn = rs.getMetaData().getColumnCount();
+        while(rs.next()) {
+        	String[] row = new String[maxColumn];
+        	for (int i=0;i<maxColumn;i++){
+				row[i] = rs.getString(i+1);
+        	}    	
+        	vt.add(row);
+		}               
+		return vt;
+	}
+	catch(Exception e) {
+		logger.error(e.getMessage(),e);
+		throw e;
+	}
+	finally {
+		try {
+			if(rs != null)	 rs.close();
+			if(stmt != null) stmt.close();
+			if(conn != null) conn.close();
+		}
+		catch (SQLException sqle) {
+			logger.error("SQLException was thrown: " + sqle.getMessage());
+		}
+	}
+}
+/*
+ *  update 쿼리 로직
+ *
+ */
+
+public int getSqlUpdate(String sql,boolean isDev ) throws Exception {
+	Connection conn = null;
+	Statement stmt = null;
+	ResultSet rs = null;
+	int rownum = 0;
+	try	{
+    	if (isDev){
+			Class.forName(dev_driver);
+			conn = DriverManager.getConnection(dev_url, dev_user, dev_pwd);
+    	}else{
+			Class.forName(test_driver);
+			conn = DriverManager.getConnection(test_url, test_user, test_pwd);
+    	}
+		stmt = conn.createStatement();
+  		return stmt.executeUpdate(sql);
+	}
+	catch(Exception e) {
+		logger.error(e.getMessage(),e);
+		throw e;
+	}
+	finally {
+		try {
+			if(stmt != null) stmt.close();
+			if(conn != null) conn.close();
+		}
+		catch (SQLException sqle) {
+			logger.error("SQLException was thrown: " + sqle.getMessage());
+		}
+	}
+}
+
+
+// Adapter PropertyGroupList 조회
+public Vector getAdptrPrptyGroupList(boolean isDev, String adapterGroupName) throws Exception{
+	StringBuffer sb = new StringBuffer();
+	sb.append(" select PrptyGroupName, PrptyGroupDesc ").append(NEW_LINE);
+	sb.append(" from tseaiad14                        ").append(NEW_LINE);
+	sb.append(" where PrptyGroupName in (select prptygroupname from tseaiad02 where adptrbzwkgroupname = '").append(adapterGroupName).append("') ").append(NEW_LINE);
+	
+	return getSqlSelect(sb.toString(),isDev);
+}
+
+// Adapter MessageKey 조회
+public Vector getAdptrMessageKeyList(boolean isDev, String adapterGroupName) throws Exception{
+	StringBuffer sb = new StringBuffer();
+	sb.append(" select AdptrBzwkGroupName, ioDstcd ").append(NEW_LINE);
+	sb.append(" from tseaifr04                        ").append(NEW_LINE);
+	sb.append(" where AdptrBzwkGroupName = '").append(adapterGroupName).append("' ").append(NEW_LINE);
+	sb.append(" group by  AdptrBzwkGroupName, ioDstcd ").append(NEW_LINE);
+	
+	return getSqlSelect(sb.toString(),isDev);
+}
+
+public int setAdapterUseYn(String controlType, String adapterName , boolean isDev) throws Exception{
+	StringBuffer sb = new StringBuffer();
+	sb.append(" update tseaiad01 set  AdptrUseYn = '").append(controlType).append("' where AdptrBzwkGroupName ='").append(adapterName).append("' ").append(NEW_LINE);
+	return getSqlUpdate(sb.toString(),isDev);
+}
+
+public Vector getServerUrl(boolean isDev) throws Exception {
+	StringBuffer sb = new StringBuffer();
+	sb.append("select EAISevrInstncName, 'http://' || EAISevrIP || ':' || SevrLsnPortName||'/ONLWeb/WebAgent' url from TSEAISY02 where EAISevrInstncName <> 'ALL' ").append(NEW_LINE);
+	return getSqlSelect(sb.toString(),isDev);
+
+}
+
+public Vector getToBeStatusUrl(boolean isDev) throws Exception {
+	StringBuffer sb = new StringBuffer();
+	sb.append("select EAISevrInstncName, 'http://' || EAISevrIP || ':' || SevrLsnPortName||'/ONLWeb/agent/host/adapter_socket2_agent2.jsp?cmd=get+connection+summary&eaiSvrInstNm='||EAISevrInstncName url from TSEAISY02 where EAISevrInstncName <> 'ALL'  ").append(NEW_LINE);
+	return getSqlSelect(sb.toString(),isDev);
+}
+
+public HashMap getToBeStatus() throws Exception{
+	ArrayList al = new ArrayList();
+	//개발
+	Vector v = getToBeStatusUrl(true);
+	//검증
+	Vector v2 = getToBeStatusUrl(false);
+ 	// 개발 2, QA 2개 ; 총 4개의 인스턴스로 설정
+	for (int i=0;i<2;i++){
+		try{
+			al.add(((String[])v.get(i))[1]);
+		}catch(ArrayIndexOutOfBoundsException e){
+			al.add(null);
+			logger.error("DEV_instance12 is null");	//보조 인스턴스가 없을경우 null로 넘겨줄것
+		}
+	}
+	for (int i=0;i<2;i++){
+		try{
+			al.add(((String[])v2.get(i))[1]);
+		}catch(ArrayIndexOutOfBoundsException e){
+			al.add(null);
+			logger.error("QA_instance12 is null");  //보조 인스턴스가 없을경우 null로 넘겨줄것
+		}	
+	}
+	String [] data = new String[al.size()];
+	al.toArray(data);
+	
+	return flushXmlToClient(data);
+}
+
+
+public HashMap flushXmlToClient(String[] url)  {
+	NodeList nodes ;
+	HashMap hm = new HashMap();
+
+	for (int i = 0; i < url.length; i++) {
+    	try {
+	        // CallAgentUtil로 부터 Xml을 받는다.
+	        CallAgentUtil agent = new CallAgentUtil();
+	        Document doc = agent.getAgentDataToDocument(url[i]);
+	        if (doc == null) {
+	            continue;
+	        }
+		    // 로우 인서트
+		    nodes = doc.getElementsByTagName("Row");
+	        hm.put("inst"+i,addDataRows(nodes));
+	    } catch (Exception e) {
+	        logger.error(e.toString());
+	        continue;
+	    }
+	}
+	return hm;
+	
+}
+public HashMap flushXmlToClient(String[] url,NameValuePair[] postParameters)  {
+	NodeList nodes ;
+	HashMap hm = new HashMap();
+	for (int i = 0; i < url.length; i++) {
+    	try {
+	        // CallAgentUtil로 부터 Xml을 받는다.
+	        CallAgentUtil agent = new CallAgentUtil();
+	        Document doc = agent.getAgentDataToDocument(url[i],postParameters);
+	        if (doc == null) {
+	            continue;
+	        }
+	        // 로우 인서트
+	        nodes = doc.getElementsByTagName("row");
+	        hm.put("inst"+i,addDataRows2(nodes));
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        continue;
+	    }
+	}
+	return hm;
+	
+}
+public HashMap addDataRows(NodeList nodes) {
+/*
+- <Row>
+  <Data>fepOnlSvr11</Data> 
+  <Data>_EDU_IO_NET_AsS</Data> 
+  <Data>_EDU_IO_NET_AsS{I11}</Data> 
+  <Data>1</Data>                    <== max connect
+  <Data>1</Data>                    <== connection 갯수
+  <Data>0</Data>                    <== send 건수
+  <Data>1</Data>                    <== recv 건수
+  <Data>10</Data>                   <== error 건수
+  <Data>true</Data>                 <== status
+  </Row>
+
+*/
+    HashMap hm = new HashMap();
+    for (int i = 0; i < nodes.getLength(); i++) {
+        NodeList nl = nodes.item(i).getChildNodes();
+        int colIndex = -1;
+        String[] data = new String[10];
+        for (int j = 0; j < nl.getLength(); j++) {
+            Node n = nl.item(j);
+
+            if (n.getNodeType() == 3)
+                continue;
+
+            colIndex++;
+            
+			data[colIndex] = n.getTextContent();          
+        }
+        String[] oldData = (String[])hm.get(data[1]);
+        if (oldData != null) {
+        	data[2] = oldData[2] + "," + data[2]  ;
+        	data[3] = oldData[3]  ;
+        	data[4] = Integer.toString(Integer.parseInt(oldData[4]) +  Integer.parseInt(data[4]))  ;
+        	data[5] = Integer.toString(Integer.parseInt(oldData[5]) +  Integer.parseInt(data[5]))  ;
+        	data[6] = Integer.toString(Integer.parseInt(oldData[6]) +  Integer.parseInt(data[6]))  ;
+        	data[7] = Integer.toString(Integer.parseInt(oldData[7]) +  Integer.parseInt(data[7]))  ;
+        	data[8] = Integer.toString(Integer.parseInt(oldData[8]) +  Integer.parseInt(data[8]))  ;
+        	data[9] = Boolean.parseBoolean(oldData[9]) || Boolean.parseBoolean(data[9]) ? "true" : "false";
+        }
+        
+        hm.put(data[1],data);
+        
+    }
+    return hm;
+}
+public HashMap addDataRows2(NodeList nodes) {
+	/*
+  <?xml version="1.0" encoding="euc-kr" ?> 
+- <result>
+  <row>tcpsmboh</row> 
+  <row>tcpctboh</row> 
+  <row>tcpktsoh</row> 
+  <row>tcpweb1h</row> 
+  </result>
+
+	*/
+	    HashMap hm = new HashMap();
+	    for (int i = 0; i < nodes.getLength(); i++) {
+	        String data = nodes.item(i).getTextContent();
+	        hm.put(data.trim(),data.trim());
+	    }
+	    return hm;
+	}
+public String displayStatus(HashMap hm, String adapterName,int index,String color){
+	if (hm == null){
+		return "X";
+	}
+	Object adapters = hm.get(adapterName);
+	if (adapters == null){
+		return "X";
+	}
+	String[] data = (String[])adapters;
+	String status = "";
+	if (data != null){
+	    status =data[index];
+	}
+	if (index ==9){
+		if ("".equals(status)){
+			status="X";
+		}else if ("false".equals(status)){
+			status="X";
+		}else if ("true".equals(status)){
+			status="<b><font color=\""+color+"\" >O</font></b>";
+		}
+	}
+	
+	return status;
+	
+}
+public String checkStatus(HashMap hm, String adapterName){
+	if (hm == null){
+		return "0";
+	}
+	
+	Object adapters = hm.get(adapterName);
+	if (adapters == null){
+		return "0";
+	}
+	String[] data = (String[])adapters;
+	String status = "";
+	if (data != null){
+	    status =data[9];
+	}
+
+	if ("".equals(status)){
+		status="0";
+	}else if ("false".equals(status)){
+		status="0";
+	}else if ("true".equals(status)){
+		status="1";
+	}
+
+	
+	return status;
+	
+}
+public String displayColor(HashMap dev, HashMap test, String [] adapter,int index){
+
+	Object devAdapters = dev.get(adapter[0]);
+	Object testAdapters = test.get(adapter[0]);
+	String[] devData = (String[])devAdapters;
+	String[] testData = (String[])testAdapters;
+	
+	boolean isDevOn = false;
+	boolean isTestOn = false;
+	if (devData != null){
+		if ("true".equals(devData[9])){
+			isDevOn = true;
+		}	    
+	}
+	if (testData != null){
+		if ("true".equals(testData[9])){
+			isTestOn = true;
+		}	    
+	}
+	if (isDevOn && isTestOn){
+		return "<b><font color=\"red\">"+adapter[index]+"</font></b>";
+	}else if (isDevOn && !isTestOn){
+		return "<b><font color=\"green\">"+adapter[index]+"</font></b>";
+	}else if (!isDevOn && isTestOn){
+		return "<b><font color=\"blue\">"+adapter[index]+"</font></b>";
+	}else if (!isDevOn && !isTestOn){
+		return adapter[index];
+	}
+	return "";
+	
+}
+public String displayBgColor(HashMap  dev, HashMap test, String adapter){
+ 	Object devAdapters = dev.get(adapter);
+	Object testAdapters = test.get(adapter);
+	String[] devData = (String[])devAdapters;
+	String[] testData = (String[])testAdapters;
+	boolean isDevOn = false;
+	boolean isTestOn = false;
+	if (devData != null){
+		if ("true".equals(devData[9])){
+			isDevOn = true;
+		}	    
+	}
+	if (testData != null){
+		if ("true".equals(testData[9])){
+			isTestOn = true;
+		}	    
+	}
+	if (isDevOn && isTestOn){
+		return "red";
+	}else if (isDevOn && !isTestOn){
+		return "green";
+	}else if (!isDevOn && isTestOn){
+		return "blue";
+	}else {
+		return "black";
+	} 
+	
+}
+
+
+/*
+ *	Adapter 메모리 동기화
+ *	
+ */
+public String[] adapterSync(Vector table,String adapterGroupName) throws Exception {
+	OnlAgentUtilServiceImpl	agentUtilService = new OnlAgentUtilServiceImpl();
+
+	CommonCommand command = new CommonCommand("com.eactive.eai.agent.adapter.ReloadAdapterGroupCommand",adapterGroupName);
+
+   String[] result = new String[table.size()];
+    for(int i=0; i < table.size();i++) {
+    	String[] array = (String[])table.get(i);
+   		HashMap res = agentUtilService.broadcast(array[0], array[1], command);
+   		result[i] = res.toString();
+   		if(result[i].indexOf("success") < 0){
+   			throw new Exception("Failed to Adapter Sync");
+   		}
+       	logger.debug("---- 어댑터리로드("+adapterGroupName+") : " + array[0] + " : " + array[1]);
+    }
+	
+	return result;
+
+		
+}
+
+/*
+ *	Adapter Property 메모리 동기화
+ *	
+ */
+public void adapterPrptySync(Vector table,String adapterGroupName, boolean isDev) throws Exception {
+	OnlAgentUtilServiceImpl	agentUtilService = new OnlAgentUtilServiceImpl();
+	
+	int index = 0;
+	Vector<String[]> adptrPrptyGroupList = getAdptrPrptyGroupList(isDev, adapterGroupName);//개발 From Db
+	
+	for(String[] arrPrptyGroupName : adptrPrptyGroupList)
+	{
+		CommonCommand command = new CommonCommand("com.eactive.eai.agent.adapter.ReloadAdapterPropGroupCommand", arrPrptyGroupName[0]);
+		
+		String[] result = new String[table.size()];
+		
+	    for(int i=0; i < table.size();i++) {
+	    	String[] array = (String[])table.get(i);
+	   		HashMap res = agentUtilService.broadcast(array[0], array[1], command);
+	   		result[i] = res.toString();
+	   		if(result[i].indexOf("success") < 0){
+   				throw new Exception("Failed to Property Sync");
+   			}
+	       	logger.debug("---- 어댑터 프라퍼티 리로드("+arrPrptyGroupName[0]+") : " + array[0] + " : " + array[1]);
+	    }
+	}
+}
+
+/*
+ *	Adapter 메시지 키 동기화
+ *	
+ */
+public void adapterMessageKeySync(Vector table,String adapterGroupName, boolean isDev) throws Exception {
+	OnlAgentUtilServiceImpl	agentUtilService = new OnlAgentUtilServiceImpl();
+	
+	Vector<String[]> adptrMessageKeyList = getAdptrMessageKeyList(isDev, adapterGroupName);//개발 From Db
+	String messageKey = "";
+	String ioDstcd = "";
+	String key = "";
+	for(String[] adapterMessageKey : adptrMessageKeyList)
+	{
+		messageKey = adapterMessageKey[0];
+		ioDstcd = adapterMessageKey[1];
+		
+		key = messageKey + "," + ioDstcd;
+		
+		CommonCommand command = new CommonCommand("com.eactive.eai.agent.messagekey.ReloadMessageKeyCommand", key);
+		
+		String[] result = new String[table.size()];
+	    for(int i=0; i < table.size();i++) {
+	    	String[] array = (String[])table.get(i);
+	   		HashMap res = agentUtilService.broadcast(array[0], array[1], command);
+	   		result[i] = res.toString();
+	   		if(result[i].indexOf("success") < 0){
+   				throw new Exception("Failed to MessageKey Sync");
+   			}
+	       	logger.debug("---- 메시지 키 리로드("+adapterGroupName+") : " + array[0] + " : " + array[1]);
+	    }
+	}
+}
+public String getClientIP(ServletRequest servletRequest){
+
+	HttpServletRequest request = (HttpServletRequest)servletRequest;
+	
+	String ip = request.getHeader("X-FORWARDED-FOR");
+	if(ip == null || ip.length() == 0){
+		ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+
+	}	
+	if(ip == null || ip.length() == 0){
+		ip = request.getHeader("Proxy-Client-IP");
+
+	}
+	if(ip == null || ip.length()==0){
+		ip = request.getHeader("WL-Proxy-Client-IP");
+	
+	}
+	if(ip == null || ip.length()==0){
+		ip = request.getHeader("HTTP_CLIENT_IP");
+	
+	}
+			if(ip == null || ip.length()==0){
+		ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+	
+	}
+	if(ip == null || ip.length() ==0){
+		ip = request.getRemoteAddr();
+	}
+
+	return ip;
+
+}
+public String adapterControl(String serverType, String controlType, String adapterName ,ServletRequest request) throws Exception {
+	String[] results = new String[2];	
+	synchronized(obj){
+		int result =0;
+
+		Vector v ;
+		if("SOCKET_MONITOR".equals(adapterName)) return "Control blocked";
+		logger.info("AdapterControl Access Client IP : " +getClientIP(request) + ", serverType : " +serverType + ", controlType : " +controlType + ", adapterName : " + adapterName);
+		if ("dev".equals(serverType)){
+			//개발
+			//1. db변경
+			result = setAdapterUseYn(controlType, adapterName, true );
+			if(result <1 ) return "No Adapter";
+			v = getServerUrl(true);
+			// 2. 메모리 변경
+			// 2-1. 어댑터 프라퍼티 메모리 변경 
+			// ○(On) Button Click 했을 때만 Property Reload
+			try{
+				if("1".equals(controlType))
+				{
+					adapterMessageKeySync(v,adapterName, true);			// 메시지 키 reload
+					adapterPrptySync(v,adapterName, true);
+				}
+				
+				// 2-2. 어댑터 메모리 변경
+				adapterSync(v,adapterName);
+			}catch(Exception e){
+				return e.toString();
+			}
+		}else if ("test".equals(serverType)){
+			//검증
+			//1. db변경
+			result = setAdapterUseYn(controlType, adapterName, false );
+			if(result <1 ) return "No Adapter";
+			v = getServerUrl(false);
+			// 2. 메모리 변경
+			// 2-1. 어댑터 프라퍼티 메모리 변경
+			// ○(On) Button Click 했을 때만 Property Reload
+			try{
+				if("1".equals(controlType))
+				{
+					adapterMessageKeySync(v,adapterName, false);		// 메시지 키 reload
+					adapterPrptySync(v,adapterName, false);
+				}
+					
+				// 2-2. 어댑터 메모리 변경
+				adapterSync(v,adapterName);
+			}catch(Exception e){
+				return e.toString();
+			}
+		}
+	}
+	return "success";
+
+	
+}
+
+%>
+
+
+<%
+	response.setHeader("Pragma", "No-cache");
+	response.setHeader("Cache-Control", "no-cache");
+	response.setHeader("Expires", "0");
+%>
+
+<%
+	request.setCharacterEncoding("euc-kr");
+	String filter = request.getParameter("filter");
+	String serverType = request.getParameter("serverType");
+	String controlType = request.getParameter("controlType");
+	String adapterName = request.getParameter("adapterName");
+	String userType=request.getParameter("userType");
+
+	//String displayType=request.getParameter("displayType");
+	String displayType="all";
+	if (filter == null) filter = "";
+	if (serverType == null) serverType = "";
+	if (controlType == null) controlType = "";
+	if (adapterName == null) adapterName = "";
+	
+	String adapterResult ="";
+	if (!"".equals(serverType) && !"".equals(controlType) && !"".equals(adapterName)  ){
+		 String result = adapterControl(serverType, controlType, adapterName , request);
+		 if (result != null) {
+			adapterResult = result;
+		 }
+	}
+	
+%>
+<%= adapterResult%>
+
+

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stdDefault">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	SELECT COUNT(*) CNT
+	  FROM   $schemaId$.TSEAIHS03
+	<dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="searchColumnName">
+			UPPER(COLUMNNAME) LIKE UPPER( CONCAT('%' , #searchColumnName# , '%') )
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="searchColumnDesc">
+			UPPER(COLUMNDESC) LIKE UPPER( CONCAT('%' , #searchColumnDesc# , '%') )
+		</isNotEmpty>
+	</dynamic>
+  </statement>
+
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	SELECT *
+	  FROM (
+			SELECT @NO := @NO + 1 AS ROWNO
+				 , COLUMNNAME
+				 , COLUMNDESC
+				 , COLUMNLENGTH
+				 , ISKEY
+				 , KEYSEQ
+				 , ISINTERFACE
+				 , COMBONAME
+				 , COMBODEPTH
+				 , COLUMNDEFAULT
+			  FROM $schemaId$.TSEAIHS03 ,  (SELECT @NO := 0) R
+		    <dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchColumnName">
+					UPPER(COLUMNNAME) LIKE UPPER( CONCAT('%' , #searchColumnName# , '%') )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchColumnDesc">
+					UPPER(COLUMNDESC) LIKE UPPER( CONCAT('%' , #searchColumnDesc# , '%') )
+				</isNotEmpty>
+			</dynamic>
+			ORDER BY COLUMNNAME
+		   ) T
+	 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+</sqlMap>

@@ -1,0 +1,20 @@
+PS C:\Users\elink> docker ps
+CONTAINER ID   IMAGE                    COMMAND                  CREATED       STATUS         PORTS                                   NAMES
+d4abb90a0525   dimensigon/tibero        "/bin/sh -c 'su - ti¡¦"   3 hours ago   Up 4 minutes   0.0.0.0:8629->8629/tcp, 8630-8649/tcp   tibero6
+2a220883d0e1   provectuslabs/kafka-ui   "/bin/sh -c 'java $J¡¦"   3 weeks ago   Up 4 minutes   0.0.0.0:8080->8080/tcp                  kafka-ui
+PS C:\Users\elink> docker update --restart=no 2a220883d0e1
+2a220883d0e1
+PS C:\Users\elink> docker stop 2a220883d0e1
+2a220883d0e1
+PS C:\Users\elink>
+PS C:\Users\elink>
+PS C:\Users\elink>
+PS C:\Users\elink>
+PS C:\Users\elink> docker ps
+CONTAINER ID   IMAGE               COMMAND                  CREATED       STATUS         PORTS                                   NAMES
+d4abb90a0525   dimensigon/tibero   "/bin/sh -c 'su - ti¡¦"   3 hours ago   Up 6 minutes   0.0.0.0:8629->8629/tcp, 8630-8649/tcp   tibero6
+PS C:\Users\elink> docker update --restart=no d4abb90a0525
+d4abb90a0525
+PS C:\Users\elink> docker stop d4abb90a0525
+d4abb90a0525
+PS C:\Users\elink> docker update --restart=always d4abb90a0525

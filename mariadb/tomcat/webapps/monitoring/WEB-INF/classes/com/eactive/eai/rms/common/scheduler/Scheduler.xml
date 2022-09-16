@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Scheduler">
+  <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIRM21( JOBNAME, CRONEXP, JOBCLASSNAME, USEYN, INSTANCENAME, JOBDESC, CHKSTATUS) 
+		    VALUES( #jobName#, #cronExp#, #jobClassName#, #useYn#, #instanceName#, #jobDesc#, #chkStatus#)
+  </statement>
+
+  <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    UPDATE $schemaId$.TSEAIRM21 
+       SET CRONEXP      = #cronExp# 
+         , JOBCLASSNAME = #jobClassName# 
+         , USEYN        = #useYn# 
+         , INSTANCENAME = #instanceName# 
+         , JOBDESC		= #jobDesc#
+         , CHKSTATUS	= #chkStatus#
+     WHERE JOBNAME      = #jobName#
+  </statement>
+
+  <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+     DELETE FROM $schemaId$.TSEAIRM21 
+           WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="insertSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIRM22 ( JOBNAME, DATAKEY, DATAVALUE )
+         VALUES (  #jobName#, #dataKey#, #dataValue#)
+  </statement>
+
+  <statement id="deleteSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM $schemaId$.TSEAIRM22 
+          WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="insertStatus" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIRM20 ( UUID, JOBNAME, STARTDATE,ENDDATE,STATUS, INSTANCENAME )
+         VALUES ( #uuid#, #jobName#, #startDate#, #endDate#, #status#, #instanceName#)
+  </statement>
+</sqlMap>

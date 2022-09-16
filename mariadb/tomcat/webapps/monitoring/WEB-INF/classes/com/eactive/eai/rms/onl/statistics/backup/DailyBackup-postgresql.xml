@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="DailyBackup">
+
+  <statement id="findDailyProcData" parameterClass="java.util.Map" resultClass="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist02VO"><![CDATA[
+SELECT  MAX(#date#) AS "STATCYMD"
+     , SUBSTR(MSGDPSTYMS, 9, 2) AS "HH"
+     , EAIBZWKDSTCD AS "EAIBZWKDSTCD"
+     , EAISVCNAME AS "EAISVCNAME"
+     , ' ' AS "CHNLMDIADSTCD"
+     , SUBSTR(SVCMOTIVUSEDSTCD, 1, 1) || SUBSTR(PSVINTFACDSTICNAME, 1, 1) AS "INTFACPTRNCD"
+     , STNDMSGUSEYN AS "STNDMSGUSEYN"
+     , LOGPRCSSSERNO AS "LOGPRCSSSERNO"
+     , COUNT(*) AS "TRSTMNOITM"
+     , MAX(     ( CAST(SUBSTR(MSGPRCSSYMS,11,2) AS INTEGER) * 60000 
+     				+ CAST(SUBSTR(MSGPRCSSYMS,13,2) AS INTEGER) * 1000 
+     				+ CAST(SUBSTR(MSGPRCSSYMS,15,3) AS INTEGER) ) 
+              - ( CAST(SUBSTR(MSGDPSTYMS, 11,2) AS INTEGER) * 60000 
+              		+ CAST(SUBSTR(MSGDPSTYMS ,13,2) AS INTEGER) * 1000 
+              		+ CAST(SUBSTR(MSGDPSTYMS ,15,3) AS INTEGER) ) 
+       ) AS "RSPNSMAXVAL"
+     , AVG(     ( CAST(SUBSTR(MSGPRCSSYMS,11,2) AS INTEGER) * 60000 
+     				+ CAST(SUBSTR(MSGPRCSSYMS,13,2) AS INTEGER) * 1000 
+     				+ CAST(SUBSTR(MSGPRCSSYMS,15,3) AS INTEGER) ) 
+              - ( CAST(SUBSTR(MSGDPSTYMS, 11,2) AS INTEGER) * 60000 
+              		+ CAST(SUBSTR(MSGDPSTYMS ,13,2) AS INTEGER) * 1000 
+              		+ CAST(SUBSTR(MSGDPSTYMS ,15,3) AS INTEGER) ) 
+       ) AS "RSPNSAVGVAL"     
+ FROM $schemaId$.$tableName$
+ WHERE                                                                                                                      
+         MSGDPSTYMS >= #date#||'000000000'                                                                              
+     AND MSGDPSTYMS <= #date#||'239999999'
+     AND (LOGPRCSSSERNO = 100 OR (LOGPRCSSSERNO = 300 AND SVCMOTIVUSEDSTCD = 'ASYN' AND PSVINTFACDSTICNAME = 'ASYN'))
+ GROUP BY SUBSTR(MSGDPSTYMS, 9, 2)
+        , EAIBZWKDSTCD
+        , EAISVCNAME
+        /*, CHNLDSTCD*/
+        , SUBSTR(SVCMOTIVUSEDSTCD, 1, 1) || SUBSTR(PSVINTFACDSTICNAME, 1, 1)
+        , STNDMSGUSEYN
+        , LOGPRCSSSERNO     
+    ]]></statement>
+
+
+
+  <statement id="findDailyErrorData" parameterClass="java.util.Map" resultClass="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist02VO"><![CDATA[
+SELECT  MAX(#date#) AS "STATCYMD"
+     , SUBSTR(MSGDPSTYMS, 9, 2) AS "HH"
+     , EAIBZWKDSTCD AS "EAIBZWKDSTCD"
+     , EAISVCNAME AS "EAISVCNAME"
+     , ' ' AS "CHNLMDIADSTCD"
+     , SUBSTR(SVCMOTIVUSEDSTCD, 1, 1) || SUBSTR(PSVINTFACDSTICNAME, 1, 1) AS "INTFACPTRNCD"
+     , STNDMSGUSEYN AS "STNDMSGUSEYN"
+     , LOGPRCSSSERNO AS "LOGPRCSSSERNO"
+     , COUNT(*) AS "ERRNOITM"
+     , MAX(     ( CAST(SUBSTR(MSGPRCSSYMS,11,2) AS INTEGER) * 60000 
+     					+ CAST(SUBSTR(MSGPRCSSYMS,13,2) AS INTEGER) * 1000 
+     					+ CAST(SUBSTR(MSGPRCSSYMS,15,3) AS INTEGER) )
+              		- ( CAST(SUBSTR(MSGDPSTYMS, 11,2) AS INTEGER) * 60000 
+              			+ CAST(SUBSTR(MSGDPSTYMS ,13,2) AS INTEGER) * 1000 
+              			+ CAST(SUBSTR(MSGDPSTYMS ,15,3) AS INTEGER) )
+       ) AS "RSPNSMAXVAL"
+     , AVG(     ( CAST(SUBSTR(MSGPRCSSYMS,11,2) AS INTEGER) * 60000 
+     					+ CAST(SUBSTR(MSGPRCSSYMS,13,2) AS INTEGER) * 1000 
+     					+ CAST(SUBSTR(MSGPRCSSYMS,15,3) AS INTEGER) )
+              		- ( CAST(SUBSTR(MSGDPSTYMS, 11,2) AS INTEGER) * 60000 
+              			+ CAST(SUBSTR(MSGDPSTYMS ,13,2) AS INTEGER) * 1000 
+              			+ CAST(SUBSTR(MSGDPSTYMS ,15,3) AS INTEGER) )
+       ) AS "RSPNSAVGVAL"
+ FROM $schemaId$.$tableName$
+ WHERE
+         MSGDPSTYMS >= #date#||'000000000'
+     AND MSGDPSTYMS <= #date#||'239999999'
+     AND (RSPNSERRCDNAME LIKE 'RE%' OR  RSPNSERRCDNAME LIKE 'RF%')
+     AND (
+        (SVCMOTIVUSEDSTCD != 'ASYN' OR PSVINTFACDSTICNAME != 'ASYN' AND LOGPRCSSSERNO = 400)
+        OR
+        (SVCMOTIVUSEDSTCD = 'ASYN' AND PSVINTFACDSTICNAME = 'ASYN'
+            AND (LOGPRCSSSERNO = 200 OR LOGPRCSSSERNO = 300 OR LOGPRCSSSERNO = 400 OR LOGPRCSSSERNO = 900))
+     )
+ GROUP BY SUBSTR(MSGDPSTYMS, 9, 2)
+        , EAIBZWKDSTCD
+        , EAISVCNAME
+        /*, CHNLDSTCD*/
+        , SUBSTR(SVCMOTIVUSEDSTCD, 1, 1) || SUBSTR(PSVINTFACDSTICNAME, 1, 1)
+        , STNDMSGUSEYN
+        , LOGPRCSSSERNO
+    ]]></statement>
+
+  <parameterMap class="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist02VO" id="insertDailyData-params">
+    <parameter property="statcYmd"/>
+    <parameter property="eaiBzwkDstcd"/>
+    <parameter property="eaiSvcName"/>
+    <parameter property="intfacPtrnCd"/>
+    <parameter property="chnlMdiaDstcd"/>
+    <parameter property="logPrcssSerno"/>
+    <parameter property="stndMsgUseYn"/>
+    <parameter property="hhTrsmtNoitm0"/> <parameter property="hhErrNoitm0"/> <parameter property="hhRspnsAvgVal0"/> <parameter property="hhRspnsMaxVal0"/>
+    <parameter property="hhTrsmtNoitm1"/> <parameter property="hhErrNoitm1"/> <parameter property="hhRspnsAvgVal1"/> <parameter property="hhRspnsMaxVal1"/>
+    <parameter property="hhTrsmtNoitm2"/> <parameter property="hhErrNoitm2"/> <parameter property="hhRspnsAvgVal2"/> <parameter property="hhRspnsMaxVal2"/>
+    <parameter property="hhTrsmtNoitm3"/> <parameter property="hhErrNoitm3"/> <parameter property="hhRspnsAvgVal3"/> <parameter property="hhRspnsMaxVal3"/>
+    <parameter property="hhTrsmtNoitm4"/> <parameter property="hhErrNoitm4"/> <parameter property="hhRspnsAvgVal4"/> <parameter property="hhRspnsMaxVal4"/>
+    <parameter property="hhTrsmtNoitm5"/> <parameter property="hhErrNoitm5"/> <parameter property="hhRspnsAvgVal5"/> <parameter property="hhRspnsMaxVal5"/>
+    <parameter property="hhTrsmtNoitm6"/> <parameter property="hhErrNoitm6"/> <parameter property="hhRspnsAvgVal6"/> <parameter property="hhRspnsMaxVal6"/>
+    <parameter property="hhTrsmtNoitm7"/> <parameter property="hhErrNoitm7"/> <parameter property="hhRspnsAvgVal7"/> <parameter property="hhRspnsMaxVal7"/>
+    <parameter property="hhTrsmtNoitm8"/> <parameter property="hhErrNoitm8"/> <parameter property="hhRspnsAvgVal8"/> <parameter property="hhRspnsMaxVal8"/>
+    <parameter property="hhTrsmtNoitm9"/> <parameter property="hhErrNoitm9"/> <parameter property="hhRspnsAvgVal9"/> <parameter property="hhRspnsMaxVal9"/>
+    <parameter property="hhTrsmtNoitm10"/><parameter property="hhErrNoitm10"/><parameter property="hhRspnsAvgVal10"/><parameter property="hhRspnsMaxVal10"/>
+    <parameter property="hhTrsmtNoitm11"/><parameter property="hhErrNoitm11"/><parameter property="hhRspnsAvgVal11"/><parameter property="hhRspnsMaxVal11"/>
+    <parameter property="hhTrsmtNoitm12"/><parameter property="hhErrNoitm12"/><parameter property="hhRspnsAvgVal12"/><parameter property="hhRspnsMaxVal12"/>
+    <parameter property="hhTrsmtNoitm13"/><parameter property="hhErrNoitm13"/><parameter property="hhRspnsAvgVal13"/><parameter property="hhRspnsMaxVal13"/>
+    <parameter property="hhTrsmtNoitm14"/><parameter property="hhErrNoitm14"/><parameter property="hhRspnsAvgVal14"/><parameter property="hhRspnsMaxVal14"/>
+    <parameter property="hhTrsmtNoitm15"/><parameter property="hhErrNoitm15"/><parameter property="hhRspnsAvgVal15"/><parameter property="hhRspnsMaxVal15"/>
+    <parameter property="hhTrsmtNoitm16"/><parameter property="hhErrNoitm16"/><parameter property="hhRspnsAvgVal16"/><parameter property="hhRspnsMaxVal16"/>
+    <parameter property="hhTrsmtNoitm17"/><parameter property="hhErrNoitm17"/><parameter property="hhRspnsAvgVal17"/><parameter property="hhRspnsMaxVal17"/>
+    <parameter property="hhTrsmtNoitm18"/><parameter property="hhErrNoitm18"/><parameter property="hhRspnsAvgVal18"/><parameter property="hhRspnsMaxVal18"/>
+    <parameter property="hhTrsmtNoitm19"/><parameter property="hhErrNoitm19"/><parameter property="hhRspnsAvgVal19"/><parameter property="hhRspnsMaxVal19"/>
+    <parameter property="hhTrsmtNoitm20"/><parameter property="hhErrNoitm20"/><parameter property="hhRspnsAvgVal20"/><parameter property="hhRspnsMaxVal20"/>
+    <parameter property="hhTrsmtNoitm21"/><parameter property="hhErrNoitm21"/><parameter property="hhRspnsAvgVal21"/><parameter property="hhRspnsMaxVal21"/>
+    <parameter property="hhTrsmtNoitm22"/><parameter property="hhErrNoitm22"/><parameter property="hhRspnsAvgVal22"/><parameter property="hhRspnsMaxVal22"/>
+    <parameter property="hhTrsmtNoitm23"/><parameter property="hhErrNoitm23"/><parameter property="hhRspnsAvgVal23"/><parameter property="hhRspnsMaxVal23"/>
+  </parameterMap>
+
+  <insert id="insertDailyData" parameterClass="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist02VO" parameterMap="insertDailyData-params"><![CDATA[
+     INSERT INTO $schemaId$.TSEAIST02 (
+        STATCYMD,         EAIBZWKDSTCD,     EAISVCNAME,       INTFACPTRNCD,
+        CHNLMDIADSTCD,    LOGPRCSSSERNO,    STNDMSGUSEYN, 
+        
+        S0HHTRSMTNOITM,    S0HHERRNOITM,      S0HHRSPNSAVGVAL,   S0HHRSPNSMAXVAL, 
+        S1HHTRSMTNOITM,    S1HHERRNOITM,      S1HHRSPNSAVGVAL,   S1HHRSPNSMAXVAL, 
+        S2HHTRSMTNOITM,    S2HHERRNOITM,      S2HHRSPNSAVGVAL,   S2HHRSPNSMAXVAL, 
+        S3HHTRSMTNOITM,    S3HHERRNOITM,      S3HHRSPNSAVGVAL,   S3HHRSPNSMAXVAL, 
+        S4HHTRSMTNOITM,    S4HHERRNOITM,      S4HHRSPNSAVGVAL,   S4HHRSPNSMAXVAL,
+        S5HHTRSMTNOITM,    S5HHERRNOITM,      S5HHRSPNSAVGVAL,   S5HHRSPNSMAXVAL, 
+        S6HHTRSMTNOITM,    S6HHERRNOITM,      S6HHRSPNSAVGVAL,   S6HHRSPNSMAXVAL, 
+        S7HHTRSMTNOITM,    S7HHERRNOITM,      S7HHRSPNSAVGVAL,   S7HHRSPNSMAXVAL, 
+        S8HHTRSMTNOITM,    S8HHERRNOITM,      S8HHRSPNSAVGVAL,   S8HHRSPNSMAXVAL, 
+        S9HHTRSMTNOITM,    S9HHERRNOITM,      S9HHRSPNSAVGVAL,   S9HHRSPNSMAXVAL,
+       S10HHTRSMTNOITM,   S10HHERRNOITM,     S10HHRSPNSAVGVAL,  S10HHRSPNSMAXVAL,
+       S11HHTRSMTNOITM,   S11HHERRNOITM,     S11HHRSPNSAVGVAL,  S11HHRSPNSMAXVAL,  
+       S12HHTRSMTNOITM,   S12HHERRNOITM,     S12HHRSPNSAVGVAL,  S12HHRSPNSMAXVAL, 
+       S13HHTRSMTNOITM,   S13HHERRNOITM,     S13HHRSPNSAVGVAL,  S13HHRSPNSMAXVAL,
+       S14HHTRSMTNOITM,   S14HHERRNOITM,     S14HHRSPNSAVGVAL,  S14HHRSPNSMAXVAL, 
+       S15HHTRSMTNOITM,   S15HHERRNOITM,     S15HHRSPNSAVGVAL,  S15HHRSPNSMAXVAL, 
+       S16HHTRSMTNOITM,   S16HHERRNOITM,     S16HHRSPNSAVGVAL,  S16HHRSPNSMAXVAL,
+       S17HHTRSMTNOITM,   S17HHERRNOITM,     S17HHRSPNSAVGVAL,  S17HHRSPNSMAXVAL, 
+       S18HHTRSMTNOITM,   S18HHERRNOITM,     S18HHRSPNSAVGVAL,  S18HHRSPNSMAXVAL, 
+       S19HHTRSMTNOITM,   S19HHERRNOITM,     S19HHRSPNSAVGVAL,  S19HHRSPNSMAXVAL,
+       S20HHTRSMTNOITM,   S20HHERRNOITM,     S20HHRSPNSAVGVAL,  S20HHRSPNSMAXVAL, 
+       S21HHTRSMTNOITM,   S21HHERRNOITM,     S21HHRSPNSAVGVAL,  S21HHRSPNSMAXVAL, 
+       S22HHTRSMTNOITM,   S22HHERRNOITM,     S22HHRSPNSAVGVAL,  S22HHRSPNSMAXVAL,
+       S23HHTRSMTNOITM,   S23HHERRNOITM,     S23HHRSPNSAVGVAL,  S23HHRSPNSMAXVAL
+    ) VALUES ( 
+      ?, ?, ?, ?, 
+      ?, ?, ?, 
+      
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?
+       )
+    ]]></insert>
+
+    <statement id="deleteDailyData" parameterClass="java.lang.String">
+    DELETE FROM $schemaId$.TSEAIST02 WHERE STATCYMD = #date#
+    </statement>
+</sqlMap>

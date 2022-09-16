@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="UserBzwkDstcd">
+  
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+				SELECT
+				        A.EAIBZWKDSTCD AS "EAIBZWKDSTCD", A.BZWKDSTICNAME AS "BZWKDSTICNAME",
+				        (CASE WHEN B.EAIBZWKDSTCD IS NULL THEN 'false' ELSE 'true' END) AS "CHK"
+				FROM $schemaId$.TSEAICM01 A LEFT OUTER JOIN
+				     (    SELECT EAIBZWKDSTCD
+				          FROM $schemaId$.TSEAIMN04
+				          WHERE USERID = #userId#
+				      ) B ON A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+				WHERE A.EAIBZWKDSTCD in (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID =#loginId#)
+				ORDER BY A.EAIBZWKDSTCD ASC
+  </statement>
+  
+  <statement id="insert" parameterClass="java.util.HashMap" >
+				INSERT INTO $schemaId$.TSEAIMN04
+				      (USERID, EAIBZWKDSTCD)
+				VALUES (#userId#, #eaiBzwkDstcd#)
+  </statement>
+  
+  <statement id="delete" parameterClass="java.util.HashMap" >
+				DELETE FROM $schemaId$.TSEAIMN04 WHERE USERID = #userId#
+  </statement>
+  
+  <statement id="selectListByUserOnlyUse" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+				SELECT
+				        A.EAIBZWKDSTCD AS "EAIBZWKDSTCD", A.BZWKDSTICNAME AS "BZWKDSTICNAME",
+				        CASE WHEN B.EAIBZWKDSTCD IS NULL THEN '0'
+				             ELSE '1'
+				        END AS "USEYN"
+				FROM $schemaId$.TSEAICM01 A,
+				     (    SELECT EAIBZWKDSTCD
+				          FROM $schemaId$.TSEAIMN04
+				          WHERE USERID = #userId#
+				      ) B
+				WHERE A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+				ORDER BY B.EAIBZWKDSTCD ASC
+  </statement>
+</sqlMap>

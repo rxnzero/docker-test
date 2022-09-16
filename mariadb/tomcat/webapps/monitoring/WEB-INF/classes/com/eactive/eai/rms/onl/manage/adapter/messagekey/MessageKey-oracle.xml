@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MessageKey">
+  
+  
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) 
+    FROM   $schemaId$.TSEAIFR04 
+    
+      <dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+	      UPPER(ADPTRBZWKGROUPNAME) LIKE '%'||UPPER(#searchAdptrBzwkGroupName#)||'%'
+		</isNotEmpty>
+      </dynamic>    
+    
+  </statement>
+  
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROWNO
+		     , ADPTRBZWKGROUPNAME
+		     , MSGDSTCD
+		     , IODSTCD
+		     , GROUPINORNO
+		     , FLDPRCSSNO
+		     , BZWKFLDNAME
+		     , CLSNAME
+		     , MSGFLDSTARTSITUVAL
+		     , MSGFLDLEN
+		     , NOMALPRCSSCTNT
+		 FROM (
+              SELECT ROWNUM ROWNO, 
+                 ADPTRBZWKGROUPNAME, MSGDSTCD, IODSTCD, GROUPINORNO, FLDPRCSSNO, BZWKFLDNAME, 
+                  CLSNAME, MSGFLDSTARTSITUVAL, MSGFLDLEN, NOMALPRCSSCTNT   
+		      FROM(    
+                   SELECT *   
+		            FROM $schemaId$.TSEAIFR04 
+			      <dynamic prepend="WHERE">
+					<isNotEmpty prepend="AND" property="searchAdptrBzwkGroupName">
+				      UPPER(ADPTRBZWKGROUPNAME) LIKE '%'||UPPER(#searchAdptrBzwkGroupName#)||'%'
+					</isNotEmpty>
+			      </dynamic>
+					ORDER BY ADPTRBZWKGROUPNAME, MSGDSTCD, IODSTCD, GROUPINORNO, FLDPRCSSNO
+			      )    
+		      ) TMP1
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+
+  <statement id="selectLastGroupKey" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		 SELECT NVL(MAX(GROUPINORNO), 0) + 1 
+		   FROM $schemaId$.TSEAIFR04 
+		  WHERE ADPTRBZWKGROUPNAME = #adptrBzwkGroupName#
+		    AND MSGDSTCD = #msgDstcd# 
+		    AND IODSTCD = #ioDstcd#
+  </statement>
+  
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT ADPTRBZWKGROUPNAME AS "ADPTRBZWKGROUPNAME"
+             , MSGDSTCD AS "MSGDSTCD"
+             , IODSTCD AS "IODSTCD"
+             , GROUPINORNO AS "GROUPINORNO"
+             , FLDPRCSSNO AS "FLDPRCSSNO"
+             , BZWKFLDNAME AS "BZWKFLDNAME"
+             , CLSNAME AS "CLSNAME"
+             , MSGFLDSTARTSITUVAL AS "MSGFLDSTARTSITUVAL"
+             , MSGFLDLEN AS "MSGFLDLEN"
+             , NOMALPRCSSCTNT AS "NOMALPRCSSCTNT"
+          FROM   $schemaId$.TSEAIFR04 
+          WHERE  ADPTRBZWKGROUPNAME = #adptrBzwkGroupName# 
+          AND    MSGDSTCD = #msgDstcd#
+          AND    IODSTCD = #ioDstcd#
+          AND    GROUPINORNO = #groupInorNo#
+          ORDER  BY ADPTRBZWKGROUPNAME, MSGDSTCD, IODSTCD, GROUPINORNO, FLDPRCSSNO
+  </statement>
+  
+  <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAIFR04 ( 
+             ADPTRBZWKGROUPNAME, MSGDSTCD, IODSTCD, GROUPINORNO, FLDPRCSSNO, 
+             BZWKFLDNAME, CLSNAME, MSGFLDSTARTSITUVAL, MSGFLDLEN, NOMALPRCSSCTNT 
+         ) VALUES ( 
+             #adptrBzwkGroupName#, #msgDstcd#, #ioDstcd#, #groupInorNo#, #fldPrcssNo#, 
+             #bzwkFldName#, #clsName#, #msgFldStartSituVal#, #msgFldLen#, #nomalPrcssCtnt#
+         )
+  </statement>
+  
+  <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+         UPDATE $schemaId$.TSEAIFR04
+            SET BZWKFLDNAME = #bzwkFldName#
+              , CLSNAME = #clsName#
+              , MSGFLDSTARTSITUVAL = #msgFldStartSituVal#
+              , MSGFLDLEN = #msgFldLen#
+              , NOMALPRCSSCTNT = #nomalPrcssCtnt# 
+            WHERE ADPTRBZWKGROUPNAME = #adptrBzwkGroupName# 
+              AND MSGDSTCD = #msgDstcd# 
+              AND IODSTCD = #ioDstcd# 
+              AND GROUPINORNO = #groupInorNo# 
+              AND FLDPRCSSNO = #fldPrcssNo#
+  </statement>
+  
+  <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAIFR04
+         WHERE ADPTRBZWKGROUPNAME = #adptrBzwkGroupName#
+           AND MSGDSTCD = #msgDstcd#
+           AND IODSTCD  = #ioDstcd#
+           AND GROUPINORNO = #groupInorNo# 
+  </statement>
+</sqlMap>

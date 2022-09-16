@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stdMessage">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) CNT
+    FROM   $schemaId$.TSEAIHS04 HS04 
+      JOIN $schemaId$.TSEAIHE01 HE01 ON (HE01.EAISVCNAME = HS04.EAISVCNAME )
+    WHERE HE01.EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where UserId=#loginId#) 
+      <isNotEmpty prepend="AND" property="searchBzwkSvcKeyName">
+        UPPER(BZWKSVCKEYNAME) LIKE '%'||#searchBzwkSvcKeyName#||'%'
+      </isNotEmpty>
+  </statement>
+
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT ROWNO, BZWKSVCKEYNAME
+         , EAISVCNAME
+         , (SELECT COLUMNVALUE FROM $schemaId$.TSEAIHS05 HS05 WHERE B.BZWKSVCKEYNAME = HS05.BZWKSVCKEYNAME AND HS05.COLUMNNAME='COMMON_SRVCID' ) COMMON_SRVCID
+     FROM ( SELECT ROWNUM AS ROWNO, A.* FROM
+    (
+    	SELECT HS04.BZWKSVCKEYNAME
+            , HS04.EAISVCNAME
+    	FROM $schemaId$.TSEAIHS04 HS04 
+      JOIN $schemaId$.TSEAIHE01 HE01 ON (HE01.EAISVCNAME = HS04.EAISVCNAME ) 
+    WHERE EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where UserId=#loginId#) 
+      <isNotEmpty prepend="AND" property="searchBzwkSvcKeyName">
+        UPPER(BZWKSVCKEYNAME) LIKE '%'||#searchBzwkSvcKeyName#||'%'
+      </isNotEmpty>
+    ) A ) B WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+  
+  <statement id="mergeHS05" parameterClass="java.util.HashMap">
+      MERGE INTO $schemaId$.TSEAIHS05 A USING (
+            SELECT #bzwkSvcKeyName# bzwkSvcKeyName , #columnName# COLUMNNAME
+              FROM DUAL
+            ) B ON ( A.bzwkSvcKeyName =  B.bzwkSvcKeyName and a.COLUMNNAME =b.COLUMNNAME)
+       WHEN NOT MATCHED THEN
+            INSERT(BzwkSvcKeyName    , COLUMNNAME  , COLUMNVALUE ) 
+            VALUES(#bzwkSvcKeyName#  , #columnName#, #columnValue#) 
+       WHEN MATCHED THEN 
+            UPDATE SET
+			             COLUMNVALUE = #columnValue#  
+  </statement>      
+</sqlMap>

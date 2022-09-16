@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="B2BService">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) FROM $schemaId$.TSEAIHE03
+    <isNotEmpty prepend="WHERE" property="searchExtnlInstiIdnfiName">
+      EXTNLINSTIIDNFINAME LIKE '%'||#searchExtnlInstiIdnfiName#||'%'
+	</isNotEmpty>
+   </statement>
+   
+   <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROWNO, B.* 
+		FROM ( SELECT ROWNUM AS ROWNO, A.*
+		FROM ( 
+		SELECT * 
+		FROM $schemaId$.TSEAIHE03
+	    <isNotEmpty prepend="WHERE" property="searchExtnlInstiIdnfiName">
+	      EXTNLINSTIIDNFINAME LIKE '%'||#searchExtnlInstiIdnfiName#||'%'
+		</isNotEmpty>
+		 ) A ) B 
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>
+    <insert id="insert" parameterClass="java.util.HashMap">
+      INSERT INTO $schemaId$.TSEAIHE03(
+                      EXTNLINSTIIDNFINAME                   
+                    , SVCPRCSSNO                   
+                    , PSVINTFACDSTICNAME           
+                    , PSVSYSBZWKDSTCD              
+                    , PSVSYSIDNAME                 
+                    , PSVSYSSVCDSTICNAME           
+                    , PSVSYSADPTRBZWKGROUPNAME     
+                    , FLOVRYN                      
+                    , CHNGEONOT                    
+                    , CHNGMSGIDNAME                
+                    , BASCRSPNSMSGCMPRCTNT         
+                    , BASCRSPNSCHNGEONOT           
+                    , BASCRSPNSCHNGMSGIDNAME       
+                    , ERRRSPNSMSGCMPRCTNT          
+                    , ERRRSPNSCHNGEONOT            
+                    , ERRRSPNSCHNGMSGIDNAME        
+                    , NEXTSVCPRCSSNO               
+                    , OUTBNDROUTNAME               
+                    , TOUTVAL                      
+                    , CMPENSVCPRCSSDSTICNAME       
+                    , SUPPLDELYN                   
+                    , HDRCTRLDSTCD                 
+                    , HDRREFCLSNAME                
+                  )
+           VALUES (
+                      #extnlInstiIdnfiName#                       
+                    , #svcPrcssNo#                       
+                    , #psvIntfacDsticName#               
+                    , #psvSysBzwkDstcd#                  
+                    , #psvSysIdName#                     
+                    , #psvSysSvcDsticName#               
+                    , #psvSysAdptrBzwkGroupName#         
+                    , #flovrYn#                          
+                    , #chngEonot#                        
+                    , #chngMsgIdName#                    
+                    , #bascRspnsMsgCmprCtnt#             
+                    , #bascRspnsChngEonot#               
+                    , #bascRspnsChngMsgIdName#           
+                    , #errRspnsMsgCmprCtnt#              
+                    , #errRspnsChngEonot#                
+                    , #errRspnsChngMsgIdName#            
+                    , #nextSvcPrcssNo#                   
+                    , #outbndRoutName#                   
+                    , #toutVal#                          
+                    , #cmpenSvcPrcssDsticName#           
+                    , #supplDelYn#                       
+                    , #hdrCtrlDstcd#                     
+                    , #hdrRefClsName#                    
+                  )            
+    </insert>
+
+    <update id="update" parameterClass="java.util.HashMap">
+      UPDATE $schemaId$.TSEAIHE03 
+         SET  PSVINTFACDSTICNAME           = #psvIntfacDsticName#
+            , PSVSYSBZWKDSTCD              = #psvSysBzwkDstcd#
+            , PSVSYSIDNAME                 = #psvSysIdName#
+            , PSVSYSSVCDSTICNAME           = #psvSysSvcDsticName#
+            , PSVSYSADPTRBZWKGROUPNAME     = #psvSysAdptrBzwkGroupName#
+            , FLOVRYN                      = #flovrYn#
+            , CHNGEONOT                    = #chngEonot#
+            , CHNGMSGIDNAME                = #chngMsgIdName#
+            , BASCRSPNSMSGCMPRCTNT         = #bascRspnsMsgCmprCtnt#
+            , BASCRSPNSCHNGEONOT           = #bascRspnsChngEonot#
+            , BASCRSPNSCHNGMSGIDNAME       = #bascRspnsChngMsgIdName#
+            , ERRRSPNSMSGCMPRCTNT          = #errRspnsMsgCmprCtnt#
+            , ERRRSPNSCHNGEONOT            = #errRspnsChngEonot#
+            , ERRRSPNSCHNGMSGIDNAME        = #errRspnsChngMsgIdName#
+            , NEXTSVCPRCSSNO               = #nextSvcPrcssNo#
+            , OUTBNDROUTNAME               = #outbndRoutName#
+            , TOUTVAL                      = #toutVal#
+            , CMPENSVCPRCSSDSTICNAME       = #cmpenSvcPrcssDsticName#
+            , SUPPLDELYN                   = #supplDelYn#
+            , HDRCTRLDSTCD                 = #hdrCtrlDstcd#
+            , HDRREFCLSNAME                = #hdrRefClsName#
+        WHERE EXTNLINSTIIDNFINAME          = #extnlInstiIdnfiName#
+          AND SVCPRCSSNO                   = #svcPrcssNo#
+    </update>
+
+    <delete id="delete" parameterClass="java.util.HashMap">
+        DELETE FROM $schemaId$.TSEAIHE03
+        WHERE EXTNLINSTIIDNFINAME = #extnlInstiIdnfiName#
+        AND   SVCPRCSSNO = #svcPrcssNo#
+    </delete>
+
+    <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT 
+              EXTNLINSTIIDNFINAME       AS "EXTNLINSTIIDNFINAME"
+            , SVCPRCSSNO                AS "SVCPRCSSNO"   
+            , PSVINTFACDSTICNAME        AS "PSVINTFACDSTICNAME"   
+            , PSVSYSBZWKDSTCD           AS "PSVSYSBZWKDSTCD"   
+            , PSVSYSIDNAME              AS "PSVSYSIDNAME"   
+            , PSVSYSSVCDSTICNAME        AS "PSVSYSSVCDSTICNAME"   
+            , PSVSYSADPTRBZWKGROUPNAME  AS "PSVSYSADPTRBZWKGROUPNAME"   
+            , FLOVRYN                   AS "FLOVRYN"   
+            , CHNGEONOT                 AS "CHNGEONOT"   
+            , CHNGMSGIDNAME             AS "CHNGMSGIDNAME"   
+            , BASCRSPNSMSGCMPRCTNT      AS "BASCRSPNSMSGCMPRCTNT"   
+            , BASCRSPNSCHNGEONOT        AS "BASCRSPNSCHNGEONOT"   
+            , BASCRSPNSCHNGMSGIDNAME    AS "BASCRSPNSCHNGMSGIDNAME"   
+            , ERRRSPNSMSGCMPRCTNT       AS "ERRRSPNSMSGCMPRCTNT"   
+            , ERRRSPNSCHNGEONOT         AS "ERRRSPNSCHNGEONOT"   
+            , ERRRSPNSCHNGMSGIDNAME     AS "ERRRSPNSCHNGMSGIDNAME"   
+            , NEXTSVCPRCSSNO            AS "NEXTSVCPRCSSNO"   
+            , OUTBNDROUTNAME            AS "OUTBNDROUTNAME"   
+            , TOUTVAL                   AS "TOUTVAL"   
+            , CMPENSVCPRCSSDSTICNAME    AS "CMPENSVCPRCSSDSTICNAME"   
+            , SUPPLDELYN                AS "SUPPLDELYN"   
+            , HDRCTRLDSTCD              AS "HDRCTRLDSTCD"   
+            , HDRREFCLSNAME             AS "HDRREFCLSNAME"  
+        FROM   $schemaId$.TSEAIHE03
+        WHERE EXTNLINSTIIDNFINAME = #extnlInstiIdnfiName#
+        AND   SVCPRCSSNO = #svcPrcssNo#
+        ORDER BY EXTNLINSTIIDNFINAME, SVCPRCSSNO
+    </statement>
+</sqlMap>

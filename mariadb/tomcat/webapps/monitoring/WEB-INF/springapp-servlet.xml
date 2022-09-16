@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+			http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+			">
+
+  <bean
+    id="messageSource"
+    class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property
+      name="basenames">
+      <list>
+        <value>rts</value>
+      </list>
+    </property>
+  </bean>
+
+<!-- 
+  <bean
+    id="urlMapping"
+    class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <property
+      name="order"
+      value="1"></property>
+    <property
+      name="interceptors">
+      <list>
+        <bean class="com.eactive.eai.rms.common.interceptor.RequestParameterLoggingInterceptor"/>
+        <bean class="com.eactive.eai.rms.common.interceptor.DataSourceTypeInterceptor" />
+        <bean class="com.eactive.eai.rms.common.interceptor.SessionCheckInterceptor" />
+        <bean class="com.eactive.eai.rms.common.interceptor.MenuInterceptor"/>
+      </list>
+    </property>
+    <property
+      name="mappings">
+      <props>
+      </props>
+    </property>
+  </bean>
+-->
+  <bean id="jsonViewResolver"
+	class="org.springframework.web.servlet.view.BeanNameViewResolver" >
+    <property name="order" value="1"></property>	
+  </bean>
+
+  <bean class="net.sf.json.spring.web.servlet.view.JsonView" id="jsonView">
+    <property name="contentType" value="application/json;charset=UTF-8"></property>
+  </bean>
+
+  <bean class="com.eactive.eai.rms.common.excel.ExcelView" id="excelView"></bean>
+
+  <bean id="internalViewResolver"
+    class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+    <property name="suffix" value=".jsp"></property>
+    <property name="prefix" value="/jsp/"></property>
+    <property name="order"  value="2"></property>
+  </bean>
+
+  <bean id="multipartResolver"
+  	class="org.springframework.web.multipart.support.StandardServletMultipartResolver" >
+  </bean>
+
+  <bean id="exceptionResolver"
+    class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+  </bean> 
+  
+  <mvc:annotation-driven/>
+  <context:component-scan
+    base-package="com.eactive.eai.rms">
+    <context:include-filter
+      type="annotation"
+      expression="org.springframework.stereotype.Controller" />
+    <context:exclude-filter
+      type="aspectj"
+      expression="!com.eactive.eai.rms..*Controller" />
+  </context:component-scan>
+	<mvc:interceptors>
+	  <mvc:interceptor>
+	    <mvc:mapping path="/**"/>
+	    <bean class="com.eactive.eai.rms.common.interceptor.RequestParameterLoggingInterceptor"/>
+	  </mvc:interceptor>
+	  <mvc:interceptor>
+	    <mvc:mapping path="/**"/>
+	    <bean class="com.eactive.eai.rms.common.interceptor.DataSourceTypeInterceptor" />
+	  </mvc:interceptor>
+	  <mvc:interceptor>
+	    <mvc:mapping path="/**"/>
+	    <bean class="com.eactive.eai.rms.common.interceptor.SessionCheckInterceptor" />
+	  </mvc:interceptor>
+	  <mvc:interceptor>
+	    <mvc:mapping path="/**"/>
+	    <bean class="com.eactive.eai.rms.common.interceptor.MenuInterceptor"/>
+	  </mvc:interceptor>
+	</mvc:interceptors>
+
+  <bean
+    id="viewNameTranslator"
+    class="org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator">
+  </bean>
+
+  <bean
+    id="urlFilenameViewController"
+    class="org.springframework.web.servlet.mvc.UrlFilenameViewController">
+  </bean>
+  <context:annotation-config />
+  
+</beans>

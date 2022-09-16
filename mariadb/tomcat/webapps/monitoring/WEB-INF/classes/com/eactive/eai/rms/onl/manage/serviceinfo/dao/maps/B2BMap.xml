@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TSEAIHK05 --><!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="b2bMap">
+  <statement id="findMessagePathList" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo" resultClass="java.util.HashMap">
+    SELECT B.EAISVCNAME "EAISvcName", A.LOUTNAME "LoutName", A.LOUTITEMSERNO "LoutItemSerno", A.LOUTITEMNAME "LoutItemName", A.LOUTITEMREFINFO "LoutItemRefInfo" 
+         , A.LOUTITEMNODEPTRNIDNAME "LoutItemNodePtrnIDName", A.LOUTITEMIDNAME "LoutItemIDName", A.PARNTLOUTITEMIDNAME "ParntLoutItemIDName" 
+    FROM $schemaId$.TSEAITR08 A,   
+        (SELECT EAISVCNAME, REFMSGIDNAME  
+         FROM $schemaId$.TSEAIMS02  
+         WHERE EAISVCNAME = #eaiSvcCd#
+           AND SVCPRCSSNO = 1) B
+    WHERE 
+          B.REFMSGIDNAME = A.LOUTNAME 
+    ORDER BY B.EAISVCNAME, A.LOUTITEMSERNO
+  </statement>
+
+  <statement id="findB2BMapDetail" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo" resultClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo">
+    SELECT 
+        EAISVCNAME    AS "EAISVCNAME" ,   B2BIDIVIFLDNAME   AS "B2BIDIVIFLDNAME", BASCWORTHYN AS "BASCWORTHYN", 
+        BZWKFLDNAME1  AS "BZWKFLDNAME1",  BZWKFLDNAME2      AS "BZWKFLDNAME2"
+    FROM $schemaId$.TSEAIHK05 
+    WHERE EAISVCNAME = #eaiSvcCd# 
+    ORDER BY EAISVCNAME
+  </statement>
+  
+  <insert id="insert" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo">
+    INSERT INTO $schemaId$.TSEAIHK05(
+        EAISVCNAME ,  B2BIDIVIFLDNAME,  BASCWORTHYN, 
+        BZWKFLDNAME1, BZWKFLDNAME2
+        )
+    VALUES (
+        #eaiSvcCd#,   #b2bIdiviFldName#,  #bascWorthYn#, 
+        #bzwkFldName1:VARCHAR:NO_ENTRY#, #bzwkFldName2:VARCHAR:NO_ENTRY#
+        )
+  </insert>
+
+  <update id="update" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo">
+    UPDATE  $schemaId$.TSEAIHK05 
+       SET  BASCWORTHYN     = #bascWorthYn#,   
+            BZWKFLDNAME1    = #bzwkFldName1#,  
+            BZWKFLDNAME2    = #bzwkFldName2#   
+    WHERE 
+            EAISVCNAME      = #eaiSvcCd#
+       AND  B2BIDIVIFLDNAME = #b2bIdiviFldName#
+  </update>
+
+  <delete id="delete" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo">
+    DELETE  FROM $schemaId$.TSEAIHK05
+    WHERE   EAISVCNAME      = #eaiSvcCd#
+       AND  B2BIDIVIFLDNAME = #b2bIdiviFldName#
+  </delete>
+
+  <delete id="deleteAll" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo">
+    DELETE  FROM $schemaId$.TSEAIHK05
+    WHERE   EAISVCNAME      = #eaiSvcCd#
+  </delete>
+  
+  <statement id="findEaiSvcName" parameterClass="com.eactive.eai.rms.onl.manage.serviceinfo.b2bmap.B2BMapVo" resultClass="java.util.HashMap">
+    SELECT DISTINCT(B.EAISVCNAME) AS "EAISvcName"
+    FROM $schemaId$.TSEAITR08 A,
+        ( SELECT EAISVCNAME, REFMSGIDNAME
+            FROM $schemaId$.TSEAIMS02
+           WHERE SVCPRCSSNO = 1) B
+    WHERE B.REFMSGIDNAME = A.LOUTNAME
+    ORDER BY B.EAISVCNAME    
+  </statement>  
+</sqlMap>

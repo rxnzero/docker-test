@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatAdapter">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT ROWNO, 
+		BZWKDSTICNAME, WORKGRPCD, ADPTRCD, ADPTRBZWKNAME, ADPTRDESC, ADPTRKIND, ADPTRKINDSTR, SNDRCVKIND, SNDRCVKINDSTR, JNDIDATASOURCE
+        FROM ( 
+       	SELECT 
+       		   @NO := @NO + 1 AS ROWNO, 
+       		   BZWKDSTICNAME, WORKGRPCD, ADPTRCD, ADPTRBZWKNAME, ADPTRDESC, ADPTRKIND, ADPTRKINDSTR, SNDRCVKIND, SNDRCVKINDSTR, JNDIDATASOURCE   
+       	FROM (  
+             SELECT    
+		 	    B.BZWKDSTICNAME AS BZWKDSTICNAME,
+		 	    A.workGrpCd     AS workGrpCd,
+		 	    A.adptrCd       AS adptrCd,
+		 	    A.adptrBzwkName AS adptrBzwkName,
+		 	    A.adptrDesc     AS adptrDesc,
+		 	    A.adptrKind     AS adptrKind,
+		 	    CASE WHEN A.adptrKind = '1' THEN 'DB' ELSE 'FILE' END AS adptrKindStr,
+		 	    A.sndRcvKind    AS sndRcvKind,
+		 	    CASE WHEN A.sndRcvKind='1' THEN '송신측' ELSE '수신측' END AS sndRcvKindStr,
+		 	    A.jndiDatasource 
+		 	 FROM
+		 	    $schemaId$.TSEAIEA02 A,
+		 	    $schemaId$.TSEAICM01 B
+		 	 WHERE  A.workGrpCd= TRIM(B.EAIBZWKDSTCD)
+				<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+					A.workGrpCd =  TRIM(#searchEaiBzwkDstcd#)
+				</isNotEmpty>
+				<isEmpty prepend="AND" property="loginEmpno">
+					A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+				</isEmpty>
+				<isNotEmpty prepend="AND" property="searchAdptrKind">
+					A.adptrKind = #searchAdptrKind#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchSndRcvKind">
+					A.sndRcvKind = #searchSndRcvKind#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchIntfId">
+				    A.adptrCd IN (
+				    			SELECT adptrCd FROM $schemaId$.TSEAIEA03 WHERE intfId LIKE CONCAT(  '%' , #searchIntfId# , '%')
+				                UNION
+				                SELECT adptrCd FROM $schemaId$.TSEAIEA05 WHERE intfId LIKE CONCAT( '%' , #searchIntfId# , '%')
+				                UNION
+				                SELECT sndAdptrCd FROM $schemaId$.TSEAIEA04 WHERE intfId LIKE CONCAT( '%' , #searchIntfId# , '%')
+				    )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchAdptrBzwkName">
+				  ( A.adptrBzwkName LIKE CONCAT( '%' , #searchAdptrBzwkName# , '%') OR A.adptrCd LIKE CONCAT( '%' , #searchAdptrBzwkName# , '%') )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchFtpIp">
+				    A.adptrCd IN (SELECT adptrCd FROM $schemaId$.TSEAIEA05 WHERE ftpHostname LIKE CONCAT( '%' , #searchFtpIp# , '%') )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchFtpId">
+				    A.adptrCd IN (SELECT adptrCd FROM $schemaId$.TSEAIEA05 WHERE rmtSevrFTPUID LIKE CONCAT( '%' , #searchFtpId# , '%') )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchJndi">
+				    A.jndiDatasource LIKE CONCAT( '%' , #searchJndi# , '%')   
+				</isNotEmpty>				
+			 ORDER BY adptrCd
+	       ) TMP,  (SELECT @NO := 0) R
+	       ORDER BY adptrCd
+	    ) T
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(A.adptrCd) AS TOTALCOUNT
+		 	 FROM
+		 	    $schemaId$.TSEAIEA02 A,
+		 	    $schemaId$.TSEAICM01 B
+		 	 WHERE  A.workGrpCd= TRIM(B.EAIBZWKDSTCD)
+			 AND	A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+				<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+					A.workGrpCd =  TRIM(#searchEaiBzwkDstcd#)
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchAdptrKind">
+					A.adptrKind = #searchAdptrKind#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchSndRcvKind">
+					A.sndRcvKind = #searchSndRcvKind#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchIntfId">
+				    A.adptrCd IN (
+				    			SELECT adptrCd FROM $schemaId$.TSEAIEA03 WHERE intfId LIKE CONCAT(  '%' , #searchIntfId# , '%')
+				                UNION
+				                SELECT adptrCd FROM $schemaId$.TSEAIEA05 WHERE intfId LIKE CONCAT( '%' , #searchIntfId# , '%')
+				                UNION
+				                SELECT sndAdptrCd FROM $schemaId$.TSEAIEA04 WHERE intfId LIKE CONCAT( '%' , #searchIntfId# , '%')
+				    )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchAdptrBzwkName">
+				  ( A.adptrBzwkName LIKE CONCAT( '%' , #searchAdptrBzwkName# , '%') OR A.adptrCd LIKE CONCAT( '%' , #searchAdptrBzwkName# , '%') )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchFtpIp">
+				    A.adptrCd IN (SELECT adptrCd FROM $schemaId$.TSEAIEA05 WHERE ftpHostname LIKE CONCAT( '%' , #searchFtpIp# , '%') )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchFtpId">
+				    A.adptrCd IN (SELECT adptrCd FROM $schemaId$.TSEAIEA05 WHERE rmtSevrFTPUID LIKE CONCAT( '%' , #searchFtpId# , '%') )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchJndi">
+				    A.jndiDatasource LIKE CONCAT( '%' , #searchJndi# , '%')   
+				</isNotEmpty>				
+	</statement>	
+	
+	<statement id="getAdptrCd" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		SELECT  CONCAT( #adptrCd# , LPAD( IFNULL((CAST(MAX(SUBSTR(adptrCd,8,2)) AS UNSIGNED)+1 ),1) ,2,'0')  ) AS "adptrCd"
+	 	FROM    $schemaId$.TSEAIEA02
+	 	WHERE   adptrCd like CONCAT( #adptrCd# , '%')
+	 </statement>
+
+		<statement id="getDbAdptrCdSeq" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT    IFNULL( MAX(adptrCdSeq)+1 ,1 ) AS adptrCdSeq
+		FROM      $schemaId$.TSEAIEA03 WHERE adptrCd = #adptrCd#
+	</statement>
+	
+	<statement id="getFileAdptrCdSeq" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT    IFNULL( MAX(adptrCdSeq)+1 ,1 ) AS adptrCdSeq
+		FROM      $schemaId$.TSEAIEA05 WHERE adptrCd = #adptrCd#
+	</statement>
+	
+	<statement id="subDbInsert"  parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIEA03(
+				adptrCd,      adptrCdSeq,      intfId, 
+				sqlName,      sqlNameDesc,     dbSql,
+				txCommitUnitCnt, selectUnitCnt,layoutKey,
+				codecKey
+				)
+		VALUES	(#adptrCd#,     CAST(#adptrCdSeq# AS UNSIGNED) ,      LTRIM(RTRIM(#intfId#)), 
+			 	 #sqlName#,     #sqlNameDesc#,      #dbSql#,
+				 CAST(NVL(#txCommitUnitCnt#,'0') AS UNSIGNED), CAST(NVL(#selectUnitCnt#,'0') AS UNSIGNED),
+				 #layoutKey#, #codecKey#
+				)
+	</statement>
+	
+		<statement id="subDbUpdate"  parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE  $schemaId$.TSEAIEA03 SET
+				intfId        = LTRIM(RTRIM(#intfId#)),
+				sqlName       = #sqlName#,
+				sqlNameDesc   = #sqlNameDesc#,
+				dbSql         = #dbSql#,
+				selectUnitCnt = #selectUnitCnt#,
+				layoutKey     = #layoutKey#,
+				codecKey	  = #codecKey#
+		WHERE   adptrCd       = #adptrCd#
+		AND     adptrCdSeq    = #adptrCdSeq# 
+	</statement>
+	
+	<statement id="subFileInsert"  parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIEA05(
+				adptrCd,
+				adptrCdSeq,
+				intfId, 
+				ftpName,
+				ftpNameDesc,
+				ftpHostname,
+				rmtSevrFTPPortNoName,
+				rmtSevrFTPUID,
+				rmtSevrFTPUserPwdName,
+				ftpArchiveDir,
+				ftpType,
+				ftpStoreFilePattern,
+				nextOption,
+				checkName,
+				ftpCheckDir,
+				ftpBackupDir,
+				systemName,
+				systemOwner,
+				systemOwnerTelephone,
+				systemOtherTxt,
+				sectionVal,
+				layoutKey
+				)   
+		VALUES	(
+		        #adptrCd#,
+		        #adptrCdSeq#,
+		        LTRIM(RTRIM(#intfId#)), 
+			 	#ftpName#,
+			 	#ftpNameDesc#,
+			 	#ftpHostname#,
+			 	#rmtSevrFTPPortNoName#,
+			 	#rmtSevrFTPUID#,
+			 	#rmtSevrFTPUserPwdName#,
+			 	#ftpArchiveDir#,
+			 	#ftpType#,
+			 	#ftpStoreFilePattern#,
+			 	#nextOption#,
+			 	#checkName#,
+			 	#ftpCheckDir#,
+				#ftpBackupDir#,
+				#systemName#,
+				#systemOwner#,
+				#systemOwnerTelephone#,
+				#systemOtherTxt#,
+				#sectionVal#,
+				#layoutKey#
+				)
+	</statement>
+	
+	<statement id="subFileUpdate"  parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE  $schemaId$.TSEAIEA05 SET
+				intfId                = LTRIM(RTRIM(#intfId#)),
+				ftpName               = #ftpName#,
+				ftpNameDesc           = #ftpNameDesc#,
+				ftpHostname           = #ftpHostname#,
+				rmtSevrFTPPortNoName  = #rmtSevrFTPPortNoName#,
+				rmtSevrFTPUID         = #rmtSevrFTPUID#, 
+				rmtSevrFTPUserPwdName = #rmtSevrFTPUserPwdName#,
+				ftpType               = #ftpType#,
+				ftpArchiveDir         = #ftpArchiveDir#,
+				ftpBackupDir          = #ftpBackupDir#,
+				ftpStoreFilePattern   = #ftpStoreFilePattern#,
+				nextOption            = #nextOption#,
+				checkName             = #checkName#,
+				ftpCheckDir           = #ftpCheckDir#,
+				systemName            = #systemName#,  
+				systemOwner           = #systemOwner#,  
+				systemOwnerTelephone  = #systemOwnerTelephone#,
+				systemOtherTxt        = #systemOtherTxt#,
+				sectionVal            = #sectionVal#,
+				layoutKey             = #layoutKey#
+		WHERE   adptrCd               = #adptrCd#
+		AND     adptrCdSeq            = #adptrCdSeq#
+	</statement>  
+	    <statement id="adapterDbDetail" resultClass="java.util.HashMap">
+             SELECT    
+                ADPTRCD       AS "ADPTRCD" ,
+                ADPTRCDSEQ    AS "ADPTRCDSEQ" ,
+                INTFID        AS "INTFID" ,
+                SQLNAME       AS "SQLNAME" ,
+                SQLNAMEDESC   AS "SQLNAMEDESC" ,
+                DBSQL         AS "DBSQL" ,
+                SELECTUNITCNT AS "SELECTUNITCNT" ,
+                LAYOUTKEY     AS "LAYOUTKEY" ,
+                CODECKEY      AS "CODECKEY" 
+             FROM
+                $schemaId$.TSEAIEA03
+             WHERE  adptrCd   =#adptrCd#
+                AND adptrCdSeq=#adptrCdSeq#
+    </statement>
+
+    <statement id="adapterLayoutList" resultClass="java.util.HashMap">
+             SELECT    
+                LAYOUTSEQ  AS "LAYOUTSEQ" , 
+                ORDERSEQ   AS "ORDERSEQ" ,
+                COLSIZE    AS "COLSIZE" ,
+                COLDESC    AS "COLDESC" ,
+                COLDESCENG AS "COLDESCENG" ,
+                COLTYPE    AS "COLTYPE" 
+             FROM
+                $schemaId$.TSEAIES06
+             WHERE adptrCd    = #adptrCd#
+             AND   adptrCdSeq = #adptrCdSeq#
+    </statement>
+    
+    <statement id="subDbDelete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE  FROM $schemaId$.TSEAIEA03
+        WHERE   adptrCd    = #adptrCd#
+        AND     adptrCdSeq = #adptrCdSeq#
+    </statement>
+
+    <statement id="insertLayout"  parameterClass="java.util.HashMap" resultClass="java.lang.Integer">   
+        INSERT  INTO $schemaId$.TSEAIES06(
+                adptrCd,
+                adptrCdSeq,
+                layoutSeq,
+                orderSeq,
+                colSize,
+                colDesc,
+                colDescEng,
+                colType,
+                colKind         
+                )
+        VALUES (#adptrCd#,
+                #adptrCdSeq#,
+                #layoutSeq#,
+                #layoutSeq#,
+                #colSize#,
+                #colDesc#,
+                #colDescEng#,
+                #colType#,
+                #colKind#
+                )
+    </statement>
+
+    <statement id="deleteLayout" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE  FROM $schemaId$.TSEAIES06
+        WHERE   adptrCd    = #adptrCd#
+        AND     adptrCdSeq = #adptrCdSeq#
+    </statement>
+
+    <statement id="adapterFileDetail" resultClass="java.util.HashMap">
+             SELECT    
+                ADPTRCD               AS "ADPTRCD" ,
+                ADPTRCDSEQ            AS "ADPTRCDSEQ" ,
+                INTFID                AS "INTFID" ,
+                FTPNAME               AS "FTPNAME" ,
+                FTPNAMEDESC           AS "FTPNAMEDESC" ,
+                FTPHOSTNAME           AS "FTPHOSTNAME" ,
+                RMTSEVRFTPPORTNONAME  AS "RMTSEVRFTPPORTNONAME" ,
+                FTPTYPE               AS "FTPTYPE" ,
+                RMTSEVRFTPUID         AS "RMTSEVRFTPUID" ,
+                RMTSEVRFTPUSERPWDNAME AS "RMTSEVRFTPUSERPWDNAME" ,
+                FTPARCHIVEDIR         AS "FTPARCHIVEDIR" ,
+                FTPBACKUPDIR          AS "FTPBACKUPDIR" ,
+                FTPSTOREFILEPATTERN   AS "FTPSTOREFILEPATTERN" ,                
+                NEXTOPTION            AS "NEXTOPTION" ,             
+                CHECKNAME             AS "CHECKNAME" ,
+                FTPCHECKDIR           AS "FTPCHECKDIR" ,
+                SYSTEMNAME            AS "SYSTEMNAME" ,
+                SYSTEMOWNER           AS "SYSTEMOWNER" ,
+                SYSTEMOWNERTELEPHONE  AS "SYSTEMOWNERTELEPHONE" ,
+                SYSTEMOTHERTXT        AS "SYSTEMOTHERTXT" ,
+                SECTIONVAL            AS "SECTIONVAL" ,
+                LAYOUTKEY             AS "LAYOUTKEY" 
+             FROM
+                $schemaId$.TSEAIEA05
+             WHERE adptrCd     = #adptrCd#
+             AND   adptrCdSeq  = #adptrCdSeq#
+    </statement>
+    
+    <statement id="subFileDelete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE  FROM $schemaId$.TSEAIEA05
+        WHERE   adptrCd    = #adptrCd#
+        AND     adptrCdSeq = #adptrCdSeq#
+    </statement>		 
+</sqlMap>

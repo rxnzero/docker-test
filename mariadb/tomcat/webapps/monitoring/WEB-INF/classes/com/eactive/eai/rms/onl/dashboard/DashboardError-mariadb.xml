@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="DashboardError">
+  <statement id="getTimeOutList" parameterClass="java.util.HashMap" resultClass="java.util.List">
+		SELECT PRPTY2VAL "Prpty2Val"
+		FROM   $schemaId$.TSEAICM03
+		WHERE  PRPTYNAME= 'TIMEOUT.ERRORLIST'
+  </statement>
+  
+  <statement id="getLogList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">    
+		SELECT B.GUID, /* 전행통합로그 헤더부 삭제되었으므로 GUID로 대체 */ /* B.INTGRALOGGUID, */ 
+		       A.EAISVCNAME "EAISvcName", C.BZWKDSTICNAME "BzwkDsticName", A.EAIERRCD "EAIErrCd",
+					 A.EAIERRCTNT "EAIErrCtnt", A.LGINGSYSID "LgingSysID", A.MSGDPSTYMS "MsgDpstYMS"
+		  <!-- FROM ( SELECT ROW_NUMBER() OVER (ORDER BY  L1.MSGDPSTYMS DESC) ROWNO, -->
+          FROM ( SELECT ROWNUM AS ROWNO,
+										L1.EAIBZWKDSTCD, L1.EAISVCNAME, L1.EAISVCSERNO, L1.LOGPRCSSSERNO,
+										L1.EAIERRCD, L1.EAIERRCTNT, L1.LGINGSYSID, L1.MSGDPSTYMS
+							 FROM $schemaId$.$logTablename$ L1,
+		                ( SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO,
+		                         MIN(LOGPRCSSSERNO) AS LOGPRCSSSERNO
+		                    FROM $schemaId$.$logTablename$
+										 	 WHERE MSGDPSTYMS BETWEEN CONCAT( #logDate# , '0000' , '00000' ) 
+										 	 AND CONCAT( #logDate# , #logTime# , '99999' )
+										  	 AND RSPNSERRCDNAME LIKE 'REC%'
+										  	 <isNotEmpty prepend="AND" property="nodeIndex">
+										  	 L1.LGINGSYSID LIKE '%'||#nodeIndex#
+										  	 </isNotEmpty>
+										  	 <isEqual compareValue="TIMEOUT" prepend="AND" property="errorType">
+										  	 L1.EAIERRCD IN ($timeOutList$)
+										  	 </isEqual>
+										  	 <isEqual compareValue="ERROR" prepend="AND" property="errorType">
+										  	 L1.EAIERRCD NOT IN ($timeOutList$)
+										  	 </isEqual>
+										  	 <isEqual compareValue="1" prepend="AND" property="commDiv">
+										  	 SUBSTR(L1.EAISVCNAME,LENGTH(L1.EAISVCNAME) -1, 2) IN ('S1','R2')
+										  	 </isEqual>
+										  	 <isEqual compareValue="2" prepend="AND" property="commDiv">
+										  	 SUBSTR(L1.EAISVCNAME,LENGTH(L1.EAISVCNAME) -1, 2) IN ('S2','R1')
+										  	 </isEqual>
+		                  GROUP BY EAIBZWKDSTCD,MSGDPSTYMS,EAISVCSERNO
+		                ) L0
+						  WHERE L0.EAIBZWKDSTCD = L1.EAIBZWKDSTCD
+						  AND   L0.MSGDPSTYMS = L1.MSGDPSTYMS
+						  AND   L0.EAISVCSERNO = L1.EAISVCSERNO
+						  AND   L0.LOGPRCSSSERNO = L1.LOGPRCSSSERNO
+		       ) A, 
+		       $schemaId$.$logTablename2$ B ,
+		       $schemaId$.TSEAICM01 C
+		 WHERE A.ROWNO &lt;= #rowno#
+			 AND A.MSGDPSTYMS = B.MSGDPSTYMS
+			 AND A.EAISVCSERNO = B.EAISVCSERNO
+			 AND A.LOGPRCSSSERNO = B.LOGPRCSSSERNO		
+		   AND C.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+			 AND B.MSGDPSTYMS BETWEEN CONCAT( #logDate# , '0000' , '00000' ) 
+			 AND CONCAT( #logDate# , #logTime# , '99999' )
+			 ORDER BY ROWNO 
+  </statement>
+  
+  <statement id="getLogListBranchTest" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT B.GUID, /* 전행통합로그 헤더부 삭제되었으므로 GUID로 대체 */ /* B.INTGRALOGGUID, */ 
+               A.EAISVCNAME "EAISvcName", C.BZWKDSTICNAME "BzwkDsticName", A.EAIERRCD "EAIErrCd",
+                     A.EAIERRCTNT "EAIErrCtnt", A.LGINGSYSID "LgingSysID", A.MSGDPSTYMS "MsgDpstYMS"					 
+		  <!-- FROM ( SELECT ROW_NUMBER() OVER (ORDER BY  L1.MSGDPSTYMS DESC) ROWNO, -->                
+          FROM ( SELECT @NO := @NO + 1 AS ROWNO,
+										L1.EAIBZWKDSTCD, L1.EAISVCNAME, L1.EAISVCSERNO, L1.LOGPRCSSSERNO,  
+										L1.EAIERRCD,                        
+										L1.EAIERRCTNT, L1.LGINGSYSID, L1.MSGDPSTYMS   
+							 FROM $schemaId$.$logTablename$ L1,  
+		                ( SELECT L1.EAIBZWKDSTCD, L1.MSGDPSTYMS, L1.EAISVCSERNO,
+		                         MIN(LOGPRCSSSERNO) AS LOGPRCSSSERNO 
+		                    FROM $schemaId$.$logTablename$ L1,
+		                         $schemaId$.TSEAIHE01 H1   
+										 	 WHERE MSGDPSTYMS BETWEEN CONCAT( #logDate# , '0000' , '00000' ) 
+											 AND CONCAT( #logDate# , #logTime# , '99999' )
+		                     AND L1.RSPNSERRCDNAME LIKE 'REC%' 
+										  	 <isNotEmpty prepend="AND" property="nodeIndex">
+										  	 L1.LGINGSYSID LIKE CONCAT( '%', #nodeIndex# )
+										  	 </isNotEmpty>
+										  	 <isEqual compareValue="TIMEOUT" prepend="AND" property="errorType">
+										  	 L1.EAIERRCD IN ($timeOutList$)
+										  	 </isEqual>
+										  	 <isEqual compareValue="ERROR" prepend="AND" property="errorType">
+										  	 L1.EAIERRCD NOT IN ($timeOutList$)
+										  	 </isEqual>
+													AND L1.EAISVCNAME = H1.EAISVCNAME 
+										  	 <isEqual compareValue="1" prepend="AND" property="commDiv">
+										  	 SUBSTR(L1.EAISVCNAME,LENGTH(L1.EAISVCNAME) -1, 2) IN ('S1','R2')
+										  	 </isEqual>
+										  	 <isEqual compareValue="2" prepend="AND" property="commDiv">
+										  	 SUBSTR(L1.EAISVCNAME,LENGTH(L1.EAISVCNAME) -1, 2)  IN ('S2','R1')
+										  	 </isEqual>
+											  GROUP BY L1.EAIBZWKDSTCD, L1.MSGDPSTYMS, L1.EAISVCSERNO
+									  ) L0, (SELECT @NO := 0) R 
+							WHERE L0.EAIBZWKDSTCD = L1.EAIBZWKDSTCD 
+							AND   L0.MSGDPSTYMS = L1.MSGDPSTYMS 
+							AND   L0.EAISVCSERNO = L1.EAISVCSERNO 
+							AND   L0.LOGPRCSSSERNO = L1.LOGPRCSSSERNO 
+		       ) A,
+		       $schemaId$.$logTablename2$ B   ,               
+		       $schemaId$.TSEAICM01 C
+		 WHERE A.ROWNO &lt;= $rowno$
+			 AND A.EAIBZWKDSTCD = B.EAIBZWKDSTCD
+			 AND A.MSGDPSTYMS = B.MSGDPSTYMS 
+			 AND A.EAISVCSERNO = B.EAISVCSERNO 
+			 AND A.LOGPRCSSSERNO = B.LOGPRCSSSERNO 
+			 AND B.EAIBZWKDSTCD = C.EAIBZWKDSTCD    
+			 AND B.MSGDPSTYMS BETWEEN CONCAT( #logDate# , '0000' , '00000' ) 
+			 AND CONCAT( #logDate# , #logTime# , '99999' )
+			 ORDER BY ROWNO
+  </statement>  
+</sqlMap>

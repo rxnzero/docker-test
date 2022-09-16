@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AddB2b">
+
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+ 		SELECT COUNT(*) 
+ 		  FROM $schemaId$.TSEAIHE01 
+ 		 WHERE EAIBZWKDSTCD IN ( select EAIBZWKDSTCD from $schemaId$.tseairm06 where USERID =#loginId#)
+ 		 
+ 		 <isNotEmpty prepend="AND" property="searchEaiSvcName">
+        		UPPER(EAISVCNAME)   LIKE '%'||UPPER(#searchEaiSvcName#)||'%'
+         </isNotEmpty>
+ 		 
+ 		 <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+        		UPPER(EAIBZWKDSTCD) LIKE '%'||UPPER(#searchEaiBzwkDstcd#)||'%'
+         </isNotEmpty>
+ 		 <isNotEmpty prepend="AND" property="searchEaiSvcDesc">
+        		UPPER(EAISVCDESC)   LIKE '%'||UPPER(#searchEaiSvcDesc#)||'%' 
+         </isNotEmpty>
+
+  </statement>
+  
+  <statement id="selectChnnlList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+ 		SELECT CHNNL AS "CHNNL" 
+ 		FROM (
+ 		SELECT distinct substring(ADPTRBZWKGROUPNAME,'[^_]+') CHNNL FROM $schemaId$.TSEAIAD01
+		WHERE ADPTRCD ='NET' AND not ADPTRBZWKGROUPNAME ='SOCKET_MONITOR'
+ 		) T
+		<dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="searchChannel">
+        		UPPER(CHNNL)   LIKE '%'||UPPER(#searchChannel#)||'%' 
+         </isNotEmpty>	
+         </dynamic>
+		ORDER BY 1
+  </statement>  
+
+ 
+</sqlMap>

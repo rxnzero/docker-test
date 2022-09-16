@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="FlowStep">
+
+	<statement id="list" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT 
+            BjobBzwkPrcssDstcd,
+            BjobStgeDstcd     ,
+            BjobStgePtrnName  ,
+            BjobFlowCmpoName  ,
+            TelgmClsID        ,
+            UnitTelgmLen
+		FROM (
+	         SELECT ROW_NUMBER() OVER(ORDER BY BjobBzwkPrcssDstcd, BjobStgeDstcd) ROWNUMBER,
+                BjobBzwkPrcssDstcd,
+                BjobStgeDstcd     ,
+                BjobStgePtrnName  ,
+                BjobFlowCmpoName  ,
+                TelgmClsID        ,
+                UnitTelgmLen
+			FROM $schemaId$.TSEAIBR03
+	        <dynamic prepend="WHERE">
+		    	<isNotEmpty prepend="AND" property="searchBjobBzwkPrcssDstcd">
+				    BjobBzwkPrcssDstcd LIKE '%' || #searchBjobBzwkPrcssDstcd# || '%'
+			    </isNotEmpty>
+		        <isNotEmpty prepend="AND" property="searchBjobStgeDstcd">
+				    BjobStgeDstcd LIKE '%' || #searchBjobStgeDstcd# || '%'
+			    </isNotEmpty> 
+		        <isNotEmpty prepend="AND" property="searchBjobFlowCmpoName">
+				    BjobFlowCmpoName LIKE '%' || #searchBjobFlowCmpoName# || '%'
+			    </isNotEmpty> 
+			</dynamic>
+		 ) TMP
+		 WHERE ROWNUMBER BETWEEN #startNum# AND #endNum#		
+	</statement>	
+
+	<statement id="count" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT 	COUNT(BjobBzwkPrcssDstcd) AS "TotalCount"
+    	FROM $schemaId$.TSEAIBR03
+	        <dynamic prepend="WHERE">
+	    		<isNotEmpty prepend="AND" property="searchBjobBzwkPrcssDstcd">
+				    BjobBzwkPrcssDstcd LIKE '%' || #searchBjobBzwkPrcssDstcd# || '%'
+			    </isNotEmpty>
+		        <isNotEmpty prepend="AND" property="searchBjobStgeDstcd">
+				    BjobStgeDstcd LIKE '%' || #searchBjobStgeDstcd# || '%'
+			    </isNotEmpty> 
+		        <isNotEmpty prepend="AND" property="searchBjobFlowCmpoName">
+				    BjobFlowCmpoName LIKE '%' || #searchBjobFlowCmpoName# || '%'
+			    </isNotEmpty> 
+			</dynamic>
+	</statement>	
+   
+</sqlMap>

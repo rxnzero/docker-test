@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="JmsQueue">
+<!--  #### JMS Queue ###  -->
+	<!--  상세 조회 -->
+	<statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT NONSYNCZTRANQUENAME AS "NONSYNCZTRANQUENAME",
+		       EAIQUEBZWKCTNT AS "QUEBZWKCTNT",
+		       QUEUSEYN AS "QUEUSEYN",
+		       QUEUSAGDSTCD AS "QUEUSAGDSTCD",
+		       EAIBZWKDSTCD AS "BZWKDSTCD",
+		       EAIQUEBZWKDTALSCTNT AS "QUEBZWKDTALSCTNT",
+		       EAISEVRINSTNCNAME AS "SEVRINSTNCNAME"
+        FROM   $schemaId$.TSEAIQM01
+        WHERE  NONSYNCZTRANQUENAME = #nonSynczTranQueName#
+	</statement>  
+	
+	<!--  DELETE-->
+	<statement id="delete" parameterClass="java.util.HashMap">
+        DELETE FROM $schemaId$.TSEAIQM01
+        WHERE  NONSYNCZTRANQUENAME = #nonSynczTranQueName#
+	</statement>  
+
+	<!--  Insert-->
+	<statement id="insert" parameterClass="java.util.HashMap">
+        INSERT INTO $schemaId$.TSEAIQM01 ( 
+            NONSYNCZTRANQUENAME, EAIQUEBZWKCTNT, QUEUSEYN,
+            QUEUSAGDSTCD, EAIBZWKDSTCD, EAIQUEBZWKDTALSCTNT, EAISEVRINSTNCNAME
+             
+        ) VALUES ( #nonSynczTranQueName#, #queBzwkCtnt#, #queUseYn#, #queUsagDstcd#, #bzwkDstcd#, #queBzwkDtalsCtnt#, #sevrInstncName# ) 
+	</statement>
+
+	<!--  Update-->
+	<statement id="update" parameterClass="java.util.HashMap">
+       UPDATE  $schemaId$.TSEAIQM01 
+       SET   EAIQUEBZWKCTNT = #queBzwkCtnt#, 
+       		 QUEUSEYN= #queUseYn#,
+       		 QUEUSAGDSTCD = #queUsagDstcd#,
+       		 EAIBZWKDSTCD = #bzwkDstcd#,
+       		 EAIQUEBZWKDTALSCTNT = #queBzwkDtalsCtnt#,
+       		 EAISEVRINSTNCNAME = #sevrInstncName#
+       WHERE NONSYNCZTRANQUENAME = #nonSynczTranQueName#
+	</statement>
+  
+    <!--  Check count -->
+    <statement id="checkCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(NONSYNCZTRANQUENAME)
+        FROM   $schemaId$.TSEAIQM01
+        WHERE  NONSYNCZTRANQUENAME = #nonSynczTranQueName#
+    </statement>
+    
+    <statement id="checkBizCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(NONSYNCZTRANQUENAME)
+		FROM   $schemaId$.TSEAIQM01
+		WHERE EAIQUEBZWKCTNT = #queBzwkCtnt#
+		AND   QUEUSAGDSTCD = #queUsagDstcd#
+		AND   EAIBZWKDSTCD = #bzwkDstcd#
+    </statement>
+ </sqlMap>

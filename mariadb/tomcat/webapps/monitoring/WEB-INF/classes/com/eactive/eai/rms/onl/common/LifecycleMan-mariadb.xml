@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Lifecycle">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  @NO := @NO + 1 AS ROWNO,
+		        		LIFECYCLCLSNAME,
+		        		LODINSEQ,
+		        		LIFECYCLUSEDSTCD
+           	    		FROM $schemaId$.TSEAIFR05, (SELECT @NO := 0) R	
+           	     ORDER BY LODINSEQ, LIFECYCLCLSNAME 						
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIFR05 (
+		           LifeCyclClsName,
+		           LodinSeq,
+		           LifeCyclUseDstcd
+		        )
+				VALUES (
+				    #lifeCyclClsName#,
+				    #lodinSeq#,
+				    #lifeCyclUseDstcd#
+				)
+	</statement>
+</sqlMap>

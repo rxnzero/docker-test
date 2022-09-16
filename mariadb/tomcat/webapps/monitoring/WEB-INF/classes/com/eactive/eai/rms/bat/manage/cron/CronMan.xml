@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatCron">
+
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT SCHEDID AS "SCHEDID"
+		     , CRONEXP AS "CRONEXP"
+		     , JOBCLASSNAME AS "JOBCLASSNAME"
+		     , SCHEDDSTCD AS "SCHEDDSTCD"
+		     , SCANDIRNAME AS "SCANDIRNAME"
+		     , TIMERMSG AS "TIMERMSG"
+	      FROM $schemaId$.TSEAIES10   
+	    WHERE SCHEDID = #schedId#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap">
+	 	UPDATE 	$schemaId$.TSEAIES10 SET 
+	 			CRONEXP = #cronExp#
+	 		  , JOBCLASSNAME = #jobClassName#
+	 		  , SCHEDDSTCD = #schedDstCd#
+	 		  , SCANDIRNAME = #scanDirName#
+	 		  , TIMERMSG = #timerMsg#
+	 	WHERE 	SCHEDID = #schedId#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap">
+		INSERT 	INTO $schemaId$.TSEAIES10(
+				SCHEDID, CRONEXP, 
+				JOBCLASSNAME, SCHEDDSTCD, 
+				SCANDIRNAME, TIMERMSG) 
+             	VALUES(
+             	#schedId#, #cronExp#, 
+             	#jobClassName#, #schedDstCd#, 
+             	#scanDirName#, #timerMsg#)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap">
+	 	DELETE	FROM $schemaId$.TSEAIES10 WHERE SCHEDID = #schedId#
+	</statement>
+
+</sqlMap>

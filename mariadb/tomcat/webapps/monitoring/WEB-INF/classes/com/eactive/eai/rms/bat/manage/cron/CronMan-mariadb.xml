@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatCron">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  @NO := @NO + 1 AS ROWNO,
+				SCHEDID , CRONEXP , 
+				JOBCLASSNAME , SCHEDDSTCD ,
+				SCANDIRNAME , TIMERMSG 
+				FROM $schemaId$.TSEAIES10,  (SELECT @NO := 0) R
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchSchedId">
+					SCHEDID LIKE UPPER( CONCAT('%' , #searchSchedId# , '%') )
+				</isNotEmpty>
+			</dynamic>			
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TOTALCOUNT
+			FROM $schemaId$.TSEAIES10
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchSchedId">
+					SCHEDID LIKE UPPER( CONCAT('%' , #searchSchedId# , '%') )
+				</isNotEmpty>
+			</dynamic>		
+	</statement>	
+</sqlMap>

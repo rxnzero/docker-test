@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AdapterType">
+
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">     
+     SELECT COUNT(*) 
+       FROM $schemaId$.TSEAIAD03 
+      <dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="searchAdptrCd">
+	      UPPER(ADPTRCD) LIKE '%'||UPPER(#searchAdptrCd#)||'%'
+		</isNotEmpty>
+      </dynamic>
+      
+  </statement>
+  
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		 SELECT ROWNO
+		      , ADPTRCD
+		      , ADPTRNAME
+		   FROM (
+             SELECT ROWNUM AS ROWNO, ADPTRCD, ADPTRNAME
+		       FROM   $schemaId$.TSEAIAD03
+		      <dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchAdptrCd">
+			      UPPER(ADPTRCD) LIKE '%'||UPPER(#searchAdptrCd#)||'%'
+				</isNotEmpty>
+		      </dynamic>
+			) TMP1
+			WHERE ROWNO BETWEEN #startNum# AND #endNum# 
+			ORDER BY ADPTRCD
+  </statement>
+</sqlMap>

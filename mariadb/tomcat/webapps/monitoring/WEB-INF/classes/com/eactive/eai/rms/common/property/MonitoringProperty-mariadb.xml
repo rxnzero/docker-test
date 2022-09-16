@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MonitoringProperty">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+				<!-- SELECT     ROW_NUMBER() OVER (ORDER BY PRPTYGROUPNAME) ROWNUM, -->  
+                SELECT  @NO := @NO + 1 AS ROWNO,
+						PRPTYGROUPNAME, PRPTYGROUPDESC  
+						FROM  $schemaId$.TSEAIRM07,  (SELECT @NO := 0) R
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchPrptyGroupName">
+					UPPER(PrptyGroupName) LIKE CONCAT( '%' , #searchPrptyGroupName# , '%' )
+				</isNotEmpty>
+			</dynamic>						
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TOTALCOUNT
+			FROM  $schemaId$.TSEAIRM07
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchPrptyGroupName">
+					UPPER(PrptyGroupName) LIKE CONCAT( '%' , #searchPrptyGroupName# , '%' )
+				</isNotEmpty>
+			</dynamic>			
+	</statement>	
+	
+	<statement id="propertyGroupDetail" resultClass="java.util.HashMap">
+	 	SELECT  PRPTYGROUPNAME, PRPTYGROUPDESC
+         		FROM  $schemaId$.TSEAIRM07
+		WHERE	PrptyGroupName = #prptyGroupName#
+	</statement> 	
+	
+	<statement id="propertyDetail" resultClass="java.util.HashMap">
+	 	SELECT  PRPTYNAME, PRPTY2VAL
+         		FROM  $schemaId$.TSEAIRM08
+		WHERE	PrptyGroupName = #prptyGroupName#
+		ORDER BY 1
+	</statement>  
+	
+	  <statement id="selectPrpty2Val" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT PRPTY2VAL FROM $schemaId$.tseairm08
+			WHERE PRPTYGROUPNAME =#prptyGroupName#
+			AND PRPTYNAME=#prptyName#
+	  </statement>  
+	  <statement id="updatePrpty2Val" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			INSERT INTO $schemaId$.TSEAIRM08 (PRPTYGROUPNAME, PRPTYNAME, PRPTY2VAL ) 
+		    VALUES('Monitoring', #prptyName#, #prpty2Val#) 
+		    ON DUPLICATE KEY UPDATE PRPTY2VAL = #prpty2Val#
+	  </statement>    
+</sqlMap>

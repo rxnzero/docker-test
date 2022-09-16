@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatErrorMonitor">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM ( SELECT @NO := @NO + 1 AS ROWNO,   
+		              B.WORKGRPCD,
+		              A.INTFID,
+		              B.INTFNAME,
+		              A.BJOBDMNDMSGID,
+		              CASE WHEN SUBSTR(A.BJOBDMNDMSGID, 1, LENGTH(A.INTFID)) = A.INTFID THEN '2' ELSE '1' END AS ERRGUBUN,
+		              A.SNDRCVKIND,
+		              A.ERRREGDATE,
+		              A.SYSTEMKIND,
+		              A.ADPTRCD,
+		              A.ADPTRCDSEQ,
+		              A.ERRMSG AS ERRMSG
+	           FROM   $schemaId$.TSEAIES05 A,
+	                  $schemaId$.TSEAIEA04 B,  (SELECT @NO := 0) R
+	           WHERE  A.intfId=B.intfId
+	           AND    A.errRegDate BETWEEN #searchStartTime# AND #searchEndTime#
+	           AND    B.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	           <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+	           		  B.workGrpCd =  #searchEaiBzwkDstcd#
+               </isNotEmpty>
+	           <isNotEmpty prepend="AND" property="searchSndRcvKind">
+         	          A.sndRcvKind =  #searchSndRcvKind#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchSystemKind">
+         	          A.SystemKind = #searchSystemKind#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchErrMsg">
+         	          A.errMsg LIKE #searchErrMsg#
+               </isNotEmpty>
+	           ORDER BY A.errRegDate DESC, A.intfId
+			 ) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(A.intfId) AS TOTALCOUNT
+	    FROM   $schemaId$.TSEAIES05 A,
+	           $schemaId$.TSEAIEA04 B
+	    WHERE  A.IntfId=B.IntfId
+	    AND    A.errRegDate BETWEEN #searchStartTime# AND #searchEndTime#
+	    AND    B.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+            B.workGrpCd =  #searchEaiBzwkDstcd#
+        </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="searchSndRcvKind">
+         	A.sndRcvKind =  #searchSndRcvKind#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchSystemKind">
+         	A.SystemKind = #searchSystemKind#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchErrMsg">
+         	A.errMsg LIKE #searchErrMsg#
+        </isNotEmpty>
+	</statement>	
+	
+</sqlMap>

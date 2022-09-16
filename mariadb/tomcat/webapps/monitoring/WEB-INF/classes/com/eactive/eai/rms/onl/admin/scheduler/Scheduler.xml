@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Scheduler">
+    <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		 SELECT JOBNAME AS "JOBNAME"
+		      , CRONEXP AS "CRONEXP"
+			  , JOBCLASSNAME AS "JOBCLASSNAME"
+			  , USEYN AS "USEYN"
+			  , INSTANCENAME AS "INSTANCENAME"
+		   FROM $schemaId$.TSEAICM21
+		  WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAICM21( JOBNAME, CRONEXP, JOBCLASSNAME, USEYN, INSTANCENAME) 
+		    VALUES( #jobName#, #cronExp#, #jobClassName#, #useYn#, #instanceName#)
+  </statement>
+
+  <statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    UPDATE $schemaId$.TSEAICM21 
+       SET CRONEXP      = #cronExp# 
+         , JOBCLASSNAME = #jobClassName# 
+         , USEYN        = #useYn# 
+         , INSTANCENAME = #instanceName# 
+     WHERE JOBNAME      = #jobName#
+  </statement>
+
+  <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+     DELETE FROM $schemaId$.TSEAICM21 
+           WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="selectListSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		 SELECT JOBNAME AS "JOBNAME"
+		      , DATAKEY AS "DATAKEY"
+		      , DATAVALUE AS "DATAVALUE"
+		   FROM $schemaId$.TSEAICM22 
+		   WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="insertSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAICM22 ( JOBNAME, DATAKEY, DATAVALUE )
+         VALUES (  #jobName#, #dataKey#, #dataValue#)
+  </statement>
+
+  <statement id="deleteSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    DELETE FROM $schemaId$.TSEAICM22 
+          WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="selectAllSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">    
+		SELECT JOBNAME AS "JOBNAME" 
+		     , DATAKEY AS "DATAKEY" 
+		     , DATAVALUE AS "DATAVALUE" 
+		  FROM $schemaId$.TSEAICM22 
+		 ORDER BY JOBNAME, ADPTRIODSTCD, ADPTRPRPTYNAME
+  </statement>
+
+  <statement id="selectSchedulerItem" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		SELECT DATAKEY AS "DATAKEY", DATAVALUE  AS "DATAVALUE"
+		FROM $schemaId$.TSEAICM22 
+		WHERE JOBNAME = #jobName#
+  </statement>
+
+  <statement id="selectListAll" parameterClass="java.util.HashMap" resultClass="java.util.ArrayList">    
+		 SELECT JOBNAME AS "JOBNAME", CRONEXP AS "CRONEXP", 
+		 	JOBCLASSNAME AS "JOBCLASSNAME", USEYN AS "USEYN", INSTANCENAME AS "INSTANCENAME"
+		   FROM $schemaId$.TSEAICM21
+  </statement>
+   
+  <statement id="selectAllScheduler" resultClass="java.util.HashMap">
+	  SELECT JOBNAME AS "JOBNAME", CRONEXP AS "CRONEXP", 
+	  	JOBCLASSNAME AS "JOBCLASSNAME", USEYN AS "USEYN", INSTANCENAME AS "INSTANCENAME"
+	  FROM $schemaId$.TSEAICM21
+  </statement>
+  
+  <statement id="selectAllItemScheduler" resultClass="java.util.HashMap">
+	  SELECT M.JOBNAME AS "JOBNAME", M.CRONEXP AS "CRONEXP", M.JOBCLASSNAME AS "JOBCLASSNAME", 
+	  	M.USEYN AS "USEYN", M.INSTANCENAME AS "INSTANCENAME", D.DATAKEY AS "DATAKEY", D.DATAVALUE AS "DATAVALUE"
+	  FROM $schemaId$.TSEAICM21 M
+	     , $schemaId$.TSEAICM22 D
+	  WHERE M.JOBNAME = D.JOBNAME
+  </statement>
+</sqlMap>
+ 

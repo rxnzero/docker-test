@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Dashboard">
+
+  <statement id="getErrorInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"><![CDATA[
+    SELECT L1.LOGPRCSSSERNO "LogPrcssSerno",
+				   L1.GSTATSYSADPTRBZWKGROUPNAME "GstatSysAdptrBzwkGroupName", A1.EAIBZWKDSTCD "GstatSysAdptrEAIBzwkDstcd", C1.BZWKDSTICNAME "GstatSysAdptrBzwkDsticName",
+					 L1.PSVSYSADPTRBZWKGROUPNAME "PsvSysAdptrBzwkGroupName" ,  A2.EAIBZWKDSTCD "PsvSysAdptrEAIBzwkDstcd", C2.BZWKDSTICNAME "PsvSysAdptrBzwkDsticName",
+					 L1.EAIERRCD "EAIErrCd", L1.EAIERRCTNT "EAIErrCtnt", L1.EAISEVRINSTNCNAME "EAISevrInstncName", L1.LGINGSYSID "LgingSysID"
+		FROM
+		$schemaId$.$tableName$ L1,
+		$schemaId$.TSEAIAD01 A1,
+		$schemaId$.TSEAIAD01 A2,
+		$schemaId$.TSEAICM01 C1,
+		$schemaId$.TSEAICM01 C2,
+		( SELECT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO
+		  FROM 
+		  ( SELECT  ROWNUM AS ROWNO,
+				EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO
+				FROM
+				( SELECT DISTINCT EAIBZWKDSTCD, MSGDPSTYMS, EAISVCSERNO
+				  FROM   $schemaId$.$tableName$
+				  WHERE  MSGDPSTYMS <= #logTime#
+				  AND    MSGDPSTYMS >= #beforeTime#
+				  AND     RSPNSERRCDNAME LIKE 'REC%'
+		     ) TMP1
+		    ) TMP2
+		    WHERE ROWNO = 1
+		 ) L0
+		WHERE L0.EAIBZWKDSTCD               = L1.EAIBZWKDSTCD
+		AND   L0.MSGDPSTYMS                 = L1.MSGDPSTYMS
+		AND   L0.EAISVCSERNO                = L1.EAISVCSERNO
+		AND   L1.GSTATSYSADPTRBZWKGROUPNAME = A1.ADPTRBZWKGROUPNAME
+		AND   L1.PSVSYSADPTRBZWKGROUPNAME   = A2.ADPTRBZWKGROUPNAME
+		AND   A1.EAIBZWKDSTCD               = C1.EAIBZWKDSTCD
+		AND   A2.EAIBZWKDSTCD               = C2.EAIBZWKDSTCD
+		]]>
+  </statement>
+  
+</sqlMap>

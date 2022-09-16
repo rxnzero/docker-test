@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="NetworkCheck">
+
+<statement id="selectRM50" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT NETWORKTYPE, INSTCODE, INSTNAME
+		FROM $schemaId$.TSEAIRM50 
+		WHERE 	NETWORKTYPE = #networkType#		
+	</statement>
+<!-- 	0800 송신시 -->
+	<statement id="insertRM51" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIRM51(
+				NETWORKTYPE, STARTSYSCODE, INSTCODE, MESSAGEKEY, REQYMS, RESYMS) 
+				VALUES(#networkType# ,#startSyscode#, #instCode#, #messageKey#, #reqYms#, #resYms#)
+	</statement>	
+	<statement id="insertRM52" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIRM52(
+				NETWORKTYPE, STARTSYSCODE, INSTCODE, REQYMS, RESYMS, CSTATUS) 
+				VALUES(#networkType# ,#startSyscode#, #instCode#, #reqYms#, #resYms#, #cStatus#)
+	</statement>
+	
+	<statement id="selectRM52" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT NETWORKTYPE, STARTSYSCODE, INSTCODE, REQYMS, RESYMS, CSTATUS
+		FROM $schemaId$.TSEAIRM52 
+		WHERE 	NETWORKTYPE = #networkType#
+		AND 	STARTSYSCODE = #startSyscode#
+		AND 	INSTCODE = #instCode#
+	</statement>
+	
+	<statement id="updateReqStatus" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIRM52 
+				SET REQYMS = #reqYms#
+				, RESYMS = #resYms#
+				, CSTATUS = #cStatus# 
+		WHERE 	NETWORKTYPE = #networkType#
+		AND 	STARTSYSCODE = #startSyscode#
+		AND 	INSTCODE = #instCode#		
+	</statement>
+	
+	<!-- 	0810 수신시 -->
+	<statement id="updateRM51" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIRM51 
+				SET RESYMS = #resYms# 
+		WHERE 	NETWORKTYPE = #networkType#
+		AND 	STARTSYSCODE = #startSyscode#
+		AND 	INSTCODE = #instCode#
+		AND 	MESSAGEKEY = #messageKey#
+	</statement>	
+	<statement id="updateRM52" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIRM52 
+				SET RESYMS = #resYms#
+				, CSTATUS = #cStatus# 
+		WHERE 	NETWORKTYPE = #networkType#
+		AND 	STARTSYSCODE = #startSyscode#
+		AND 	INSTCODE = #instCode#		
+	</statement>
+	
+	<!-- 	TimeOut Scheduler -->
+	<statement id="updateTImeoutStatus" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIRM52 
+				SET CSTATUS = #cStatus# 
+		WHERE 	NETWORKTYPE = #networkType#
+		AND 	STARTSYSCODE = #startSyscode#
+		AND CSTATUS = '0'
+		AND REQYMS &lt;= #resYms#
+		AND RESYMS = ''
+	</statement>
+	
+	<statement id="updateTImeoutResStatus" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIRM52 
+				SET CSTATUS = #cStatus# 
+		WHERE 	NETWORKTYPE = #networkType#
+		AND 	STARTSYSCODE = #startSyscode#
+		AND CSTATUS = '2'
+		AND REQYMS != '' 
+		AND RESYMS != ''
+	</statement>
+	
+	
+	
+</sqlMap>

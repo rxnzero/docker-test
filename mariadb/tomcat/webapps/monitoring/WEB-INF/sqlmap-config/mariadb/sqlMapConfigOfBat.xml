@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+
+<sqlMapConfig>
+  <settings
+    cacheModelsEnabled="true"
+    enhancementEnabled="true"
+    lazyLoadingEnabled="true"
+    maxRequests="512"
+    maxSessions="128"
+    maxTransactions="32"
+    useStatementNamespaces="true" />
+
+  
+<!-- 배치 -->
+   <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/CodeMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/CodeMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/LifecycleMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/LifecycleMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/PropertyMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/PropertyMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/ServerMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/ServerMan-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/common/LogDeleteMan.xml" />
+
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/admin/rule/LayoutSync-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/adapter/Adapter.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/adapter/Adapter-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/inter/Interface.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/inter/Interface-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/interfaceFile/InterfaceFile.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/interfaceFile/InterfaceFile-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/schedule/Schedule.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/schedule/Schedule-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/monitor/CountMonitor-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/monitor/MessageMonitor-mariadb.xml" />
+
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/monitor/InterfaceMonitor-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/monitor/ErrorMonitor-mariadb.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/cron/CronMan.xml" />
+    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/manage/cron/CronMan-mariadb.xml" />
+        
+  <!-- BAT형상관리 파일 loader -->    
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/loader/BatLoader.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/bat/loader/BatLoader-mariadb.xml" />
+    
+</sqlMapConfig>

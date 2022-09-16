@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatLogDelete">
+
+	<statement id="clearInterface" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIES01 
+        WHERE   BJOBDMNDMSGID LIKE CONCAT(#uuid# , '%')
+        AND     MSGREGDATE BETWEEN #logStart# AND #logEnd#
+	</statement>	
+
+	<statement id="clearFileLog" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIES03
+        WHERE   BJOBDMNDMSGID LIKE CONCAT(#uuid# , '%')
+        AND     FILETRSMTSTARTHMS BETWEEN #logStart# AND #logEnd#
+	</statement>	
+
+	<statement id="clearDBLog" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIES04 
+        WHERE   BJOBDMNDMSGID LIKE CONCAT(#uuid# , '%')
+        AND     DBTRSMTSTARTHMS BETWEEN #logStart# AND #logEnd#
+	</statement>	
+
+	<statement id="clearErrorLog" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIES05 
+        WHERE   BJOBDMNDMSGID LIKE CONCAT(#uuid# , '%')
+        AND     ERRREGDATE BETWEEN #logStart# AND #logEnd#
+	</statement>	
+
+</sqlMap>

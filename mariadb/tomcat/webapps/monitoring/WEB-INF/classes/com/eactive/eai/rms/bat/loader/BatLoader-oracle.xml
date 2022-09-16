@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapLoader">
+	<!-- 
+	
+	extcode Value
+		all			: 								전부
+	PREFIX
+		wg		: WORKGRPCD			작업그룹코드
+		adt		: ADPTRCD				어댑터코드
+		itf 			: INTFID						인터페이스ID
+		bjmsc	: BJOBMSGSCHEID	배치작업메시지스케쥴 ID
+	POSTFIX
+		sel		: =							하나를 지정
+		inc		: LIKE						문자열 포함
+		din		: NOT LIKE				문자열 제외
+	 -->
+	<statement id="selectListEA02" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+		SELECT A.ADPTRCD, A.WORKGRPCD, A.ADPTRBZWKNAME, A.ADPTRDESC, A.SNDRCVKIND, A.ADPTRKIND, A.JNDIDATASOURCE, A.LSTNERCLSNAME, A.PRPTYGROUPID, A.DELYN, A.ENC1
+			FROM $schemaId$.TSEAIEA02 A
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual property="extcode" compareValue="all">
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">A.WORKGRPCD NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtsel">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD = #ADPTRCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtinc">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtdin">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD NOT LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+	</statement>
+	<statement id="selectListWgpEA02" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		SELECT A.WORKGRPCD
+			FROM $schemaId$.TSEAIEA02 A
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual property="extcode" compareValue="all">
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">A.WORKGRPCD NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtsel">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD = #ADPTRCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtinc">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtdin">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD NOT LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+			GROUP BY A.WORKGRPCD
+	</statement>
+	<statement id="countWgpEA02" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM (
+			SELECT A.WORKGRPCD
+				FROM $schemaId$.TSEAIEA02 A
+				<dynamic prepend="WHERE">
+					<isNotEmpty property="extcode">
+						<isEqual property="extcode" compareValue="all">
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="wgsel">
+							<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD = #WORKGRPCD#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="wginc">
+							<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="wgdin">
+							<isNotEmpty prepend="AND" property="WORKGRPCD">A.WORKGRPCD NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="adtsel">
+							<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD = #ADPTRCD#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="adtinc">
+							<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="adtdin">
+							<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD NOT LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+					</isNotEmpty>
+				</dynamic>
+				GROUP BY A.WORKGRPCD
+				) WORKGRP
+	</statement>
+	<statement id="selectListEA03" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+		SELECT A.ADPTRCD, A.ADPTRCDSEQ, A.SQLNAME, A.INTFID, A.SQLNAMEDESC, A.DBSQL, A.DBEVENTWHERE, A.TXCOMMITUNITCNT, A.SELECTUNITCNT, A.DELYN, A.LAYOUTKEY, A.DIVFIELDORDER, A.CODECKEY
+			FROM $schemaId$.TSEAIEA03 A
+					LEFT OUTER JOIN $schemaId$.TSEAIEA02 B ON B.ADPTRCD = A.ADPTRCD
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual prepend="AND" property="extcode" compareValue="all">1 = 1</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">B.WORKGRPCD = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">B.WORKGRPCD LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">B.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">B.WORKGRPCD NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">B.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtsel">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD = #ADPTRCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtinc">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">B.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtdin">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD NOT LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">B.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+	</statement>
+	<statement id="selectListEA04" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+		SELECT A.INTFID, A.INTFNAME, A.INTFDESC, A.WORKGRPCD, A.SNDADPTRCD, A.SNDADPTRCDSEQ, A.BATCHTYPE, A.REGDATE, A.REGUSERID, A.MODDATE, A.MODUSERID, A.INTFSTARTDATE, A.INTFENDDATE, A.DELYN, A.EVENTCALLVAL, A.RESTARTYN, A.LEVEL4, A.POSTJOBHOSTNAME, A.POSTJOBPORTNONAME, A.POSTJOBUID, A.POSTJOBUSERPWDNAME, A.POSTJOBCMD, A.SIZEONCE, A.PROCTERM, A.RESCHGR, A.RESCHGRTLNO, A.REQCHGR, A.REQCHGRTLNO
+			FROM $schemaId$.TSEAIEA04 A
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual property="extcode" compareValue="all">
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">A.WORKGRPCD NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="itfsel">
+						<isNotEmpty prepend="AND"  property="INTFID">A.INTFID = #INTFID#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="itfinc">
+						<isNotEmpty prepend="AND" property="INTFID">A.INTFID LIKE '%'||#INTFID#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="itfdin">
+						<isNotEmpty prepend="AND" property="INTFID">A.INTFID NOT LIKE '%'||#INTFID#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+	</statement>
+	<statement id="selectListWgpEA04" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		SELECT A.WORKGRPCD
+			FROM $schemaId$.TSEAIEA04 A
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual property="extcode" compareValue="all">
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">A.WORKGRPCD NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="itfsel">
+						<isNotEmpty prepend="AND"  property="INTFID">A.INTFID = #INTFID#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="itfinc">
+						<isNotEmpty prepend="AND" property="INTFID">A.INTFID LIKE '%'||#INTFID#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="itfdin">
+						<isNotEmpty prepend="AND" property="INTFID">A.INTFID NOT LIKE '%'||#INTFID#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+			GROUP BY A.WORKGRPCD
+	</statement>
+	<statement id="countWgpEA04" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM (
+			SELECT A.WORKGRPCD
+				FROM $schemaId$.TSEAIEA04 A
+				<dynamic prepend="WHERE">
+					<isNotEmpty property="extcode">
+						<isEqual prepend="AND" property="extcode" compareValue="all">1 = 1</isEqual>
+						<isEqual property="extcode"  compareValue="wgsel">
+							<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD = #WORKGRPCD#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="wginc">
+							<isNotEmpty prepend="AND"  property="WORKGRPCD">A.WORKGRPCD LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="wgdin">
+							<isNotEmpty prepend="AND" property="WORKGRPCD">A.WORKGRPCD NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="itfsel">
+							<isNotEmpty prepend="AND"  property="INTFID">A.INTFID = #INTFID#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="itfinc">
+							<isNotEmpty prepend="AND" property="INTFID">A.INTFID LIKE '%'||#INTFID#||'%'</isNotEmpty>
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+						<isEqual property="extcode"  compareValue="itfdin">
+							<isNotEmpty prepend="AND" property="INTFID">A.INTFID NOT LIKE '%'||#INTFID#||'%'</isNotEmpty>
+							<isNotEmpty prepend="AND" property="_WORKGRP">A.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+						</isEqual>
+					</isNotEmpty>
+				</dynamic>
+				GROUP BY A.WORKGRPCD
+			) WORKGRP
+	</statement>
+	<statement id="selectListEA05" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+		SELECT A.ADPTRCD, A.ADPTRCDSEQ, A.INTFID, A.FTPNAME, A.FTPNAMEDESC, A.FTPHOSTNAME, A.RMTSEVRFTPPORTNONAME, A.RMTSEVRFTPUID, A.RMTSEVRFTPUSERPWDNAME, A.FTPARCHIVEDIR, A.FTPSTOREFILEPATTERN, A.NEXTOPTION, A.CHECKNAME, A.FTPCHECKDIR, A.SYSTEMNAME, A.SYSTEMOWNER, A.SYSTEMOWNERTELEPHONE, A.SYSTEMOTHERTXT, A.SECTIONVAL, A.FTPBACKUPDIR, A.SFTPYN, A.LAYOUTKEY
+			FROM $schemaId$.TSEAIEA05 A
+					LEFT OUTER JOIN $schemaId$.TSEAIEA02 B ON B.ADPTRCD = A.ADPTRCD
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual prepend="AND" property="extcode" compareValue="all">1 = 1</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">B.WORKGRPCD = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">B.WORKGRPCD LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">B.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">B.WORKGRPCD NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">B.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtsel">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD = #ADPTRCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtinc">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">B.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="adtdin">
+						<isNotEmpty prepend="AND" property="ADPTRCD">A.ADPTRCD NOT LIKE '%'||#ADPTRCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">B.WORKGRPCD = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+	</statement>
+	<statement id="selectListES07" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+		SELECT A.BJOBMSGSCHEID, A.INTFID, A.BATCHTYPE, A.SCHEKIND, A.SNDRCVSTARTHMS, A.SNDRCVENDHMS, A.MSGSNDRID, A.SCHEFRSTREGIHMS, A.RQSTRECVFILESTORGDIRNAME, A.THISMSGUSEYN, A.THISMSGSCHEDESC, A.THISMSGREGSNTID, A.THISMSGREGIHMS, A.THISMSGAMNDRID, A.THISMSGAMNDHMS, A.CYCLEKIND, A.CYCLECODE, A. MONWEEKCODE1, A.MONWEEKCODE2, A.DAYCYCLETIME, A.ACTTIME1, A.ACTTIME2, A.ACTTIME3, A.ACTTIME4, A.ACTTIME5, A.ACTTIME6, A.ACTDAY, A.ACTDAY2, A.ACTDAY3, A.ACTDAY4
+			FROM $schemaId$.TSEAIES07 A
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual property="extcode" compareValue="all">
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skdsel">
+						<isNotEmpty prepend="AND"  property="BJOBMSGSCHEID">A.BJOBMSGSCHEID = #BJOBMSGSCHEID#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skdinc">
+						<isNotEmpty prepend="AND" property="BJOBMSGSCHEID">A.BJOBMSGSCHEID LIKE '%'||#BJOBMSGSCHEID#||'%')</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skddin">
+						<isNotEmpty prepend="AND" property="BJOBMSGSCHEID">A.BJOBMSGSCHEID NOT LIKE '%'||#BJOBMSGSCHEID#||'%')</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+	</statement>
+	<statement id="selectListWgpES07" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+	SELECT U.WORKGRPCD FROM (
+		SELECT REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  AS WORKGRPCD
+			FROM $schemaId$.TSEAIES07 A
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual property="extcode" compareValue="all">
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skdsel">
+						<isNotEmpty prepend="AND"  property="BJOBMSGSCHEID">A.BJOBMSGSCHEID = #BJOBMSGSCHEID#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skdinc">
+						<isNotEmpty prepend="AND" property="BJOBMSGSCHEID">A.BJOBMSGSCHEID LIKE '%'||#BJOBMSGSCHEID#||'%')</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skddin">
+						<isNotEmpty prepend="AND" property="BJOBMSGSCHEID">A.BJOBMSGSCHEID NOT LIKE '%'||#BJOBMSGSCHEID#||'%')</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+			} U
+		GROUP BY U.WORKGRPCD
+	</statement>
+	<statement id="countWgpES07" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	SELECT COUNT(1) FROM (
+		SELECT * FROM (
+			SELECT REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  AS WORKGRPCD
+				FROM $schemaId$.TSEAIES07 A
+				<dynamic prepend="WHERE">
+					<isNotEmpty property="extcode">
+						<isEqual property="extcode" compareValue="all">
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skdsel">
+						<isNotEmpty prepend="AND"  property="BJOBMSGSCHEID">A.BJOBMSGSCHEID = #BJOBMSGSCHEID#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skdinc">
+						<isNotEmpty prepend="AND" property="BJOBMSGSCHEID">A.BJOBMSGSCHEID LIKE '%'||#BJOBMSGSCHEID#||'%')</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skddin">
+						<isNotEmpty prepend="AND" property="BJOBMSGSCHEID">A.BJOBMSGSCHEID NOT LIKE '%'||#BJOBMSGSCHEID#||'%')</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					</isNotEmpty>
+				</dynamic>
+			) U	GROUP BY U.WORKGRPCD
+		)  WORKGRP
+	</statement>
+	<statement id="selectListES09" parameterClass="java.util.HashMap" resultClass="java.util.LinkedHashMap">
+		SELECT A.BJOBMSGSCHEID, A.INTFID, A.REGID, A.REGDATE, A.MODID, A.MODDATE, A.DELYN
+			FROM $schemaId$.TSEAIES09 A
+			<dynamic prepend="WHERE">
+				<isNotEmpty property="extcode">
+					<isEqual prepend="AND" property="extcode" compareValue="all">1 = 1</isEqual>
+					<isEqual property="extcode" compareValue="all">
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgsel">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #WORKGRPCD#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wginc">
+						<isNotEmpty prepend="AND"  property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR, '[^_]+', 1, 2) _', 2), '_', -1) = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="wgdin">
+						<isNotEmpty prepend="AND" property="WORKGRPCD">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  NOT LIKE '%'||#WORKGRPCD#||'%'</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skdsel">
+						<isNotEmpty prepend="AND"  property="BJOBMSGSCHEID">A.BJOBMSGSCHEID = #BJOBMSGSCHEID#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skdinc">
+						<isNotEmpty prepend="AND" property="BJOBMSGSCHEID">A.BJOBMSGSCHEID LIKE '%'||#BJOBMSGSCHEID#||'%')</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORKGRP#</isNotEmpty>
+					</isEqual>
+					<isEqual property="extcode"  compareValue="skddin">
+						<isNotEmpty prepend="AND" property="BJOBMSGSCHEID">A.BJOBMSGSCHEID NOT LIKE '%'||#BJOBMSGSCHEID#||'%')</isNotEmpty>
+						<isNotEmpty prepend="AND" property="_WORKGRP">REGEXP_SUBSTR(A.BJOBMSGSCHEID, '[^_]+', 1, 2)  = #_WORK	GRP#</isNotEmpty>
+					</isEqual>
+				</isNotEmpty>
+			</dynamic>
+	</statement>
+</sqlMap>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="commonCodeAndName">
+
+  <statement id="findCommonCodeList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT $code$ AS "code", $name$ AS "name"
+    FROM
+    $schemaId$.$tableName$
+    ORDER BY $name$ ASC
+  </statement>
+
+  <statement id="findExtnlInstiIdnfiNames" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT EXTNLINSTIIDNFINAME "code",
+           EXTNLINSTIIDNFINAME "name"
+    FROM   ( SELECT DISTINCT EXTNLINSTIIDNFINAME  FROM $schemaId$.TSEAIHE03 ) AA
+    ORDER BY EXTNLINSTIIDNFINAME
+  </statement>
+
+  <statement id="findAllEaiSvcCodeMap" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT EAISVCNAME AS "code",
+    EAISVCDESC AS "name"
+    FROM $schemaId$.TSEAIHE01
+    ORDER BY EAISVCNAME
+    </statement>
+  <statement id="findAllEaiSvcCodeMapCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(EAISVCNAME)
+    FROM $schemaId$.TSEAIHE01
+    </statement>
+    
+  <statement id="findMeta04ComboList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT VLD_VAL  AS "code", VLD_VAL_NM AS "name" 
+      FROM $schemaId$.TSEAIMX04
+		 WHERE DEL_YN ='N'
+			<isNotEmpty prepend="AND" property="upperVal">
+		  UPPER_VLD_VAL = #upperVal#
+		  </isNotEmpty>
+			AND $searchType$ = #param#
+		ORDER BY 1
+  </statement>
+  
+</sqlMap>

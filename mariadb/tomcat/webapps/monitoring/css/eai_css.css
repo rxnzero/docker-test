@@ -1,0 +1,159 @@
+/* ÀüÃ¼ */
+
+body {	
+	scrollbar-face-color: #DCDCDC;
+	scrollbar-shadow-color:#FFFFFF;
+	scrollbar-highlight-color:#FFFFFF;
+	scrollbar-3dlight-color: #BBBBBB;
+	scrollbar-darkshadow-color: #BBBBBB;
+	scrollbar-track-color: #EFEFEF;
+	scrollbar-arrow-color: #626262;
+	}
+
+table {
+	font-family: µ¸¿ò;
+	font-size: 9pt;
+	line-height: 14px;
+	color: #555555;
+	}
+
+
+/* top */
+.sub_menu01 a:link {
+	color: #002252; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu01 a:visited {
+	color: #002252; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu01 a:active {
+	color: #002252; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu01 a:hover {
+	color: #ffffff; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu02 a:link {
+	color: #5D4718; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu02 a:visited {
+	color: #5D4718; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu02 a:active {
+	color: #5D4718; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu02 a:hover {
+	color: #ffffff; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu03 a:link {
+	color: #432C5F; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu03 a:visited {
+	color: #432C5F; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu03 a:active {
+	color: #432C5F; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu03 a:hover {
+	color: #ffffff; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu04 a:link {
+	color: #514603; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu04 a:visited {
+	color: #514603; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu04 a:active {
+	color: #514603; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu04 a:hover {
+	color: #ffffff; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu05 a:link {
+	color: #580A14; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu05 a:visited {
+	color: #580A14; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu05 a:active {
+	color: #580A14; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu05 a:hover {
+	color: #ffffff; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu06 a:link {
+	color: #002830; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu06 a:visited {
+	color: #002830; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu06 a:active {
+	color: #002830; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu06 a:hover {
+	color: #ffffff; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu07 a:link {
+	color: #6A2E22; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu07 a:visited {
+	color: #6A2E22; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu07 a:active {
+	color: #6A2E22; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu07 a:hover {
+	color: #ffffff; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+
+
+.sub_menu01 a:link {
+	color: #05388E; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu01 a:visited {
+	color: #05388E; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu01 a:active {
+	color: #05388E; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+.sub_menu01 a:hover {
+	color: #ffffff; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;
+	}
+	
+.sub_menu {text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò;}
+
+/* left */
+
+.left_welcome {
+	font-family: µ¸¿ò;
+	font-size: 9pt;
+	line-height: 18px;
+	color: #000000;
+        padding-left: 12px; 
+        padding-bottom: 7px; 
+	}
+.left_welcome_b {
+	font-family: µ¸¿ò;
+	font-size: 9pt;
+	color: #000000; 
+        font-weight: bold;
+	}
+.left_menu01 {
+	font-family: µ¸¿ò;
+	font-size: 9pt;
+	color: #FF4E00;
+        padding-left: 8px; 
+        padding-top: 7px; 
+        font-weight: bold;
+	}
+
+.left_menu02 a:link {
+	color: #1B1B1B; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò; padding-left: 9px; padding-top: 5px; padding-bottom: 5px; line-height: 20px;
+	}
+.left_menu02 a:visited {
+	color: #1B1B1B; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò; padding-left: 9px; padding-top: 5px; padding-bottom: 5px; line-height: 20px;
+	}
+.left_menu02 a:active {
+	color: #1B1B1B; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò; padding-left: 9px; padding-top: 5px; padding-bottom: 5px; line-height: 20px;
+	}
+.left_menu02 a:hover {
+	color: #1B1B1B; text-decoration: none; font-weight: bold; font-size: 8pt; font-family: µ¸¿ò; padding-left: 9px; padding-top: 5px; padding-bottom: 5px; line-height: 20px;
+	}

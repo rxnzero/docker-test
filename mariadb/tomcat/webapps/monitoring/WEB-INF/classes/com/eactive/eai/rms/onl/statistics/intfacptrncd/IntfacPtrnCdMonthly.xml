@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="IntfacPtrnCdMonthly">
+  
+  <statement id="findByChnlMdiaDstcdMonthly" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.intfacptrncd.vo.IntfacPtrnCdMonthlyVO">
+        SELECT INTFACPTRNCD AS "INTFACPTRNCD",
+			         SUM(S1MNTRSMTNOITM)  AS "MNTRSMTNOITM1", SUM(S1MNERRNOITM) AS "MNERRNOITM1",
+			         SUM(S2MNTRSMTNOITM)  AS "MNTRSMTNOITM2", SUM(S2MNERRNOITM) AS "MNERRNOITM2",
+			         SUM(S3MNTRSMTNOITM)  AS "MNTRSMTNOITM3", SUM(S3MNERRNOITM) AS "MNERRNOITM3",
+			         SUM(S4MNTRSMTNOITM)  AS "MNTRSMTNOITM4", SUM(S4MNERRNOITM) AS "MNERRNOITM4",
+			         SUM(S5MNTRSMTNOITM)  AS "MNTRSMTNOITM5", SUM(S5MNERRNOITM) AS "MNERRNOITM5",
+			         SUM(S6MNTRSMTNOITM)  AS "MNTRSMTNOITM6", SUM(S6MNERRNOITM) AS "MNERRNOITM6",
+			         SUM(S7MNTRSMTNOITM)  AS "MNTRSMTNOITM7", SUM(S7MNERRNOITM) AS "MNERRNOITM7",
+			         SUM(S8MNTRSMTNOITM)  AS "MNTRSMTNOITM8", SUM(S8MNERRNOITM) AS "MNERRNOITM8",
+			         SUM(S9MNTRSMTNOITM)  AS "MNTRSMTNOITM9", SUM(S9MNERRNOITM) AS "MNERRNOITM9",
+			         SUM(S10MNTRSMTNOITM) AS "MNTRSMTNOITM10", SUM(S10MNERRNOITM) AS "MNERRNOITM10",
+			         SUM(S11MNTRSMTNOITM) AS "MNTRSMTNOITM11", SUM(S11MNERRNOITM) AS "MNERRNOITM11",
+			         SUM(S12MNTRSMTNOITM) AS "MNTRSMTNOITM12", SUM(S12MNERRNOITM) AS "MNERRNOITM12"
+         FROM $schemaId$.TSEAIST04
+        WHERE STATCYM BETWEEN #startDate# AND #endDate#                                                        
+		<isNotEmpty prepend="AND" property="intfacPtrnCd"> 
+		      TRIM(INTFACPTRNCD) LIKE CONCAT('%', CONCAT( #intfacPtrnCd# , '%'))
+		</isNotEmpty>   
+        GROUP BY INTFACPTRNCD
+        ORDER BY INTFACPTRNCD
+  </statement>
+</sqlMap>

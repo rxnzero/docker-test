@@ -1,0 +1,530 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.io.*, 
+java.util.*,
+javax.xml.parsers.*,
+org.w3c.dom.*,
+javax.xml.xpath.*,
+java.sql.*,
+javax.sql.*,
+javax.naming.*,
+java.io.ByteArrayOutputStream,
+java.io.ByteArrayInputStream,
+com.eactive.eai.agent.adapter.*,
+com.eactive.eai.agent.command.*,
+com.eactive.eai.agent.*,
+com.eactive.eai.rms.onl.common.util.*,
+com.eactive.eai.rms.onl.common.service.OnlAgentUtilServiceImpl,
+com.eactive.eai.agent.AgentUtil,
+org.apache.commons.httpclient.NameValuePair,
+com.eactive.eai.agent.eaimessage.*,
+org.apache.commons.logging.Log,
+org.apache.commons.logging.LogFactory,
+java.net.InetAddress,
+org.apache.commons.httpclient.HttpClient,
+org.apache.commons.httpclient.MultiThreadedHttpConnectionManager,
+org.apache.commons.httpclient.methods.PostMethod,
+
+org.apache.commons.net.ftp.FTP,
+org.apache.commons.net.ftp.FTPClient,
+org.apache.commons.net.ftp.FTPReply,
+org.apache.commons.net.ftp.FTPFile,
+
+"%>
+<%!
+/*
+	어뎁터 형상관리 기능
+	개발 -> QA
+	
+	1) download in dev
+	2) move to Qa with FTP
+	3) upload to QA
+
+*/
+
+private static final Log logger = LogFactory.getLog("adapterLoader.jsp");
+
+//개발 DB
+private String dev_url       = "jdbc:oracle:thin:@172.31.32.103:1527/DCHN";
+private String dev_driver    = "oracle.jdbc.OracleDriver";
+private String fep_user      = "fep";
+private String fep_pwd       = "fep123!";
+
+//private String eai_url       = "jdbc:oracle:thin:@172.31.32.103:1526/DCHN";
+//private String eai_driver    = "oracle.jdbc.OracleDriver";
+private String eai_user      = "eai";
+private String eai_pwd       = "eai123!";
+
+private String dev_ftp_ip = "172.31.32.111";
+private String dev_ftp_id = "eaiadm";
+private String dev_ftp_pwd ="!2345Trewq";
+private String dev_defaultPath ="/Data/eai/ecamsApps/download/";
+
+private String qa_ftp_ip = "172.31.33.111";
+private String qa_ftp_id = "weblogic";
+private String qa_ftp_pwd ="ekfEk=0wk";
+//private String qa_defaultPath ="/Data/eai/ecamsAppsTemp/upload/";				//프로퍼티 수정후 반영할 것.
+private String qa_defaultPath ="/Data/eai/ecamsApps/upload/";
+private String   NEW_LINE    = "\n";
+private String download_url  ="http://172.31.32.111:10220/monitoring/loader.do?cmd=adapter&control=download";
+private String upload_url 	 ="http://172.31.33.111:10420/monitoring/loader.do?cmd=adapter&control=uploadSync";
+/*
+ *  select 쿼리 로직 
+ *
+ */
+public Vector<String[]> getSqlSelect(String sql,String serviceType ) throws Exception {
+	Connection conn = null;
+	Statement stmt = null;
+	ResultSet rs = null;
+	int rownum = 0;
+	String url =null;
+	String user = null;
+	String pwd = null;
+	if("EAI".equals(serviceType) ){
+
+		user = eai_user;
+		pwd = eai_pwd;
+	}else if("FEP".equals(serviceType)){
+
+		user = fep_user;
+		pwd = fep_pwd;
+	}
+	try	{
+    	
+		Class.forName(dev_driver);
+		conn = DriverManager.getConnection(dev_url, user, pwd);
+
+		stmt = conn.createStatement();
+  		stmt.execute(sql);
+  		rs = stmt.getResultSet();
+  		Vector<String[]> vt = new Vector<String[]>();
+  		int maxColumn = rs.getMetaData().getColumnCount();
+        while(rs.next()) {
+        	String[] row = new String[maxColumn];
+        	for (int i=0;i<maxColumn;i++){
+				row[i] = rs.getString(i+1);
+        	}    	
+        	vt.add(row);
+		}               
+		return vt;
+	}
+	catch(Exception e) {
+		logger.error(e.getMessage(),e);
+		throw e;
+	}
+	finally {
+		try {
+			if(rs != null)	 rs.close();
+			if(stmt != null) stmt.close();
+			if(conn != null) conn.close();
+		}
+		catch (SQLException sqle) {
+			logger.error("SQLException was thrown: " + sqle.getMessage());
+		}
+	}
+}
+
+public Vector getList(String serviceType) throws Exception{
+	StringBuffer sb = new StringBuffer();
+	sb.append(" select ad01.AdptrBzwkGroupName ,ad01.AdptrBzwkGroupDesc, ad01.AdptrUseYn, max(ad02.EAISevrInstncName) as EAISevrInstncName ").append(NEW_LINE);
+	sb.append(" from tseaiad01 ad01, tseaiad02 ad02                                                                                                            ").append(NEW_LINE);
+	sb.append(" where ad01.AdptrBzwkGroupName = ad02.AdptrBzwkGroupName                                      ").append(NEW_LINE);
+	sb.append(" group by  ad01.AdptrBzwkGroupName ,ad01.AdptrBzwkGroupDesc, ad01.AdptrUseYn order by ad01.AdptrBzwkGroupName                   ").append(NEW_LINE);
+	
+	return getSqlSelect(sb.toString(),serviceType);
+}
+
+public String startLoading(String controlType, String[] list, String serviceType ,ServletRequest request){
+	List sList = new LinkedList(Arrays.asList(list));
+	List eList = new ArrayList();
+	//1. downloading
+		Iterator<String> i = sList.iterator();
+		while(i.hasNext()){
+			String fileName = i.next();			
+			try{
+				HashMap ret = download(serviceType,fileName+".txt");
+				if(!"success".equals((String)ret.get("result"))){
+					throw new Exception();
+				}
+			}catch(Exception e){
+				i.remove();
+				eList.add(fileName);
+				logger.info("Failed to Download of Adapter : " + fileName);
+			}
+		}
+	
+	//2. dev to qa  with FTP	
+		HashMap ret_move = moveDevToQa(sList,serviceType);
+		
+		sList = (List)ret_move.get("sList");
+		eList.addAll((List)ret_move.get("eList"));
+		
+	//3. uploading
+		i = sList.iterator();
+		while(i.hasNext()){
+			String fileName = i.next();			
+			try{
+				HashMap ret = upload(serviceType,fileName+".txt");
+				if(!"success".equals((String)ret.get("result"))){
+					throw new Exception();
+				}
+			}catch(Exception e){
+				i.remove();
+				eList.add(fileName);
+				logger.info("Failed to Upload of Adapter : " + fileName);
+			}
+		}
+	logger.info("AdapterLoader ] Failed Files : " + eList.toString()); 
+	return "성공 : " + sList.size() + " || 실패 : " + eList.size();
+}
+public HashMap download(String serviceType, String fileName){
+	HashMap result = new HashMap();
+	//1. download
+	String param = "&serviceType="+serviceType +"&fileName="+fileName;
+	try {
+		String response = callPostService(download_url+param,"MS949");
+		if(response.indexOf("status=success") > -1){
+			result.put("result", "success");
+			result.put("fileName", fileName);
+
+		}else{
+			throw new Exception();
+		}
+	} catch (Exception e) {
+		result.put("result", "fail");
+		result.put("cause", "download");
+		result.put("fileName", fileName);
+		return result;
+	}
+	return result;
+}
+
+//file move FTP
+public HashMap moveDevToQa(List FileList, String serviceType){
+	List sList = new ArrayList();
+	List eList = new ArrayList();
+	
+	sList = FileList;
+	
+	
+	FTPClient ftpClient1 = new FTPClient();
+	FTPClient ftpClient2 = new FTPClient();
+	
+	//DEV FTP 접속
+	try{
+		ftpClient1.connect(dev_ftp_ip);
+		int reply = ftpClient1.getReplyCode();
+		if(!FTPReply.isPositiveCompletion(reply)){
+			ftpClient1.disconnect();
+		}
+	}catch(IOException e){
+		if(ftpClient1.isConnected()){
+			try{
+				ftpClient1.disconnect();
+			}catch(IOException e1){}
+		}
+		System.out.println("Failed to Connect to Dev FTP");
+	
+	}	
+	
+	//QA FTP 접속
+	try{
+		ftpClient2.connect(qa_ftp_ip);
+		int reply = ftpClient2.getReplyCode();
+		if(!FTPReply.isPositiveCompletion(reply)){
+			ftpClient2.disconnect();
+		}
+	}catch(IOException e){
+		if(ftpClient2.isConnected()){
+			try{
+				ftpClient2.disconnect();
+			}catch(IOException e1){}
+		}
+		System.out.println("Failed to Connect to QA FTP");
+	
+	}	
+	ftpClient1.setDataTimeout(600*1000);
+	ftpClient2.setDataTimeout(600*1000);
+	
+	//ftp login
+	try{
+		if(!ftpClient1.login(dev_ftp_id,dev_ftp_pwd)){
+			throw new Exception();
+		}
+		if(!ftpClient2.login(qa_ftp_id,qa_ftp_pwd)){
+			throw new Exception();
+		}
+		
+		ftpClient1.enterLocalPassiveMode();
+		ftpClient2.enterLocalPassiveMode();
+		
+		//File tempFile = File.createTempFile("tmp",".txt");
+		OutputStream output = null;
+		InputStream input = null;
+		Iterator i = sList.iterator();
+		String fileName = "";
+		File tempFile = null;
+		while(i.hasNext()){
+			try{
+				fileName = (String)i.next();
+				String remote1 = dev_defaultPath + serviceType +"/TST/adapter/"+fileName;
+				tempFile = File.createTempFile("tmp",".txt");
+				output = new FileOutputStream(tempFile);
+				
+				boolean isDownloaded = ftpClient1.retrieveFile(remote1+".txt", output);
+				output.close();
+				
+				if(isDownloaded){ //성공하면			
+					if (!ftpClient2.changeWorkingDirectory(qa_defaultPath+ serviceType +"/TST/adapter/")) {
+						String[] paths = qa_defaultPath.split("/");
+						String makepath = "";
+						for (String path : paths) {
+							if ("".equals(path))
+								continue;
+							makepath = makepath + "/" + path;
+							if (!ftpClient2.changeWorkingDirectory(makepath)) {
+								if (!ftpClient2.makeDirectory(makepath)) {
+									logger.debug("Directory make fail : " + makepath);
+									throw new Exception();
+								}
+							}
+						}
+					}				
+					
+					//임시파일을 업로드한다	
+ 					String remote2 = qa_defaultPath + serviceType +"/TST/adapter/"+fileName;
+	 				input = new FileInputStream(tempFile);
+	
+					boolean isUploaded =ftpClient2.storeFile(remote2+".txt", input);
+					if(!isUploaded){
+						throw new Exception();
+					} 
+				}else{
+					eList.add(fileName);
+					i.remove();								
+				}
+				
+			}catch(Exception ex){	
+						
+				logger.info("Failed to Transfer File : " +fileName);
+			
+			}finally{
+				try{output.close();}catch(Exception e1){}
+				try{input.close();}catch(Exception e1){}
+				tempFile.delete();
+			}
+		
+		}
+	
+	}catch(Exception e){	
+		System.out.println("failed to FTP");
+		
+		eList.addAll(sList);
+		sList = null;
+		
+		HashMap ret = new HashMap();
+		ret.put("sList",sList);
+		ret.put("eList",eList);	
+		return ret;
+	}finally{
+		try{
+			if(ftpClient1.isConnected()){
+				ftpClient1.logout();
+				ftpClient1.disconnect();
+			}
+		}catch(IOException e1){}
+		try{
+			if(ftpClient2.isConnected()){
+				ftpClient2.logout();
+				ftpClient2.disconnect();
+			}
+		}catch(IOException e2){}
+	}	
+	
+	HashMap ret = new HashMap();
+	ret.put("sList",sList);
+	ret.put("eList",eList);
+	
+	return ret;
+}
+
+
+public HashMap upload(String serviceType, String fileName) {
+		HashMap result = new HashMap();
+		String param = "&serviceType=" + serviceType + "&fileName=" + fileName;
+		try {
+			String response = callPostService(upload_url + param, "MS949");
+			if (response.indexOf("status=error") < 0) {
+				result.put("result", "success");
+				result.put("fileName", fileName);
+			} else {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			result.put("result", "fail");
+			result.put("cause", "upload");
+			result.put("fileName", fileName);
+			return result;
+		}
+		return result;
+	}
+
+	public String callPostService(String url, String encode) throws Exception {
+		int timeout = 600 * 1000;
+		String responseMessage = "";
+		PostMethod method = new PostMethod(url);
+		method.getParams().setSoTimeout(timeout);
+		HttpClient mclient = new HttpClient(
+				new MultiThreadedHttpConnectionManager());
+		mclient.getParams().setContentCharset(encode);
+		int status = mclient.executeMethod(method);
+		//System.out.println("status=" + status);
+		responseMessage = new String(method.getResponseBody());
+		method.releaseConnection();
+		
+		return responseMessage;
+	}
+
+		
+	
+	
+%>
+
+
+<%
+	response.setHeader("Pragma", "No-cache");
+	response.setHeader("Cache-Control", "no-cache");
+	response.setHeader("Expires", "0");
+%>
+
+<%
+	request.setCharacterEncoding("euc-kr");
+	String filter = request.getParameter("filter");
+	String controlType = request.getParameter("controlType");
+	String adapterName = request.getParameter("adapterName");
+	String[] selectedList = request.getParameterValues("list");
+	String serviceType = request.getParameter("serviceType");
+
+	String resultMessage = "";
+	if (filter == null) filter = "";
+	if (controlType == null) controlType = "";
+	if (adapterName == null) adapterName = "";
+	if (resultMessage == null) resultMessage = "";
+	if (serviceType == null) serviceType = "FEP";
+	//filter = filter.toUpperCase();
+	
+	if ("start".equals(controlType) && selectedList != null && !"".equals(serviceType)){
+		 String result = startLoading(controlType,selectedList , serviceType, request);
+		 if (result != null) {
+		 	resultMessage = result;
+		 }
+	}
+		
+
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<script language="javascript" src="<c:url value="/common/js/common.js" />"></script>
+ <jsp:include page="/jsp/common/include/css.jsp"/>
+<%--<jsp:include page="/jsp/common/include/script.jsp"/> --%>
+<script language="javascript" src="<c:url value="/js/jquery-1.7.2.min.js"/>"></script>
+<script language="javascript" src="<c:url value="/js/jquery-ui.min.js"/>"></script>
+<script language="javascript" >
+var $ = jQuery.noConflict();
+
+$(document).ready(function() {
+	
+	var resultMsg = "<%=resultMessage%>";
+	if(resultMsg != "" && resultMsg != null){
+		alert(resultMsg);
+	}
+	$("select[name=serviceType]").val("<%=serviceType%>");
+	$("input[name=startLoading]").click(function (){
+		$("input[name=controlType]").val("start");
+/*  		var selectedList = new Array();
+		$("input[name=list]:checked").each(function(){
+			selectedList.push(this.value);		
+		});  */
+		//$("input[name=selectedList]").val(selectedList);
+		$("form[name=search]").submit(); 
+		
+		
+	});
+	$("select[name=serviceType]").change(function(){
+	
+		$("form[name=search]").submit(); 
+	})
+	
+	$("input[name=selectAll]").change(function(){
+		if($(this).attr("checked")){
+			$("input[name=list]").each(function(){
+				$(this).attr("checked",true);
+			})
+		}else{
+			$("input[name=list]").each(function(){
+				$(this).attr("checked",false);
+			})
+		}
+	});
+		
+});
+
+</script>
+</head>
+	<body>
+		<form name="search" method="post" action="">
+			<input type="hidden" name=controlType value="" > 
+			<select name=serviceType ><option value="EAI">EAI</option><option value="FEP">FEP</option></select> 
+			<input type="text" name=filter value="<%=filter%>"> <input type="submit" value="검색"/>
+			<input type="button" name=startLoading value="시작"/>
+		
+		
+		<table width="1165px" border="1" cellpading="0" cellspaceing="0" bgcolor="#D8D8D8" bodercolor="#000000" style="border-collapse:collapse">
+			<tr>
+				<td colspan="3" align="center">어댑터</td>
+				<td colspan="4" align="center">개발</td>
+			</tr>	
+			<tr>
+				<td width="65px" align="center"><input name=selectAll type=checkbox></td>
+				<td width="215px" align="center">어댑터명</td>
+				<td width="365px" align="center">어댑터설명</td>
+				<td width="80px" align="center">인스턴스</td>
+				
+
+			</tr>	
+		</table>
+		<div style="width:1185px;height:85%;overflow:auto;">
+		
+	    <table id="adapterTable" width="1165px" border="1" cellpading="0" cellspaceing="0" bodercolor="#000000" style="border-collapse:collapse">
+		<%
+ 			Vector<String[]> list = getList(serviceType);//개발 From Db
+			
+			HashMap dev = new HashMap();
+		
+			int i=0;
+			for( String[] row : list){
+				if (row[0].indexOf(filter) >= 0 ||  row[1].indexOf(filter) >= 0 ) {
+					i++;
+					String color ="";
+		%>
+
+			<tr bgcolor="<%=i%2==0?"#F4F4F4":""%>">
+				<td width="65px" align=center><input type="checkbox" name="list" value=<%=row[0]%>></td>
+				<td width="215px"><font color="<%=color%>"><%=row[0]%></font></td>
+				<td width="365px"><font color="<%=color%>"><%=row[1]%></font></td>
+				<td width="80px"><font color="<%=color%>"><%=row[3]%></font></td>
+
+			</tr>	
+		<%			
+				}
+			}
+		%>
+       </table>		
+       </div>
+       </form>
+	</body>
+</html>
+

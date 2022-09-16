@@ -1,0 +1,44 @@
+version: '3.1'
+services:
+  db:
+    image: mariadb
+    command: --lower_case_table_names=1
+    ports:
+      - 43306:3306
+    restart: always
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./elink-root/local-setting/database-mysql-sgi/initsql:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: eactive
+      TZ: Asia/Seoul
+      LANG: C.UTF-8
+    healthcheck:
+      test: "mysqladmin -ufep -pfep ping -h db"
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  rms:
+    image: tomcat:9.0
+    container_name: sgi-rmsweb
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - JAVA_OPTS=-Dinst.Name=fepRmsSvr11 -Djdbc_user=fep -Djdbc_password=fep -Djdbc_url=jdbc:mariadb://db:3306/FEP?characterEncoding=euckr -Deai.tableowner=FEP -Deai.systemmode=L -Deai.messageLocale=ko -Drms_log_path=/logs/ -Dtheme.color=yellow -Dfile.encoding=utf8 -Xmx512m
+    ports:
+      - "30200:8080"
+    volumes:
+      - ./elink-root/RMSWeb/build/libs/RMSWeb.war:/usr/local/tomcat/webapps/monitoring.war
+  iim:
+    image: tomcat:9.0
+    container_name: sgi-iimweb
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - JAVA_OPTS=-Dinst.Name=iimSvr11 -Djdbc_user=iim -Djdbc_password=iim -Djdbc_url=jdbc:mariadb://db:3306/IIM?characterEncoding=euckr -Deai.tableowner=IIM -Deai.systemmode=D -Deai.messageLocale=ko -Dtheme.color=blue -Drms_log_path=/logs/ -Xmx512m
+    ports:
+      - "30300:8080"
+    volumes:
+      - ./elink-root/IIMWeb/build/libs/IIMWeb.war:/usr/local/tomcat/webapps/manage.war

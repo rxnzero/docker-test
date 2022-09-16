@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatMessageMonitor">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM ( SELECT @NO := @NO + 1 AS ROWNO,   
+		              A.WORKGRPCD,
+		              A.INTFID,
+		              B.INTFNAME,
+		              A.SNDSTARTDATE,
+		              A.INTFIDENDDATE,
+		              A.BATCHTYPE,
+		              A.BJOBDMNDMSGID,
+		              B.LEVEL4,
+		              NVL(A.ERRYN,'N') AS ERRYN,
+		              NVL(A.CHECKROWCNT,0) AS CHECKROWCNT,
+		              A.SCHEKIND,
+		              A.SNDLINECNT,
+		              A.RCVLINECNT,
+		              (SELECT FILETRSMTSIZECTNT FROM $schemaId$.TSEAIES03 WHERE BJOBDMNDMSGID=A.BJOBDMNDMSGID AND SNDRCVKIND='1' ) AS FILETRSMTSIZECTNT
+	           FROM   $schemaId$.TSEAIES01 A,
+	                  $schemaId$.TSEAIEA04 B,  (SELECT @NO := 0) R
+	           WHERE  A.IntfId=B.IntfId
+	           AND    A.msgRegDate BETWEEN #searchStartTime# AND #searchEndTime#
+	           AND	  A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	           <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+                      SUBSTR(A.BjobMsgScheID, 3,3 ) = #searchEaiBzwkDstcd# 
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchBatchType">
+         			  A.batchType = #searchBatchType#
+               </isNotEmpty>
+         	   <isNotEmpty prepend="AND" property="searchErrorVal">
+         	          NVL(A.errYn,'N') = #searchErrorVal#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchInterfaceNm">
+                      ( B.intfName LIKE CONCAT( '%' , #searchInterfaceNm# , '%') OR B.intfId LIKE CONCAT( '%' , #searchInterfaceNm# , '%' ) )
+               </isNotEmpty>
+	           ORDER BY A.MsgRegDate DESC, A.WorkGrpCd, A.IntfId 
+			 ) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(A.BjobMsgScheID) AS TOTALCOUNT
+	    FROM   $schemaId$.TSEAIES01 A,
+	           $schemaId$.TSEAIEA04 B
+	    WHERE  A.IntfId=B.IntfId
+	    AND    A.msgRegDate BETWEEN #searchStartTime# AND #searchEndTime#
+	    AND	   A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+               SUBSTR(A.BjobMsgScheID, 3,3 ) = #searchEaiBzwkDstcd# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchBatchType">
+         	   A.batchType = #searchBatchType#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchErrorVal">
+         	   IFNULL(A.errYn,'N') = #searchErrorVal#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchInterfaceNm">
+             ( B.intfName LIKE CONCAT( '%' , #searchInterfaceNm# , '%') OR B.intfId LIKE CONCAT( '%' , #searchInterfaceNm# , '%' ) )
+        </isNotEmpty>
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT A.WORKGRPCD,
+		       B.LEVEL4,
+		       A.BJOBDMNDMSGID,
+		       A.BATCHTYPE,
+		       A.MSGREGDATE,
+		       A.SNDSTARTDATE,
+		       A.SNDENDDATE,
+		       A.RCVSTARTDATE,
+		       A.RCVENDDATE,
+		       A.INTFID,
+		       B.INTFNAME,
+		       A.SNDLINECNT,
+		       A.RCVLINECNT,
+		       NVL(A.ERRYN,'N') AS ERRYN,
+               NVL(A.SCHEKIND,'E') AS SCHEKIND,
+               A.CHECKROWCNT,
+               A.CHECKBASEDATE,
+               A.CHECKPARAM,
+               (SELECT FILETRSMTSIZECTNT FROM $schemaId$.TSEAIES03 WHERE BJOBDMNDMSGID=A.BJOBDMNDMSGID AND SNDRCVKIND='1' ) AS FILETRSMTSIZECTNT,
+               A.EAIOBSTDPRCSSCTNT
+        FROM   $schemaId$.TSEAIES01 A,
+               $schemaId$.TSEAIEA04 B
+        WHERE  A.BjobDmndMsgID=#bjobDmndMsgID#
+        AND    A.intfId=B.intfId
+	</statement>
+
+	<statement id="dbAdapterLogList" resultClass="java.util.HashMap">
+	    SELECT TRANSSTATUSCD,
+	           SNDRCVKIND,
+	           ADPTRCD,
+	           ADPTRCDSEQ,
+	           DBTRSMTSTARTHMS,
+	           DBTRSMTENDHMS,
+	           ORGCNT,
+	           INSERTCNT,
+	           ERRMSGCD
+        FROM   $schemaId$.TSEAIES04
+        WHERE  BjobDmndMsgID = #bjobDmndMsgID#
+        ORDER BY SndRcvKind,AdptrCd,AdptrCdSeq
+	</statement> 
+	 
+	<statement id="fileAdapterLogList" resultClass="java.util.HashMap">
+	    SELECT TRANSSTATUSCD,
+	           SNDRCVKIND,
+	           ADPTRCD,
+	           ADPTRCDSEQ,
+	           FILETRSMTSTARTHMS,
+	           FILETRSMTENDHMS,
+	           RMTTRSMTFULLNAME,
+	           EAITRSMTFULLNAME,
+	           FILETRSMTSIZECTNT,
+	           ERRMSGCD
+       FROM    $schemaId$.TSEAIES03
+       WHERE   BjobDmndMsgID = #bjobDmndMsgID#
+       ORDER BY SndRcvKind, AdptrCd, AdptrCdSeq
+	</statement> 
+	 
+</sqlMap>

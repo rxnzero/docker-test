@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="FlowStep">
+
+	<statement id="list" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT 
+            BJOBBZWKPRCSSDSTCD,
+            BJOBSTGEDSTCD     ,
+            BJOBSTGEPTRNNAME  ,
+            BJOBFLOWCMPONAME  ,
+            TELGMCLSID        ,
+            UNITTELGMLEN
+		FROM (
+	         SELECT @NO := @NO + 1 AS ROWNUMBER,
+                BJOBBZWKPRCSSDSTCD,
+	            BJOBSTGEDSTCD     ,
+	            BJOBSTGEPTRNNAME  ,
+	            BJOBFLOWCMPONAME  ,
+	            TELGMCLSID        ,
+	            UNITTELGMLEN
+			FROM $schemaId$.TSEAIBR03,  (SELECT @NO := 0) R
+	        <dynamic prepend="WHERE">
+		    	<isNotEmpty prepend="AND" property="searchBjobBzwkPrcssDstcd">
+				    BjobBzwkPrcssDstcd LIKE CONCAT(  '%' , #searchBjobBzwkPrcssDstcd# , '%')
+			    </isNotEmpty>
+		        <isNotEmpty prepend="AND" property="searchBjobStgeDstcd">
+				    BjobStgeDstcd LIKE CONCAT(  '%' , #searchBjobStgeDstcd# , '%')
+			    </isNotEmpty> 
+		        <isNotEmpty prepend="AND" property="searchBjobFlowCmpoName">
+				    BjobFlowCmpoName LIKE CONCAT( '%' , #searchBjobFlowCmpoName# , '%')
+			    </isNotEmpty> 
+			</dynamic>
+			ORDER BY BjobBzwkPrcssDstcd, BjobStgeDstcd
+		 ) TMP
+		 WHERE ROWNUMBER BETWEEN #startNum# AND #endNum#		
+	</statement>	
+
+	<statement id="count" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT 	COUNT(BjobBzwkPrcssDstcd) AS "TotalCount"
+    	FROM $schemaId$.TSEAIBR03
+	        <dynamic prepend="WHERE">
+		    	<isNotEmpty prepend="AND" property="searchBjobBzwkPrcssDstcd">
+				    BjobBzwkPrcssDstcd LIKE CONCAT(  '%' , #searchBjobBzwkPrcssDstcd# , '%')
+			    </isNotEmpty>
+		        <isNotEmpty prepend="AND" property="searchBjobStgeDstcd">
+				    BjobStgeDstcd LIKE CONCAT(  '%' , #searchBjobStgeDstcd# , '%')
+			    </isNotEmpty> 
+		        <isNotEmpty prepend="AND" property="searchBjobFlowCmpoName">
+				    BjobFlowCmpoName LIKE CONCAT( '%' , #searchBjobFlowCmpoName# , '%')
+			    </isNotEmpty> 
+			</dynamic>
+	</statement>	
+   
+</sqlMap>

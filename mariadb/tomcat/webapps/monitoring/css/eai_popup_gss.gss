@@ -1,0 +1,39 @@
+/* ÀüÃ¼ */
+
+
+body
+{
+overflow-y:hidden;
+overflow-x:hidden;
+}
+
+a {	text-decoration: none; padding: 0px; margin: 0px; border:0px;}
+
+a:link		{	color: #7A5A31;}
+a:visited	{	color: #555555;}
+a:hover	{	color: #CC6600;}
+
+.popTitle{
+	height		:	20px;
+	font-family:	'dotum' ;
+	font-weight:	bold ;
+	font-size	:	14px ;
+	color		:	#FFFFFF;
+	background-color:#C2A894 ;
+	text-align	:	left ;
+	padding:2px 0px 0px 10px;
+}
+
+.btn01 {
+	Font-Size : 12px;
+	Font-Family : 'dotum';
+	Text-Align	:center;
+	border-top : 1px solid #C7C0B3;
+	border-left : 1px solid #C7C0B3;
+	border-bottom : 1px solid #5A3C31;
+	border-right : 1px solid #5A3C31;
+	background-color : #7C5E53;
+	color: #FFF;
+	padding-top: 2px;
+	height="20"
+}

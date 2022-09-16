@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatCountMonitor">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT COALESCE(SUM(CASE WHEN T2.sndStatusCd IS NOT NULL THEN 1 ELSE 0 END)                            ,0) AS "SNDSTATUSCNT0",
+	           COALESCE(SUM(CASE WHEN T2.rcvStatusCd IS NOT NULL THEN 1 ELSE 0 END)                            ,0) AS "RCVSTATUSCNT0",
+	           COALESCE(SUM(CASE WHEN T2.sndStatusCd='C' THEN 1 ELSE 0 END)                                    ,0) AS "SNDSTATUSCNT1",
+	           COALESCE(SUM(CASE WHEN T2.sndStatusCd NOT IN ('C','S') THEN 1 ELSE 0 END)                       ,0) AS "SNDSTATUSCNT2",
+	           COALESCE(SUM(CASE WHEN T2.rcvStatusCd='C' THEN 1 ELSE 0 END)                                    ,0) AS "RCVSTATUSCNT1",
+	           COALESCE(SUM(CASE WHEN T2.rcvStatusCd NOT IN ('C','S') AND t2.sndStatusCd='C' THEN 1 ELSE 0 END),0) AS "RCVSTATUSCNT2",
+	           COALESCE(SUM(CASE WHEN T2.sndStatusCd='S' THEN 1 ELSE 0 END)                                    ,0) AS "SNDSTATUSCNT3",
+	           COALESCE(SUM(CASE WHEN T2.rcvStatusCd='S' THEN 1 ELSE 0 END)                                    ,0) AS "RCVSTATUSCNT3"
+		FROM ( SELECT COALESCE((SELECT MAX(transStatusCd) FROM $schemaId$.TSEAIES03 WHERE BjobDmndMsgID=a.BjobDmndMsgID AND sndRcvKind='1' ),
+	                  COALESCE((SELECT MAX(transStatusCd) FROM $schemaId$.TSEAIES04 WHERE BjobDmndMsgID=a.BjobDmndMsgID AND sndRcvKind='1' ),'F')) AS sndStatusCd,
+	                  COALESCE((SELECT MAX(transStatusCd) FROM $schemaId$.TSEAIES03 WHERE BjobDmndMsgID=a.BjobDmndMsgID AND sndRcvKind='2' ),
+	                  COALESCE((SELECT MAX(transStatusCd) FROM $schemaId$.TSEAIES04 WHERE BjobDmndMsgID=a.BjobDmndMsgID AND sndRcvKind='2' ),'F')) AS rcvStatusCd
+	           FROM   $schemaId$.TSEAIES01 A
+	           WHERE A.msgRegDate BETWEEN #searchStartDate# AND #searchEndDate# || '9'
+	         ) T2
+	</statement>	
+
+</sqlMap>

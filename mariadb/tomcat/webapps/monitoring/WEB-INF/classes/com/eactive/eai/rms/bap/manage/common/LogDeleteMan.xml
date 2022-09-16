@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapLogDelete">
+
+	<statement id="clearStage" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBJ04 
+        WHERE BjobDmndMsgID IN
+              ( SELECT  BjobDmndMsgID
+                FROM    $schemaId$.TSEAIBJ03
+                WHERE   BjobDmndMsgID LIKE CONCAT( #uuid# , '%')
+                AND     TranStartHMS BETWEEN #stageStart# AND #stageEnd#
+              )
+	</statement>	
+
+	<statement id="clearNoFileStage" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBJ04 
+        WHERE   BjobDmndMsgID IN
+              ( SELECT  BjobDmndMsgID
+                FROM    $schemaId$.TSEAIBJ03
+                WHERE   BjobDmndMsgID LIKE CONCAT( #uuid# , '%')
+                AND     TranPrcssDstcd = 'N'
+                AND     TranStartHMS BETWEEN #nofileStart# AND #nofileEnd#
+              )
+	</statement>	
+
+	<statement id="clearNoFileMaster" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBJ03 
+        WHERE   BjobDmndMsgID IN
+              ( SELECT  BjobDmndMsgID
+                FROM    $schemaId$.TSEAIBJ03
+                WHERE   BjobDmndMsgID LIKE CONCAT( #uuid# , '%')
+                AND     TranPrcssDstcd = 'N' 
+                AND     TranStartHMS BETWEEN #nofileStart# AND #nofileEnd#
+                MINUS
+                SELECT  BjobDmndMsgID
+                FROM    $schemaId$.TSEAIBJ04
+                WHERE   BjobDmndMsgID LIKE CONCAT( #uuid# , '%')
+                AND     ThisStgeStartHMS BETWEEN #nofileStart# AND #nofileEnd#
+              )
+	</statement>	
+
+</sqlMap>

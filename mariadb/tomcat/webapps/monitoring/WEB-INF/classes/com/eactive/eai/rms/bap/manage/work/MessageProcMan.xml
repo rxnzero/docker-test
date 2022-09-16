@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapMessageProc">
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TotalCount"
+		FROM $schemaId$.TSEAIBJ01 A, $schemaId$.TSEAIBJ02 B
+        WHERE  A.BjobBzwkDstcd = B.BjobBzwkDstcd
+        AND    B.BjobBzwkName Like #likeBjobBzwkName#
+        AND    A.BjobMsgDsticName Like #likeBjobMsgDsticName#
+        AND    A.BjobTranDstcdName Like #likeBjobTranDstcdName#
+        AND    A.UapplCd Like #likeUapplCd#
+        AND    A.ThisMsgChrgIDs LIKE #likeThisMsgChrgIDs#
+		<isNotEmpty prepend="AND" property="groupCoCd" >
+            A.GroupCoCd = #searchGroupCoCd#
+		</isNotEmpty>
+	</statement>	  
+
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	
+		    BJOBMSGDSTCD AS "BJOBMSGDSTCD" ,
+            BJOBMSGDSTICNAME AS "BJOBMSGDSTICNAME" ,
+            BJOBBZWKDSTCD AS "BJOBBZWKDSTCD" ,
+            BJOBTRANDSTCDNAME AS "BJOBTRANDSTCDNAME",
+            BJOBTELGMHDRSIZE AS "BJOBTELGMHDRSIZE",
+            BJOBTELGMTRAILSIZE AS "BJOBTELGMTRAILSIZE" ,
+            EAIFILESENDUSEYN AS "FILESENDUSEYN",
+            EAIFILERECVUSEYN AS "FILERECVUSEYN",
+            MSGPRCSSPRITY AS "MSGPRCSSPRITY" ,
+            BJOBTELGMRECSIZE AS "BJOBTELGMRECSIZE",
+            SYSCD AS "SYSCD",
+            UAPPLCD AS "UAPPLCD" ,
+            GROUPCOCD AS "GROUPCOCD" ,
+            SNDRCVFILENAME AS "SNDRCVFILENAME" ,
+            INTFID AS "INTFID" ,
+            THISMSGCHRGIDS AS "THISMSGCHRGIDS" ,
+            RECVNOTIUSEYN AS "RECVNOTIUSEYN" ,
+            THISMSGUSEYN AS "THISMSGUSEYN" ,
+            THISMSGREGSNTID AS "THISMSGREGSNTID" ,
+            THISMSGREGIHMS AS "THISMSGREGIHMS" ,
+            THISMSGAMNDRID AS "THISMSGAMNDRID" ,
+            THISMSGAMNDHMS AS "THISMSGAMNDHMS"            
+		FROM $schemaId$.TSEAIBJ01
+		WHERE BjobMsgDstcd = #bjobMsgDstcd#
+	</statement>  
+
+	<statement id="delete" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIBJ01
+        WHERE  BjobMsgDstcd = #bjobMsgDstcd#
+	</statement>
+</sqlMap>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TSEAIHK05 --><!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="B2BAdapterMap">
+  
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) FROM $schemaId$.TSEAIFR07 
+    <dynamic prepend="WHERE">
+      <isNotEmpty prepend="AND" property="searchEaiSevrInstncName">
+        EAISEVRINSTNCNAME LIKE UPPER('%'||#searchEaiSevrInstncName#||'%')
+      </isNotEmpty>
+      <isNotEmpty prepend="AND" property="searchEaiSvcName">
+        EAISVCNAME LIKE UPPER('%'||#searchEaiSvcName#||'%')
+      </isNotEmpty>
+    </dynamic>
+  </statement>
+
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT ROWNO as "ROWNO", B.EAISEVRINSTNCNAME as "EAISEVRINSTNCNAME",      
+    	B.EAISVCNAME AS "EAISVCNAME" , B.EXTNLINSTIIDNFINAME AS "EXTNLINSTIIDNFINAME", 
+        B.DMNDDTALSBZWKDSTICNAME AS "DMNDDTALSBZWKDSTICNAME", 
+        B.PSVSYSADPTRBZWKGROUPNAME AS "PSVSYSADPTRBZWKGROUPNAME", B.ADPTRBZWKNAME AS "ADPTRBZWKNAME"
+     FROM ( SELECT ROW_NUMBER() OVER() AS ROWNO, A.* FROM
+    (
+    SELECT 
+        EAISEVRINSTNCNAME,      EAISVCNAME ,              EXTNLINSTIIDNFINAME, 
+        DMNDDTALSBZWKDSTICNAME, PSVSYSADPTRBZWKGROUPNAME, ADPTRBZWKNAME 
+    FROM $schemaId$.TSEAIFR07 
+    <dynamic prepend="WHERE">
+      <isNotEmpty prepend="AND" property="searchEaiSevrInstncName">
+        EAISEVRINSTNCNAME LIKE UPPER('%'||#searchEaiSevrInstncName#||'%')
+      </isNotEmpty>
+      <isNotEmpty prepend="AND" property="searchEaiSvcName">
+        EAISVCNAME LIKE UPPER('%'||#searchEaiSvcName#||'%')
+      </isNotEmpty>
+    </dynamic>
+    ) A ) B WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+</sqlMap>

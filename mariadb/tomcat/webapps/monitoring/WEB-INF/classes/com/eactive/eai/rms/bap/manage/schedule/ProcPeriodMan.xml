@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapProcPeriod">
+	<statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT A.BJOBMSGSCHEID AS "BJOBMSGSCHEID"
+			 , A.BJOBMSGSCHEID AS "BJOBMSGSCHEID"
+			 , A.OSIDINSTIDSTCD AS "OSIDINSTIDSTCD"
+			 , A.BJOBMSGDSTCD AS "BJOBMSGDSTCD"
+			 , A.SENDRECVYN AS "SENDRECVYN"
+			 , LTRIM(RTRIM(A.SNDRCVCYCLTYPNAME))	AS "SNDRCVCYCLTYPNAME"
+			 , LTRIM(RTRIM(A.SNDRCVSTARTHMS))		AS "SNDRCVSTARTHMS"
+			 , LTRIM(RTRIM(A.SNDRCVENDHMS))			AS "SNDRCVENDHMS"
+			 , A.EAIWARNYN AS "WARNYN"
+			 , A.THISMSGUSEYN AS "THISMSGUSEYN"
+			 , A.THISMSGREGSNTID AS "THISMSGREGSNTID"
+			 , A.THISMSGREGIHMS AS "THISMSGREGIHMS"
+			 , A.THISMSGAMNDRID AS "THISMSGAMNDRID"
+			 , A.THISMSGAMNDHMS AS "THISMSGAMNDHMS"
+			 , B.BJOBBZWKDSTCD AS "BJOBBZWKDSTCD"
+		  FROM $schemaId$.TSEAIBS05 A
+			 , $schemaId$.TSEAIBJ01 B
+		 WHERE A.BJOBMSGDSTCD				= B.BJOBMSGDSTCD
+		   AND LTRIM(RTRIM(BJOBMSGSCHEID))	= #bjobMsgScheID#
+	</statement>
+  
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIBS05
+		 WHERE LTRIM(RTRIM(BJOBMSGSCHEID)) = LTRIM(RTRIM(#bjobMsgScheID#))
+	</statement>
+
+</sqlMap>

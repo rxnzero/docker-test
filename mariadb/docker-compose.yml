@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  mariadb-10:
+    image: mariadb:10
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/conf.d:/etc/mysql/conf.d
+      - ./db/data:/var/lib/mysql
+      - ./db/initdb.d:/docker-entrypoint-initdb.d
+    env_file: .env
+    environment:
+      TZ: Asia/Seoul
+    container_name: mariadb-10
+    restart: always
+  tomcat:
+    image: tomcat:8.5
+    environment:
+      - "JAVA_OPTS=-Xms1024m"
+      - WAIT_HOSTS=mariadb-10:3306
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+    build:
+      context: .
+      dockerfile: Dockerfile-tomcat
+    ports:
+      - "10100:10100"
+    volumes:
+      - ./tomcat/webapps:/usr/local/tomcat/webapps
+    links:
+      - mariadb-10:mariadb-10
+    container_name: tomcat-rms
+    restart: always
+    depends_on:
+      - mariadb-10

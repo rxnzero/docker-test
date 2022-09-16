@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="MessageMeta">
+
+	<statement id="list" resultClass="java.util.HashMap">
+		SELECT 
+			MsgMetaDstcd ,
+		    MsgDesc ,  
+		    ThisMsgUseYn
+		FROM (
+	         SELECT ROW_NUMBER() OVER( ORDER BY MsgMetaDstcd) ROWNO,
+	                MsgMetaDstcd,
+	                MsgDesc,
+	                ThisMsgUseYn
+			FROM $schemaId$.TSEAIBM03
+	        <dynamic prepend="WHERE">
+		    	<isNotEmpty prepend="AND" property="searchMsgMetaDstcd">
+				MsgMetaDstcd LIKE '%' || #searchMsgMetaDstcd# || '%'
+			</isNotEmpty>
+		    <isNotEmpty prepend="AND" property="searchMsgDesc">
+				MsgDesc LIKE '%' || #searchMsgDesc# || '%'
+			</isNotEmpty> 
+			</dynamic>
+		 ) TMP
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#		
+	</statement>	
+
+	<statement id="count"  resultClass="java.lang.Integer">
+		SELECT 	COUNT(MsgMetaDstcd) AS "TotalCount"
+    	FROM $schemaId$.TSEAIBM03
+        <dynamic prepend="WHERE">
+	    	<isNotEmpty prepend="AND" property="searchMsgMetaDstcd">
+			MsgMetaDstcd LIKE '%' || #searchMsgMetaDstcd# || '%'
+		</isNotEmpty>
+	    <isNotEmpty prepend="AND" property="searchMsgDesc">
+			MsgDesc LIKE '%' || #searchMsgDesc# || '%'
+		</isNotEmpty> 
+		</dynamic>			
+	</statement>	
+ 
+	<statement id="update_bm03"  resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBM03 
+		SET    MsgDesc = #msgDesc#,
+		       ThisMsgUseYn = #thisMsgUseYn#,
+			   ThisMsgAmndrID = #userid#,
+			   ThisMsgAmndHMS = TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3')	
+		WHERE  MsgMetaDstcd = #msgMetaDstcd#
+	</statement>
+	
+	<statement id="insert_bm03"  resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBM03 (
+			 MsgMetaDstcd,
+			 MsgDesc,
+			 ThisMsgUseYn,
+			 ThisMsgRegsntID,
+			 ThisMsgRegiHMS,
+			 ThisMsgAmndrID,
+			 ThisMsgAmndHMS  )
+		VALUES (
+			#msgMetaDstcd# ,
+			#msgDesc# ,
+			#thisMsgUseYn# ,
+			#userid# ,
+			TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3'),
+			#userid# ,
+			TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3')	 
+		)
+	</statement>
+
+	<statement id="insert_bm02" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBM02 (
+			 MsgGroupDstcd,
+			 MsgClmnSeq,
+			 MsgItemDsticName,
+			 ThisMsgClmnUseYn,
+			 ThisMsgRegsntID,
+			 ThisMsgRegiHMS,
+			 ThisMsgAmndrID,
+			 ThisMsgAmndHMS,
+			 MsgMetaDstcd  )
+		VALUES (
+			 #msgMetaDstcd# ,
+			 #msgClmnSeq# ,
+			 #msgItemDsticName# ,
+			 #thisMsgUseYn# ,
+			 #userid# ,
+			 TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3'),
+			 #userid# ,
+			 TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3'),	
+			 #msgMetaDstcd# 
+		)
+	</statement>
+	
+</sqlMap>

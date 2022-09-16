@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="EaiBzwkDstcdTransition">
+  
+  <statement id="findByTransitionEaiBzwkDstcd" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.trand.vo.TransitionVO">        
+          SELECT  STATCYM AS "STATCYM", EAIBZWKDSTCD AS "EAIBZWKDSTCD",
+									SUM(S1MNTRSMTNOITM) AS "MNTRSMTNOITM1",  
+									SUM(S2MNTRSMTNOITM) AS "MNTRSMTNOITM2",  
+									SUM(S3MNTRSMTNOITM) AS "MNTRSMTNOITM3",  
+									SUM(S4MNTRSMTNOITM) AS "MNTRSMTNOITM4",  
+									SUM(S5MNTRSMTNOITM) AS "MNTRSMTNOITM5",  
+									SUM(S6MNTRSMTNOITM) AS "MNTRSMTNOITM6",  
+									SUM(S7MNTRSMTNOITM) AS "MNTRSMTNOITM7",  
+									SUM(S8MNTRSMTNOITM) AS "MNTRSMTNOITM8",  
+									SUM(S9MNTRSMTNOITM) AS "MNTRSMTNOITM9",  
+									SUM(S10MNTRSMTNOITM) AS "MNTRSMTNOITM10",
+									SUM(S11MNTRSMTNOITM) AS "MNTRSMTNOITM11",
+									SUM(S12MNTRSMTNOITM) AS "MNTRSMTNOITM12"
+				 	 FROM $schemaId$.TSEAIST04
+          WHERE TRIM(EAIBZWKDSTCD) LIKE CONCAT( '%' , CONCAT( #eaiBzwkDstcd# , '%'))
+          GROUP BY STATCYM, EAIBZWKDSTCD
+          ORDER BY STATCYM, EAIBZWKDSTCD
+  </statement>
+</sqlMap>

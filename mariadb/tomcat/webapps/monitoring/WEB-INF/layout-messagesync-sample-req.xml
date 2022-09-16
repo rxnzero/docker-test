@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="euc-kr" ?>
+<Message>							
+	<Header>						
+		<ServiceName>MessageSync</ServiceName>					
+		<Command>insert</Command>					
+	</Header>						
+	<Body>						
+		<Layout>					
+			<id>WIS_WIS1_REQ1</id>				
+			<data><![CDATA[<?xml version="1.0" encoding="euc-kr" ?>			
+				<Format id="WIS_WIS1_REQ1" desc="세금우대한도조회요청(당발)" author="admin" group="WIS" date="2012-07-30 03:10:23" msgType="ASCII" ioType="REQ1" part="data" type="">			
+					<Group no="1" id="Common" desc="업무공통부" depth="1" maxCnt="0" type="" len="0" scale="0" default="" object="" count="" >		
+						<Field no="2" id="tranCd" desc="TransactionCode" depth="2" maxCnt="0" type="Varchar" len="9" scale="0" default="" object="" count="" />	
+						<Field no="3" id="sysDstcd" desc="System-ID" depth="2" maxCnt="0" type="Varchar" len="2" scale="0" default="" object="" count="" />	
+						<Field no="4" id="fiorgCd" desc="금융기관코드" depth="2" maxCnt="0" type="Number" len="3" scale="0" default="" object="" count="" />	
+						<Field no="5" id="telgmPertypCd" desc="전문종별코드" depth="2" maxCnt="0" type="Varchar" len="4" scale="0" default="" object="" count="" />	
+						<Field no="6" id="rspnsCd" desc="응답코드" depth="2" maxCnt="0" type="Varchar" len="3" scale="0" default="" object="" count="" />	
+						<Field no="7" id="bnkBrncd" desc="점포코드" depth="2" maxCnt="0" type="Varchar" len="7" scale="0" default="" object="" count="" />	
+						<Field no="8" id="termlOprtrNo" desc="단말기조작자ID" depth="2" maxCnt="0" type="Varchar" len="10" scale="0" default="" object="" count="" />	
+						<Field no="9" id="termlOprtrName" desc="단말기조작자성명" depth="2" maxCnt="0" type="Varchar" len="20" scale="0" default="" object="" count="" />	
+					</Group>
+					<Group no="10" id="Individual" desc="업무개별부" depth="1" maxCnt="0" type="" len="0" scale="0" default="" object="" count="" >		
+						<Field no="11" id="cuniqno" desc="주민(사업자)등록번호" depth="2" maxCnt="0" type="Varchar" len="13" scale="0" default="" object="" count="" />	
+						<Field no="12" id="custDstcd" desc="주민(사업자)등록번호구분" depth="2" maxCnt="0" type="Varchar" len="1" scale="0" default="" object="" count="" />	
+						<Field no="13" id="conmName" desc="상호(기업체명)" depth="2" maxCnt="0" type="Varchar" len="40" scale="0" default="" object="" count="" />	
+						<Field no="14" id="custnm" desc="성명(대표자)" depth="2" maxCnt="0" type="Varchar" len="20" scale="0" default="" object="" count="" />	
+						<Field no="15" id="taxprefAmt" desc="세금우대가입총액" depth="2" maxCnt="0" type="Number" len="10" scale="0" default="" object="" count="" />	
+						<Field no="16" id="taxprefClam" desc="세금우대한도잔여액" depth="2" maxCnt="0" type="Varchar" len="10" scale="0" default="" object="" count="" />	
+						<Field no="17" id="taxprefRegiNoitm" desc="세금우대총등록건수" depth="2" maxCnt="0" type="Number" len="2" scale="0" default="" object="" count="" />	
+						<Field no="18" id="taxprefRplyNoitm" desc="세금우대회보건수" depth="2" maxCnt="0" type="Number" len="2" scale="0" default="" object="" count="" />	
+						<Grid no="19" id="taxprefRplyMatr" desc="세금우대회보사항(10)" depth="2" maxCnt="0" type="" len="0" scale="0" default="" object="" count="세금우대회보건수" >	
+							<Column no="20" id="regiBrn" desc="등록점포" depth="3" maxCnt="0" type="Varchar" len="40" scale="0" default="" object="" count="" />
+							<Column no="21" id="acno" desc="계좌번호" depth="3" maxCnt="0" type="Varchar" len="16" scale="0" default="" object="" count="" />
+							<Column no="22" id="savnKndDstcd" desc="저축종류" depth="3" maxCnt="0" type="Varchar" len="2" scale="0" default="" object="" count="" />
+							<Column no="23" id="taxprefJoinAmt" desc="세금우대가입금액" depth="3" maxCnt="0" type="Varchar" len="10" scale="0" default="" object="" count="" />
+							<Column no="24" id="intDvmny" desc="이자,배당지급액" depth="3" maxCnt="0" type="Varchar" len="10" scale="0" default="" object="" count="" />
+						</Grid>	
+					</Group>		
+				</Format>			
+				]]></data>				
+		</Layout>					
+	</Body>						
+</Message>

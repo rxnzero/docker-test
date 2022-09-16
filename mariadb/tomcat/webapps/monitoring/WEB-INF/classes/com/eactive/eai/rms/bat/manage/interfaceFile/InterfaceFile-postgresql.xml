@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatInterfaceFile">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT   ROWNO             AS "ROWNO"
+				, intfId       AS "INTFID"
+				, fileNamePtrn AS "FILENAMEPTRN"
+				, transFreq    AS "TRANSFREQ"
+				, sizeOnce     AS "SIZEONCE"
+				, procTerm     AS "PROCTERM"
+				, reqChgr      AS "REQCHGR"
+				, reqChgrTlno  AS "REQCHGRTLNO"
+				, resChgr      AS "RESCHGR"
+				, resChgrTlno  AS "RESCHGRTLNO"
+				, delYn        AS "DELYN"
+		  FROM (
+				SELECT ROW_NUMBER() OVER(ORDER BY EA06.intfId) AS ROWNO
+					 , EA06.intfId
+					 , EA06.fileNamePtrn
+					 , EA06.transFreq
+					 , EA06.sizeOnce
+					 , EA06.procTerm
+					 , EA06.reqChgr
+					 , EA06.reqChgrTlno
+					 , EA06.resChgr
+					 , EA06.resChgrTlno
+					 , EA06.delYn
+				  FROM $schemaId$.TSEAIEA06 EA06
+				     , $schemaId$.TSEAIEA04 EA04
+				 WHERE EA06.intfId = EA04.intfId
+				   AND EA04.workGrpCd IN ( SELECT eaiBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE USERID = #loginId#  )
+					<isNotEmpty prepend="AND" property="searchIntfId">
+						UPPER(EA06.intfId) LIKE UPPER('%' || #searchIntfId# || '%')
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchFileNamePtrn">
+						UPPER(EA06.fileNamePtrn) LIKE UPPER('%' || #searchFileNamePtrn# || '%')
+					</isNotEmpty>
+		  	   ) EA06
+		 WHERE EA06.ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIEA06 (		
+			   intfId
+			 , fileNamePtrn
+			 , transFreq
+			 , sizeOnce
+			 , procTerm
+			 , reqChgr
+			 , reqChgrTlno
+			 , resChgr
+			 , resChgrTlno
+			 , regDate
+			 , regUserId
+			 , modDate
+			 , modUserId
+			 , delYn
+		)
+		VALUES (
+		       #intfId#
+			 , #fileNamePtrn#
+			 , #transFreq#
+			 , #sizeOnce#
+			 , #procTerm#
+			 , #reqChgr#
+			 , #reqChgrTlno#
+			 , #resChgr#
+			 , #resChgrTlno#
+			 , TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+			 , #loginId#
+			 , TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+			 , #loginId#
+			 , #delYn#
+		)
+	</statement>
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIEA06
+		   SET transFreq	= #transFreq#
+			 , sizeOnce		= #sizeOnce#
+			 , procTerm		= #procTerm#
+			 , reqChgr		= #reqChgr#
+			 , reqChgrTlno	= #reqChgrTlno#
+			 , resChgr		= #resChgr#
+			 , resChgrTlno	= #resChgrTlno#
+			 , delYn		= #delYn#
+			 , modDate		= TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+			 , modUserId	= #loginId#
+			 
+		 WHERE intfId		= #intfId#
+		   AND fileNamePtrn	= #fileNamePtrn#
+	</statement>
+	 
+</sqlMap>

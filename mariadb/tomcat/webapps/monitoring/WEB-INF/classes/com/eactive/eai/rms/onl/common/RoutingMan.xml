@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Routing">
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	ROUTNAME AS "ROUTNAME", MOTIVROUTURINAME AS "MOTIVROUTURINAME"  , 
+				NONMOTIVROUTURINAME AS "NONMOTIVROUTURINAME"  , LAYERDSTCD AS "LAYERDSTCD"  
+				FROM $schemaId$.TSEAIFR02
+	    WHERE ROUTNAME= #routName#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap" >
+	 	UPDATE 	$schemaId$.TSEAIFR02
+				SET	MOTIVROUTURINAME = #motivRoutUriName#, 
+					NONMOTIVROUTURINAME = #nonMotivRoutUriName#, 
+					LAYERDSTCD = #layerDstcd# 
+		WHERE 	ROUTNAME = #routName#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" >
+		INSERT 	INTO $schemaId$.TSEAIFR02
+				( ROUTNAME, MOTIVROUTURINAME, 
+				NONMOTIVROUTURINAME, LAYERDSTCD) 
+				VALUES(#routName#, #motivRoutUriName#, 
+				#nonMotivRoutUriName#, #layerDstcd#)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" >
+	 	DELETE FROM $schemaId$.TSEAIFR02 WHERE ROUTNAME = #routName#
+	</statement>
+	
+</sqlMap>

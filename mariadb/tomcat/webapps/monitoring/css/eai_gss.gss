@@ -1,0 +1,83 @@
+a {	text-decoration: none; padding: 0px; margin: 0px; border:0px;}
+
+a:link		{	color: #7A5A31;}
+a:visited	{	color: #555555;}
+a:hover	{	color: #CC6600;}
+
+.top {
+	Font-Size : 11px;
+	Font-Family : 'dotum';
+	Text-Decoration : none;
+	Color : #999999;
+}
+.navigator {
+	Font-Size : 11px;
+	Font-Family : 'dotum';
+	Color : #999999;
+	text-align:right;
+}
+.explain {
+	Font-Size : 11px;
+	Font-Family : 'dotum';
+	Color : #CC9966;
+	padding-left:20px
+}
+ 
+.title {
+	Font-Size : 16px;
+	Font-Family : 'dotum';
+	Font-Weight : bold;
+	Text-Decoration : none;
+	Text-Align	:left;
+	Border-Style:none;
+	Color : #000000;
+	letter-spacing:-1px;
+	vertical-align:bottom;
+}
+
+.titleLine{ 
+	width: 815px;
+	height:3px;
+	border-top : 1px solid #DDDDDD;
+	border-bottom : 1px solid #EEEEEE;
+	background-color : #EEEEEE;
+	left: 10px;
+	top:45px
+}
+
+.search {
+	Font-Size : 11px;
+	Font-Family : 'dotum';
+	Font-Weight : bold;
+	Text-Decoration : none;
+	Text-Align	:left;
+	Border-Style:none;
+	color: black
+}
+
+.gridList {
+	Font-Size : 11px;
+	Font-Family : 'dotum';
+	Text-Decoration : none;
+	Text-Align	:left;
+	Border-Style:none;
+	color: black
+}
+.btn01 {
+	Font-Size : 12px;
+	Font-Family : 'dotum';
+	Text-Align	:center;
+	border-top : 1px solid #C7C0B3;
+	border-left : 1px solid #C7C0B3;
+	border-bottom : 1px solid #5A3C31;
+	border-right : 1px solid #5A3C31;
+	background-color : #7C5E53;
+	color: #FFF;
+	padding-top: 2px;
+	height="20"
+}
+.zone {
+	position:absolute;
+	z-index:0;
+	overflow:hidden;
+}

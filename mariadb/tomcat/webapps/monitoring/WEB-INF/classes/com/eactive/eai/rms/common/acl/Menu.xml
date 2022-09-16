@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Menu">	
+<!-- 	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer"> -->
+<!-- 	 	DELETE	FROM $schemaId$.TSEAIRM01 WHERE MENUID in( -->
+<!-- 	 		SELECT MENUID  -->
+<!-- 	 		  FROM $schemaId$.TSEAIRM01 T01  -->
+<!-- 	 	   connect by prior MENUID  = PARENTMENUID   -->
+<!-- 	 	      start with MENUID = #menuId# -->
+<!-- 	 	) -->
+<!-- 	</statement> -->
+	
+</sqlMap>

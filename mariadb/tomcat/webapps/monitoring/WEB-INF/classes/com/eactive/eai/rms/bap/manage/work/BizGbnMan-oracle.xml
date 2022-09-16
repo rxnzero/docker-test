@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapBizGbn">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT
+	       ROWNO, 
+	       BjobBzwkDstcd  ,  
+	       BjobBzwkName , 
+	       ThisMsgUseYn   ,  
+	       ThisMsgRegsntID,  
+	       ThisMsgRegiHMS ,  
+	       ThisMsgAmndrID ,  
+	       ThisMsgAmndHMS
+	  	FROM (
+		    SELECT
+		         ROW_NUMBER() OVER( ORDER BY BjobBzwkDstcd) ROWNO, 
+		         BjobBzwkDstcd  ,  
+		         BjobBzwkName   , 
+            	 ThisMsgUseYn   ,  
+            	 ThisMsgRegsntID,  
+            	 ThisMsgRegiHMS ,  
+            	 ThisMsgAmndrID ,  
+            	 ThisMsgAmndHMS
+		      FROM $schemaId$.TSEAIBJ02
+		    <dynamic prepend="WHERE">
+			    <isNotEmpty prepend="AND" property="searchbjobBzwkDstcd">
+					UPPER(BjobBzwkDstcd) LIKE '%' || UPPER(#searchbjobBzwkDstcd#) || '%'
+				</isNotEmpty>
+			    <isNotEmpty prepend="AND" property="searchbjobBzwkName">
+					BjobBzwkName LIKE '%' || #searchbjobBzwkName# || '%'
+				</isNotEmpty> 
+			</dynamic> 
+	       ) TMP
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="update" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBJ02 
+		SET
+			 BjobBzwkName = #bjobBzwkName#,
+			 ThisMsgUseYn = #thisMsgUseYn#,
+			 ThisMsgAmndrID = #userid#,
+			 ThisMsgAmndHMS = TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3')
+		WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+	</statement>
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBJ02 (
+			BjobBzwkDstcd, 
+			BjobBzwkName,  
+			ThisMsgUseYn, 
+			ThisMsgRegsntID,  
+			ThisMsgRegiHMS ,  
+			ThisMsgAmndrID ,  
+			ThisMsgAmndHMS  )
+		VALUES (
+			#bjobBzwkDstcd# ,
+			#bjobBzwkName# ,
+			#thisMsgUseYn# ,
+			#userid# ,
+			TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3'),
+			#userid# ,
+			TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3') 
+		)
+	</statement>
+	
+</sqlMap>

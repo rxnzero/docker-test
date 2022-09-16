@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stdDefault">
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	SELECT   COLUMNNAME    AS "COLUMNNAME"
+		, COLUMNDESC    AS "COLUMNDESC"
+		, COLUMNLENGTH  AS "COLUMNLENGTH"
+		, ISKEY         AS "ISKEY"
+		, KEYSEQ        AS "KEYSEQ"
+		, ISINTERFACE   AS "ISINTERFACE"
+		, COMBONAME     AS "COMBONAME"
+		, COMBODEPTH    AS "COMBODEPTH"
+		, COLUMNDEFAULT AS "COLUMNDEFAULT"
+	  FROM $schemaId$.TSEAIHS03
+    <dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="columnName">
+			COLUMNNAME = #columnName#
+		</isNotEmpty>
+	</dynamic>
+  </statement>
+  
+  <insert id="insert" parameterClass="java.util.HashMap">
+		INSERT INTO $schemaId$.TSEAIHS03 ( 
+		           COLUMNNAME
+				 , COLUMNDESC
+				 , COLUMNLENGTH
+				 , ISKEY
+				 , KEYSEQ
+				 , ISINTERFACE
+				 , COMBONAME
+				 , COMBODEPTH
+				 , COLUMNDEFAULT
+		) VALUES ( 
+		           #columnName#
+				 , #columnDesc#
+				 , #columnLength#
+				 , #isKey#
+				 , #keySeq#
+				 , #isInterface#
+				 , #comboName#
+				 , #comboDepth#
+				 , #columnDefault#
+		)
+  </insert>
+
+  <update id="update" parameterClass="java.util.HashMap">
+		UPDATE $schemaId$.TSEAIHS03 SET 
+               COLUMNDESC		= #columnDesc#
+             , COLUMNLENGTH		= #columnLength#
+             , ISKEY			= #isKey#
+             , KEYSEQ			= #keySeq#
+             , ISINTERFACE		= #isInterface#
+             , COMBONAME		= #comboName#
+             , COMBODEPTH		= #comboDepth#
+             , COLUMNDEFAULT	= #columnDefault#
+		 WHERE COLUMNNAME = #columnName# 
+  </update>
+  
+  <delete id="delete" parameterClass="java.util.HashMap">
+		DELETE FROM $schemaId$.TSEAIHS03 
+		 WHERE COLUMNNAME=#columnName#
+  </delete>
+  
+</sqlMap>

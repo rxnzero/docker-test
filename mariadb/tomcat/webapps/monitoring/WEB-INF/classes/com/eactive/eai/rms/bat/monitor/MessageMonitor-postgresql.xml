@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatMessageMonitor">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT 
+				ROWNO             AS "ROWNO" ,
+				WorkGrpCd         AS "WORKGRPCD" ,
+				IntfId            AS "INTFID" ,
+				IntfName          AS "INTFNAME" ,
+				SndStartDate      AS "SNDSTARTDATE" ,
+				IntfIdEndDate     AS "INTFIDENDDATE" ,
+				BatchType         AS "BATCHTYPE" ,
+				BjobDmndMsgID     AS "BJOBDMNDMSGID" ,
+				Level4            AS "LEVEL4" ,
+				ErrYn             AS "ERRYN" ,
+				CheckRowCnt       AS "CHECKROWCNT" ,
+				ScheKind          AS "SCHEKIND" ,
+				SndLineCnt        AS "SNDLINECNT" ,
+				RcvLineCnt        AS "RCVLINECNT" ,
+				FileTrsmtSizeCtnt AS "FILETRSMTSIZECTNT"	
+		FROM ( SELECT ROW_NUMBER() OVER(ORDER BY A.MsgRegDate DESC, A.WorkGrpCd, A.IntfId ) ROWNO,  
+		              A.WorkGrpCd,
+		              A.IntfId,
+		              B.IntfName,
+		              A.SndStartDate,
+		              A.IntfIdEndDate,
+		              A.BatchType,
+		              A.BjobDmndMsgID,
+		              B.Level4,
+		              COALESCE(A.ErrYn,'N') AS ErrYn,
+		              COALESCE(A.CheckRowCnt,0) AS CheckRowCnt,
+		              A.ScheKind,
+		              A.SndLineCnt,
+		              A.RcvLineCnt,
+		              (SELECT fileTrsmtSizeCtnt FROM $schemaId$.TSEAIES03 WHERE BjobDmndMsgID=A.BjobDmndMsgID AND sndRcvKind='1' ) AS FileTrsmtSizeCtnt
+	           FROM   $schemaId$.TSEAIES01 A,
+	                  $schemaId$.TSEAIEA04 B
+	           WHERE  A.IntfId=B.IntfId
+	           AND    A.msgRegDate BETWEEN #searchStartTime# AND #searchEndTime#
+	           AND	  A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	           <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+                      SUBSTR(A.BjobMsgScheID, 3,3 ) = #searchEaiBzwkDstcd# 
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchBatchType">
+         			  A.batchType = #searchBatchType#
+               </isNotEmpty>
+         	   <isNotEmpty prepend="AND" property="searchErrorVal">
+         	          COALESCE(A.errYn,'N') = #searchErrorVal#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchInterfaceNm">
+                      ( B.intfName LIKE '%' || #searchInterfaceNm# || '%' OR B.intfId LIKE '%' || #searchInterfaceNm# || '%' )
+               </isNotEmpty>
+	           ORDER BY ROWNO
+			 ) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(A.BjobMsgScheID) AS "TOTALCOUNT"
+	    FROM   $schemaId$.TSEAIES01 A,
+	           $schemaId$.TSEAIEA04 B
+	    WHERE  A.IntfId=B.IntfId
+	    AND    A.msgRegDate BETWEEN #searchStartTime# AND #searchEndTime#
+	    AND	   A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+               SUBSTR(A.BjobMsgScheID, 3,3 ) = #searchEaiBzwkDstcd# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchBatchType">
+         	   A.batchType = #searchBatchType#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchErrorVal">
+         	   COALESCE(A.errYn,'N') = #searchErrorVal#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchInterfaceNm">
+               ( B.intfName LIKE '%' || #searchInterfaceNm# || '%' OR B.intfId LIKE '%' || #searchInterfaceNm# || '%' )
+        </isNotEmpty>
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT A.WorkGrpCd AS "WORKGRPCD",
+		       B.Level4 AS "LEVEL4",
+		       A.BjobDmndMsgID AS "BJOBDMNDMSGID",
+		       A.BatchType AS "BATCHTYPE",
+		       A.MsgRegDate AS "MSGREGDATE",
+		       A.SndStartDate AS "SNDSTARTDATE",
+		       A.SndEndDate AS "SNDENDDATE",
+		       A.RcvStartDate AS "RCVSTARTDATE",
+		       A.RcvEndDate AS "RCVENDDATE",
+		       A.IntfId AS "INTFID",
+		       B.IntfName AS "INTFNAME",
+		       A.SndLineCnt AS "SNDLINECNT",
+		       A.RcvLineCnt AS "RCVLINECNT",
+		       COALESCE(A.ErrYn,'N') AS "ERRYN",
+               COALESCE(A.ScheKind,'E') AS "SCHEKIND",
+               A.CheckRowCnt AS "CHECKROWCNT",
+               A.CheckBaseDate AS "CHECKBASEDATE",
+               A.CheckParam AS "CHECKPARAM",
+               (SELECT fileTrsmtSizeCtnt FROM $schemaId$.TSEAIES03 WHERE BjobDmndMsgID=A.BjobDmndMsgID AND sndRcvKind='1' ) AS "FILETRSMTSIZECTNT" ,
+               A.EAIOBSTDPRCSSCTNT AS "EAIOBSTDPRCSSCTNT"
+        FROM   $schemaId$.TSEAIES01 A,
+               $schemaId$.TSEAIEA04 B
+        WHERE  A.BjobDmndMsgID=#bjobDmndMsgID#
+        AND    A.intfId=B.intfId
+	</statement>
+
+	<statement id="dbAdapterLogList" resultClass="java.util.HashMap">
+	    SELECT 
+			TransStatusCd   AS "TRANSSTATUSCD" ,
+			SndRcvKind      AS "SNDRCVKIND" ,
+			AdptrCd         AS "ADPTRCD" ,
+			AdptrCdSeq      AS "ADPTRCDSEQ" ,
+			DbTrsmtStartHMS AS "DBTRSMTSTARTHMS" ,
+			DbTrsmtEndHMS   AS "DBTRSMTENDHMS" ,
+			OrgCnt          AS "ORGCNT" ,
+			InsertCnt       AS "INSERTCNT" ,
+			ErrMsgCd        AS "ERRMSGCD"
+        FROM   $schemaId$.TSEAIES04
+        WHERE  BjobDmndMsgID = #bjobDmndMsgID#
+        ORDER BY SndRcvKind,AdptrCd,AdptrCdSeq
+	</statement> 
+	 
+	<statement id="fileAdapterLogList" resultClass="java.util.HashMap">
+	    SELECT 
+			TransStatusCd     AS "TRANSSTATUSCD" ,
+			SndRcvKind        AS "SNDRCVKIND" ,
+			AdptrCd           AS "ADPTRCD" ,
+			AdptrCdSeq        AS "ADPTRCDSEQ" ,
+			FileTrsmtStartHMS AS "FILETRSMTSTARTHMS" ,
+			FileTrsmtEndHMS   AS "FILETRSMTENDHMS" ,
+			RmtTrsmtFullName  AS "RMTTRSMTFULLNAME" ,
+			EaiTrsmtFullName  AS "EAITRSMTFULLNAME" ,
+			FileTrsmtSizeCtnt AS "FILETRSMTSIZECTNT" ,
+			ErrMsgCd          AS "ERRMSGCD"
+       FROM    $schemaId$.TSEAIES03
+       WHERE   BjobDmndMsgID = #bjobDmndMsgID#
+       ORDER BY SndRcvKind, AdptrCd, AdptrCdSeq
+	</statement> 
+	 
+</sqlMap>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapInstStatus">
+
+    <statement id="findInstStatusList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT X.BjobBzwkDstcd    AS BJOBBZWKDSTCD   ,
+               Y.BjobBzwkName     AS BJOBBZWKNAME    ,
+               X.LnkgIPInfoName   AS LNKGIPINFONAME  , 
+               X.LnkgPortInfoName AS LNKGPORTINFONAME,
+               X.TCirtLnkgStusCd  AS TCIRTLNKGSTUSCD ,
+               X.THISMSGUSEYN     AS THISMSGUSEYN    ,
+               X.SysLnkgDstcd     AS SYSLNKGDSTCD    ,
+               X.OsidInstiDstcd   AS OSIDINSTIDSTCD  ,
+               Z.OsidInstiName    AS OSIDINSTINAME   
+        FROM   $schemaId$.TSEAIBJ05 X 
+               INNER JOIN $schemaId$.TSEAIBJ02 Y ON X.BjobBzwkDstcd = Y.BjobBzwkDstcd
+               LEFT OUTER JOIN $schemaId$.TSEAIBJ06 Z ON X.OsidInstiDstcd = Z.OsidInstiDstcd
+                                                    AND  X.BjobBzwkDstcd  = Z.BjobBzwkDstcd
+        WHERE  RqstRspnsDstcd = 'R' 
+        ORDER  BY BjobBzwkDstcd, OsidInstiDstcd                           
+    </statement>
+
+
+</sqlMap>

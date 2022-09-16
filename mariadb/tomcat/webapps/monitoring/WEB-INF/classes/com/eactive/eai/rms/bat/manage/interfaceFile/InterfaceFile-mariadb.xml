@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatInterfaceFile">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT EA06.*
+		  FROM (
+				SELECT @NO := @NO + 1 AS ROWNO
+					 , EA06.intfId
+					 , EA06.fileNamePtrn
+					 , EA06.transFreq
+					 , EA06.sizeOnce
+					 , EA06.procTerm
+					 , EA06.reqChgr
+					 , EA06.reqChgrTlno
+					 , EA06.resChgr
+					 , EA06.resChgrTlno
+					 , EA06.delYn
+				  FROM $schemaId$.TSEAIEA06 EA06
+				     , $schemaId$.TSEAIEA04 EA04,  (SELECT @NO := 0) R
+				 WHERE EA06.intfId = EA04.intfId
+				   AND EA04.workGrpCd IN ( SELECT eaiBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE USERID = #loginId#  )
+					<isNotEmpty prepend="AND" property="searchIntfId">
+						UPPER(EA06.intfId) LIKE CONCAT('%' , UPPER(#searchIntfId#) , '%')
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchFileNamePtrn">
+						UPPER(EA06.fileNamePtrn) LIKE CONCAT('%' , UPPER(#searchFileNamePtrn#) , '%')
+					</isNotEmpty>
+					ORDER BY EA06.intfId
+		  	   ) EA06
+		 WHERE EA06.ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIEA06 (		
+			   intfId
+			 , fileNamePtrn
+			 , transFreq
+			 , sizeOnce
+			 , procTerm
+			 , reqChgr
+			 , reqChgrTlno
+			 , resChgr
+			 , resChgrTlno
+			 , regDate
+			 , regUserId
+			 , modDate
+			 , modUserId
+			 , delYn
+		)
+		VALUES (
+		       #intfId#
+			 , #fileNamePtrn#
+			 , #transFreq#
+			 , #sizeOnce#
+			 , #procTerm#
+			 , #reqChgr#
+			 , #reqChgrTlno#
+			 , #resChgr#
+			 , #resChgrTlno#
+			 , SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+			 , #loginId#
+			 , SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+			 , #loginId#
+			 , #delYn#
+		)
+	</statement>
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIEA06
+		   SET transFreq	= #transFreq#
+			 , sizeOnce		= #sizeOnce#
+			 , procTerm		= #procTerm#
+			 , reqChgr		= #reqChgr#
+			 , reqChgrTlno	= #reqChgrTlno#
+			 , resChgr		= #resChgr#
+			 , resChgrTlno	= #resChgrTlno#
+			 , delYn		= #delYn#
+			 , modDate		= SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )
+			 , modUserId	= #loginId#
+			 
+		 WHERE intfId		= #intfId#
+		   AND fileNamePtrn	= #fileNamePtrn#
+	</statement>
+	 
+</sqlMap>

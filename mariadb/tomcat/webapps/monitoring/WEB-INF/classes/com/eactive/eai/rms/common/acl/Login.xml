@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Login">
+	<statement id="selectLoginUserCnt" resultClass="java.lang.Integer">
+	      SELECT 
+			COUNT(*) AS "CNT"
+	      FROM 
+			 $schemaId$.TSEAIRM02 U
+	     WHERE U.USERID = #userId#
+	       AND U.PASSWORD = #password#
+	</statement>
+	<statement id="selectUserInfo" resultClass="java.util.HashMap">
+	      SELECT 
+			R.ROLEID AS "ROLEID",
+			U.USERNAME AS "USERNAME",
+			U.DEPTNAME AS "DEPTNAME",
+			U.LOGINFAILCOUNT AS "LOGINFAILCOUNT"
+	      FROM 
+			 $schemaId$.TSEAIRM02 U,
+			 $schemaId$.TSEAIRM04 R
+	     WHERE U.USERID = #userId# 
+	       AND U.USERID = R.USERID
+	</statement>
+    <statement id="selectRoleService" resultClass="java.lang.Integer">
+        SELECT COUNT(ROLE.ROLEID) AS "CNT"
+        FROM   $schemaId$.TSEAIRM03 ROLE, $schemaId$.TSEAIRM01 MENU
+        WHERE  
+          <iterate open="(" conjunction="," close=")" property="roleId" prepend="ROLE.ROLEID in ">
+          	#roleId[]#
+          </iterate> 
+        AND    ROLE.MENUID LIKE #menuId#
+        AND    ROLE.MENUID = MENU.MENUID
+        AND    MENU.DISPLAYYN = 'Y'
+        AND    MENU.USEYN   = 'Y'
+        
+    </statement>
+	<statement id="selectLoginUserCount" resultClass="java.lang.Integer">
+	      SELECT 
+			COUNT(*) AS "CNT"
+	      FROM 
+			 $schemaId$.TSEAIRM02 U
+	     WHERE USERID = #userId#
+	       AND PASSWORD = #password#
+	</statement>
+	<statement id="selectLoginUserIDCnt" resultClass="java.lang.Integer">
+	      SELECT COUNT(*) AS "CNT"
+	        FROM $schemaId$.TSEAIRM02 U
+	       WHERE U.USERID = #userId#
+	</statement>
+	<statement id="updatePassword">
+		update $schemaId$.TSEAIRM02 set PASSWORD = #changePassword# where USERID = #userId#
+	</statement>
+	<statement id="updateCount">
+		update $schemaId$.TSEAIRM02 set LOGINFAILCOUNT = LOGINFAILCOUNT + 1 where USERID = #userId#
+	</statement>	
+	<statement id="updateResetCount">
+		update $schemaId$.TSEAIRM02 set LOGINFAILCOUNT = 0 where USERID = #userId#
+	</statement>	
+			  		
+</sqlMap>

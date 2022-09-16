@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatServer">
+
+    <statement id="selectListCount" resultClass="java.lang.Integer">
+        SELECT     COUNT(*) AS "TOTALCOUNT"
+            FROM $schemaId$.TSEAIEP03
+    </statement>
+
+    <statement id="selectDetail" resultClass="java.util.HashMap">
+        SELECT     
+			EAISEVRINSTNCNAME AS "EAISEVRINSTNCNAME" ,
+			EAISEVRIP         AS "EAISEVRIP" ,
+			SEVRLSNPORTNAME   AS "SEVRLSNPORTNAME" ,
+			FLOVRSEVRNAME     AS "FLOVRSEVRNAME" ,
+			HOSTNAME          AS "HOSTNAME"
+		FROM $schemaId$.TSEAIEP03
+        WHERE   EAISEVRINSTNCNAME = #EAISevrInstncName#
+    </statement>
+
+<!--
+    <statement id="eaiServerList" resultClass="java.util.HashMap">
+        SELECT EAISEVRINSTNCNAME "EAISevrInstncName" FROM $schemaId$.TSEAIEP03
+        ORDER BY EAISEVRINSTNCNAME
+    </statement>
+ -->
+
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	UPDATE 	$schemaId$.TSEAIEP03 SET 
+	 			EAISEVRIP         = #eaiSevrIp#,
+	 			SEVRLSNPORTNAME   = #sevrLsnPortName#,
+	 			FLOVRSEVRNAME     = #flovrSevrName#,
+	 			HOSTNAME          = #hostName#
+	 	WHERE 	EAISEVRINSTNCNAME = #eaiSevrInstncName#
+	</statement>
+
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIEP03(
+				EAISEVRINSTNCNAME,
+				EAISEVRIP, 
+				SEVRLSNPORTNAME,
+				FLOVRSEVRNAME, 
+				HOSTNAME) 
+             	VALUES(
+             	#eaiSevrInstncName#,
+             	#eaiSevrIp#, 
+             	#sevrLsnPortName#,
+             	#flovrSevrName#, 
+             	#hostName#)
+	</statement>
+
+    <statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+         DELETE    FROM $schemaId$.TSEAIEP03 WHERE EAISEVRINSTNCNAME = #eaiSevrInstncName#
+    </statement>
+
+
+
+</sqlMap>

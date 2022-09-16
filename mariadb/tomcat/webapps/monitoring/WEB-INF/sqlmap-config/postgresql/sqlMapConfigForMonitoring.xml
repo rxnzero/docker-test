@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+
+<sqlMapConfig>
+  <settings
+    cacheModelsEnabled="true"
+    enhancementEnabled="true"
+    lazyLoadingEnabled="true"
+    maxRequests="512"
+    maxSessions="128"
+    maxTransactions="32"
+    useStatementNamespaces="true" />
+
+  <!-- UserAccessLogger -->
+  <sqlMap
+    resource="com/eactive/eai/rms/common/UserAccessLogger-postgresql.xml" />
+  
+  <!-- 공통처리 관련 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/common/dao/MonitoringContext.xml" />
+  
+  <!-- 개발환경/ACL -->
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/MenuRender-postgresql.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/User-postgresql.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/Menu.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/Menu-postgresql.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/Role-postgresql.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/Login.xml" />
+   
+    <!-- 스케줄러 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/common/scheduler/Scheduler.xml" />    
+  <sqlMap
+    resource="com/eactive/eai/rms/common/scheduler/Scheduler-postgresql.xml" />    
+    <!-- 스케줄러상태정보 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/common/scheduler/SchedulerStatusHistory-postgresql.xml" />    
+    <!-- 모니터링용 property -->
+  <sqlMap
+    resource="com/eactive/eai/rms/common/property/MonitoringProperty.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/property/MonitoringProperty-postgresql.xml" />
+        
+ <!-- 어댑터 채널정보 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/AdaptersChnl-postgresql.xml" />    
+
+<!-- 회선시험전문 관리 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/NetworkCheck.xml" />    
+
+</sqlMapConfig>

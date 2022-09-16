@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="EaiSvcNameErrMonthly">
+  
+  <statement id="findByErrEaiSvcNameMonthly" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.eaisvcname.vo.EaiSvcNameErrMonthlyVO">
+        SELECT A.EAISVCNAME AS "EAISVCNAME",
+        A.THISMONTHERRCOLUMNNAME AS "THISMONTHERRCOLUMNNAME",
+        A.LASTMONTHERRCOLUMNNAME AS "LASTMONTHERRCOLUMNNAME", 
+        COALESCE(B.EAISVCDESC, 'UNKNOWN') AS "EAISVCDESC", 
+        ROW_NUMBER() OVER() AS "ROWNUM"
+        FROM ( 
+        	SELECT A.EAISVCNAME,
+			COALESCE(A.$thisMonthErrColumnName$, 0) AS THISMONTHERRCOLUMNNAME,
+			COALESCE(B.$lastMonthErrColumnName$, 0) AS LASTMONTHERRCOLUMNNAME
+			FROM ( 
+				SELECT EAISVCNAME,
+				SUM($thisMonthErrColumnName$) AS $thisMonthErrColumnName$
+				FROM $schemaId$.TSEAIST04
+				WHERE STATCYM BETWEEN #thisYear# AND #thisYear#
+				GROUP BY EAISVCNAME
+			 ) A,
+			( 
+				SELECT EAISVCNAME,
+				SUM($lastMonthErrColumnName$) AS $lastMonthErrColumnName$
+				FROM $schemaId$.TSEAIST04
+				WHERE STATCYM BETWEEN #lastYear# AND #lastYear#
+				GROUP BY EAISVCNAME
+			) B
+       		WHERE A.EAISVCNAME= B.EAISVCNAME
+        ) A LEFT OUTER JOIN $schemaId$.TSEAIHE01 B
+        ON  A.EAISVCNAME = B.EAISVCNAME
+  </statement>
+</sqlMap>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TransformMapping">
+    <!--  매핑리스트 목록 조회 COUNT  -->
+    <statement id="findTotalCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    	SELECT COUNT(A.EAISVCNAME) CNT
+        FROM $schemaId$.TSEAIHE01 A LEFT OUTER JOIN 
+             $schemaId$.TSEAIMS02 B ON A.EAISVCNAME = B.EAISVCNAME
+      WHERE  EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 WHERE USERID = #loginId#)
+      <isNotEmpty prepend="AND" property="cnvsnName">
+      	UPPER(B.REFMSGIDNAME) LIKE '%'||#cnvsnName#||'%'
+      </isNotEmpty>
+      <isNotEmpty prepend="AND" property="searchEAISvcName">
+      	UPPER(A.EAISVCNAME)   LIKE '%'||#searchEAISvcName#||'%'
+      </isNotEmpty>
+      <isNotEmpty prepend="AND" property="searchBizCode">
+      UPPER(A.EAIBZWKDSTCD) LIKE '%'||#searchBizCode#||'%'
+      </isNotEmpty>
+      ORDER BY A.EAISVCNAME, B.SVCPRCSSNO, B.REFMSGIDNO
+    </statement>
+    
+    <statement id="listTransformPage" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo"> 	  
+			SELECT T.* 
+			  FROM ( 
+			      <!-- SELECT ROW_NUMBER() OVER (ORDER BY A.EAISVCNAME, B.SVCPRCSSNO, B.REFMSGIDNO) ROWNO, -->
+			      SELECT ROWNUM AS ROWNO, 
+			             A.EAIBZWKDSTCD EAIBZWKDSTCD, A.EAISVCNAME EAISVCNAME, A.EAISVCDESC EAISVCDESC, 
+			             B.SVCPRCSSNO SVCPRCSSNOSTR, B.REFMSGIDNO REFMSGIDNOSTR, B.REFMSGIDNAME REFMSGIDNAME
+		          FROM $schemaId$.TSEAIHE01 A
+		          		 LEFT OUTER JOIN $schemaId$.TSEAIMS02 B ON A.EAISVCNAME = B.EAISVCNAME
+		         WHERE EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 WHERE USERID = #loginId#)
+				      <isNotEmpty prepend="AND" property="cnvsnName">
+				      	UPPER(B.REFMSGIDNAME) LIKE '%'||#cnvsnName#||'%'
+				      </isNotEmpty>
+				      <isNotEmpty prepend="AND" property="searchEAISvcName">
+				      	UPPER(A.EAISVCNAME)   LIKE '%'||#searchEAISvcName#||'%'
+				      </isNotEmpty>
+				      <isNotEmpty prepend="AND" property="searchBizCode">
+				      UPPER(A.EAIBZWKDSTCD) LIKE '%'||#searchBizCode#||'%'
+				      </isNotEmpty>
+			       ) T
+			 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+ 	  </statement>
+ 	  
+ 	  <statement id="getRefMsgIDList" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo">
+ 	      SELECT LOUTNAME CNVSNNAME, LOUTNAME CNVSNDESC 
+ 	        FROM $schemaId$.TSEAITR07
+ 	       WHERE EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 WHERE USERID = #loginId#)
+           AND LOUTNAME LIKE '%' || #cnvsnName# 
+ 	  </statement>
+    <statement id="RefMsgIDInsert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAIMS02 ( 
+            EAISVCNAME, SVCPRCSSNO, REFMSGIDNO,REFMSGIDNAME
+        ) VALUES (#eaiSvcName#, #svcPrcssNo#, #refMsgIdNo#, #refMsgIdName#) 
+    </statement>  
+        
+    <!--  RefMsgIDDelete-->
+    <statement id="RefMsgIDDelete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAIMS02 
+         WHERE  EAISVCNAME = #eaiSvcName#
+         <isNotEqual compareValue="0" prepend="AND" property="svcPrcssNo">
+         SVCPRCSSNO = #svcPrcssNo#
+         </isNotEqual>
+         <isNotEqual compareValue="0" prepend="AND" property="refMsgIdNo">
+         REFMSGIDNO = #refMsgIdNo#
+         </isNotEqual>
+    </statement>  
+    <statement id="RefMsgIDUpdate" parameterClass="com.eactive.eai.rms.onl.manage.rule.transform.TransformVo" resultClass="java.lang.Integer">
+            UPDATE $schemaId$.TSEAIMS02
+               SET SVCPRCSSNO   = #svcPrcssNo#
+                 , REFMSGIDNO   = #refMsgIDNo#
+                 , REFMSGIDNAME = #refMsgIDName#
+         WHERE  EAISVCNAME    = #eaiSvcName#
+        </statement>  
+</sqlMap>

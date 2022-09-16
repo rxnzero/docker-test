@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BapTranWait">
+    <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    	SELECT COUNT(*)
+		  FROM (
+				   SELECT S3.BJOBDMNDMSGID
+					 FROM $schemaId$.TSEAIBS03 S3
+					 	, $schemaId$.TSEAIBJ02 J2
+				  	 	, $schemaId$.TSEAIBJ06 J6
+				  	WHERE S3.BjobBzwkDstcd  = J2.BjobBzwkDstcd
+				  	  AND S3.BjobBzwkDstcd  = J6.BjobBzwkDstcd    
+				  	  AND S3.OsidInstiDstcd = J6.OsidInstiDstcd                                
+					  <isNotEmpty prepend="AND" property="searchStartTime1">
+						S3.SndrcvStartHMS BETWEEN #searchStartTime1# AND #searchEndTime1#
+					  </isNotEmpty>
+					  <isNotEmpty prepend="AND" property="searchStartTime2">
+						S3.SndrcvEndHMS BETWEEN #searchStartTime2# AND #searchEndTime2#
+					  </isNotEmpty>
+					  
+					  <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+						S3.BjobBzwkDstcd = #searchBjobBzwkDstcd#
+					  </isNotEmpty>
+					  
+					  <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+						S3.OsidInstiDstcd = #searchOsidInstiDstcd#
+					  </isNotEmpty>
+			
+					  <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+						UPPER(S3.SndrcvFileName) like CONCAT( '%' , UPPER(#searchSndrcvFileName#) , '%')
+					  </isNotEmpty>
+			   ) ORGTABLE
+    </statement>
+    
+    <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT *
+		  FROM (
+				   SELECT @NO := @NO + 1 AS ROWNO
+				   		, S3.BJOBDMNDMSGID								/* UUID (작업요청메시지ID)  */
+				        , S3.BJOBDMNDSUBMSGID							/* SUBUUID (작업요청부메시지ID) */
+				        , S3.TELGMRETRALCNT								/* 전문재시도수     */
+				        , S3.BJOBDMNDMSGCRETNHMS						/* 작업요청메시지 생성시각  */
+				        , S3.BJOBMSGSCHEID								/* 작업메시지 일정ID   */
+				        , S3.BJOBBZWKDSTCD								/* 업무구분코드     */
+				        , J2.BJOBBZWKNAME		AS BJOBBZWKDSTCDNAME	/* 업무구분명     */
+				        , J6.OSIDINSTINAME		AS OSIDINSTIDSTCDNAME	/* 대외기관구분명     */
+				        , S3.OSIDINSTIDSTCD								/* 대외기관구분코드    */
+				        , S3.BJOBPTRNDSTCD								/* 작업유형구분코드    */
+				        , S3.SNDRCVSTARTHMS								/* 송수신 시작시각    */
+				        , S3.SNDRCVENDHMS								/* 송수신 종료시각    */
+				        , S3.SNDRCVFILEDIRNAME							/* 송수신 파일 디렉토리명  */
+				        , S3.SNDRCVFILENAME								/* 송수신 파일명    */
+				        , S3.BKUPSNDRCVFILENAME							/* 백업 송수신 파일명   */
+				        , S3.MSGPRCSSPRITY								/* 메시지처리 우선순위   */
+				        , S3.HDRINFONAME								/* 헤더정보명     */
+				        , S3.THISMSGAMNDRID								/* 메시지수정자ID    */
+				        , S3.THISMSGAMNDHMS								/* 메시지 수정시각    */
+					 FROM $schemaId$.TSEAIBS03 S3
+					 	, $schemaId$.TSEAIBJ02 J2
+				  	 	, $schemaId$.TSEAIBJ06 J6, (SELECT @NO := 0) R
+				  	WHERE S3.BjobBzwkDstcd  = J2.BjobBzwkDstcd
+				  	  AND S3.BjobBzwkDstcd  = J6.BjobBzwkDstcd
+				  	  AND S3.OsidInstiDstcd = J6.OsidInstiDstcd
+					  <isNotEmpty prepend="AND" property="searchStartTime1">
+						S3.SndrcvStartHMS BETWEEN #searchStartTime1# AND #searchEndTime1#
+					  </isNotEmpty>
+					  <isNotEmpty prepend="AND" property="searchStartTime2">
+						S3.SndrcvEndHMS BETWEEN #searchStartTime2# AND #searchEndTime2#
+					  </isNotEmpty>
+					  
+					  <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+						S3.BjobBzwkDstcd = #searchBjobBzwkDstcd#
+					  </isNotEmpty>
+					  
+					  <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+						S3.OsidInstiDstcd = #searchOsidInstiDstcd#
+					  </isNotEmpty>
+			
+					  <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+						UPPER(S3.SndrcvFileName) like CONCAT( '%' , UPPER(#searchSndrcvFileName#) , '%')
+					  </isNotEmpty>
+					  ORDER BY S3.MSGPRCSSPRITY ASC, S3.SNDRCVSTARTHMS DESC, S3.BJOBBZWKDSTCD  ASC
+			   ) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+    </statement>
+    
+	<statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT @NO := @NO + 1 AS ROWNO
+			 , S3.BJOBDMNDMSGID
+	         , S3.BJOBDMNDSUBMSGID
+	         , S3.TELGMRETRALCNT
+	         , S3.BJOBDMNDMSGCRETNHMS
+	         , S3.BJOBMSGSCHEID
+	         , S3.BJOBBZWKDSTCD
+	         , J2.BJOBBZWKNAME		AS BJOBBZWKDSTCDNAME
+	         , S3.BJOBBZWKDSTCD
+	         , J6.OSIDINSTINAME		AS OSIDINSTIDSTCDNAME
+	         , S3.OSIDINSTIDSTCD
+	         , CASE WHEN S3.BJOBPTRNDSTCD='RS' THEN '송신' 
+					WHEN S3.BJOBPTRNDSTCD='RR' THEN '수신' 
+					ELSE S3.BJOBPTRNDSTCD 
+				END AS BJOBPTRNDSTCD
+	         , S3.SNDRCVSTARTHMS
+	         , S3.SNDRCVENDHMS
+	         , S3.SNDRCVFILEDIRNAME
+	         , S3.SNDRCVFILENAME
+	         , S3.BKUPSNDRCVFILENAME
+	         , S3.MSGPRCSSPRITY
+	         , S3.THISMSGAMNDRID
+	         , S3.THISMSGAMNDHMS
+		  FROM $schemaId$.TSEAIBS03 S3
+		  	 , $schemaId$.TSEAIBJ02 J2
+		  	 , $schemaId$.TSEAIBJ06 J6, (SELECT @NO := 0) R
+		 WHERE S3.BjobBzwkDstcd		= J2.BjobBzwkDstcd
+		   AND S3.BjobBzwkDstcd		= J6.BjobBzwkDstcd
+		   AND S3.OsidInstiDstcd	= J6.OsidInstiDstcd
+		   AND S3.BjobMsgScheID		= #bjobMsgScheID#
+		   AND S3.BjobDmndSubMsgID	= #bjobDmndSubMsgID#
+		   ORDER BY S3.MsgPrcssPrity ASC, S3.SndrcvStartHMS DESC, S3.BjobBzwkDstcd  ASC
+	</statement>
+	
+	<statement id="updateBS03" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBS03 
+		   SET SndrcvStartHMS      = #sndrcvStart# ,
+			   SndrcvEndHMS        = #sndrcvEnd#   ,
+			   MsgPrcssPrity       = #msgPrcssPrity#              
+		 WHERE BjobDmndMsgID       = #bjobDmndMsgID#
+		   AND BjobDmndSubMsgID    = #bjobDmndSubMsgID#
+	</statement>
+	
+	<statement id="updateBJ03" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBJ03 
+		   SET TranPrcssDstcd   = 'C'                   
+		 WHERE BjobDmndMsgID    = #bjobDmndMsgID#
+		   AND BjobDmndSubMsgID = #bjobDmndSubMsgID#  
+	</statement>
+  
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    	DELETE FROM $schemaId$.TSEAIBS03 
+		 WHERE BjobDmndMsgID	= #bjobDmndMsgID#
+		   AND BjobDmndSubMsgID	= #bjobDmndSubMsgID#
+	</statement>
+    
+</sqlMap>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="B2BExtract">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  (ROW_NUMBER() OVER()) AS "ROWNO", 
+						EAISVCNAME AS "EAISVCNAME" , SVCPRCSSNO AS "SVCPRCSSNO" , 
+						SVCROUTCLSNAME AS "SVCROUTCLSNAME" , ADPTRROUTCLSNAME AS "ADPTRROUTCLSNAME"
+						FROM $schemaId$.TSEAIFR06
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchEaiSvcName">
+					EAISVCNAME LIKE UPPER('%' || #searchEaiSvcName# || '%')
+				</isNotEmpty>
+			</dynamic>						
+			) ORGTABLE
+		WHERE "ROWNO" BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TOTALCOUNT"
+			FROM $schemaId$.TSEAIFR06
+		<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchEaiSvcName">
+					EAISVCNAME LIKE UPPER('%' || #searchEaiSvcName# || '%')
+				</isNotEmpty>
+		</dynamic>				
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	A.EAISVCNAME AS "EAISVCNAME" , A.SVCPRCSSNO AS "SVCPRCSSNO" , 
+			A.SVCROUTCLSNAME AS "SVCROUTCLSNAME" , A.ADPTRROUTCLSNAME AS "ADPTRROUTCLSNAME",
+				B.EAISVCDESC AS "EAISVCDESC" 
+	      FROM $schemaId$.TSEAIFR06 A
+	      	RIGHT OUTER JOIN
+			$schemaId$.TSEAIHE01 B
+	    	ON A.EAISVCNAME = B.EAISVCNAME
+	    WHERE A.EAISVCNAME = #eaiSvcName# 
+        AND   A.SVCPRCSSNO = CAST(#svcPrcssNo# AS NUMERIC)
+	</statement>  
+    <statement id="update" parameterClass="java.util.HashMap" >
+        UPDATE  $schemaId$.TSEAIFR06 
+                SET SVCROUTCLSNAME = #svcRoutClsName#, ADPTRROUTCLSNAME = #adptrRoutClsName# 
+        WHERE   EAISVCNAME = #eaiSvcName#
+        AND     SVCPRCSSNO = CAST(#svcPrcssNo# AS NUMERIC)
+    </statement>
+    
+    <statement id="insert" parameterClass="java.util.HashMap" >
+        INSERT  INTO $schemaId$.TSEAIFR06(
+                EAISVCNAME, SVCPRCSSNO, SVCROUTCLSNAME, ADPTRROUTCLSNAME) 
+                VALUES(#eaiSvcName#, CAST(#svcPrcssNo# AS NUMERIC), #svcRoutClsName#, #adptrRoutClsName#)
+    </statement>
+    
+    <statement id="delete" parameterClass="java.util.HashMap" >
+        DELETE  FROM $schemaId$.TSEAIFR06 
+        WHERE EAISVCNAME = #eaiSvcName#
+        AND   SVCPRCSSNO = CAST(#svcPrcssNo# AS NUMERIC)
+    </statement>
+</sqlMap>

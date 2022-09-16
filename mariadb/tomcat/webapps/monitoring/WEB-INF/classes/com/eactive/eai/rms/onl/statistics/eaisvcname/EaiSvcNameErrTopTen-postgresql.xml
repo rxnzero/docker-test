@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="EaiSvcNameErrTopTen">
+  
+  <statement id="findByErrEaiSvcNameTopTen" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.eaisvcname.vo.EaiSvcNameErrTopTenVO">
+       SELECT A.STATCYMD AS "STATCYMD",
+       A.EAISVCNAME AS "EAISVCNAME",
+       A.ERRNOITM AS "ERRNOITM",
+       A.ROWNUM AS "ROWNUM", 
+       COALESCE(B.EAISVCDESC, 'UNKNOWN') AS "EAISVCDESC"
+		FROM ( 
+			SELECT O.*, ROW_NUMBER() OVER() ROWNUM
+			FROM ( 
+				SELECT  STATCYMD,EAISVCNAME,
+	             (   SUM(S0HHERRNOITM)  + SUM(S1HHERRNOITM)  + SUM(S2HHERRNOITM)
+	               + SUM(S3HHERRNOITM)  + SUM(S4HHERRNOITM)  + SUM(S5HHERRNOITM)
+	               + SUM(S6HHERRNOITM)  + SUM(S7HHERRNOITM)  + SUM(S8HHERRNOITM)
+	               + SUM(S9HHERRNOITM)  + SUM(S10HHERRNOITM) + SUM(S11HHERRNOITM)
+	               + SUM(S12HHERRNOITM) + SUM(S13HHERRNOITM) + SUM(S14HHERRNOITM)
+	               + SUM(S15HHERRNOITM) + SUM(S16HHERRNOITM) + SUM(S17HHERRNOITM)
+	               + SUM(S18HHERRNOITM) + SUM(S19HHERRNOITM) + SUM(S20HHERRNOITM)
+	               + SUM(S21HHERRNOITM) + SUM(S22HHERRNOITM) + SUM(S23HHERRNOITM)
+	             ) AS ERRNOITM
+	               FROM $schemaId$.TSEAIST02
+	               WHERE STATCYMD BETWEEN CONCAT( #startDate# , '01' ) AND CONCAT( #endDate# , '31')
+	               GROUP BY STATCYMD,EAISVCNAME
+	               ORDER BY ERRNOITM DESC
+	         ) O
+		) A LEFT OUTER JOIN $schemaId$.TSEAIHE01 B
+		ON  A.EAISVCNAME = B.EAISVCNAME
+		WHERE ROWNUM &lt; 10+1
+	    ORDER BY ROWNUM
+  </statement>
+</sqlMap>

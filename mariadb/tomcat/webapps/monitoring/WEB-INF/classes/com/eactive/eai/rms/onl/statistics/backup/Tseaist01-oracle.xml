@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Tseaist01">
+  
+  <statement id="findTseaist01" parameterClass="java.util.Map" resultClass="com.eactive.eai.rms.onl.statistics.backup.vo.Tseaist01VO">    
+		SELECT
+		     STATCJOBYMD,        STATCJOBCYCLDSTCD,
+		     STATCJOBSTARTHMS,   STATCJOBENDHMS,
+		     SUCSSYN,            ERRMSG
+		FROM $schemaId$.TSEAIST01
+		WHERE STATCJOBYMD = #statcJobYmd#
+		  AND STATCJOBCYCLDSTCD = #statcJobCyclDstcd#
+  </statement>
+  
+  <statement id="insertTseaist01" parameterClass="java.util.Map" resultClass="java.lang.Integer">    
+		INSERT INTO $schemaId$.TSEAIST01 (
+		     STATCJOBYMD, STATCJOBCYCLDSTCD, STATCJOBSTARTHMS,
+		     STATCJOBENDHMS, SUCSSYN, ERRMSG )
+		VALUES   ( #statcJobYmd#, #statcJobCyclDstcd#, #statcJobStartHMS#,
+		           #statcJobEndHMS#, #sucssYn#, #errMsg# )
+  </statement>
+    
+  <statement id="updateTseaist01" parameterClass="java.util.Map" resultClass="java.lang.Integer"> 
+		UPDATE $schemaId$.TSEAIST01
+		SET
+		     <isNotEmpty property="statcJobStartHMS">
+		     STATCJOBSTARTHMS    = #statcJobStartHMS#,
+		     </isNotEmpty>
+		     <isNotEmpty property="statcJobEndHMS">
+		     STATCJOBENDHMS      = #statcJobEndHMS#,
+		     </isNotEmpty>
+		     <isNotEmpty property="sucssYn">
+		     SUCSSYN             = #sucssYn#,
+		     </isNotEmpty>
+		     ERRMSG              = #errMsg#
+		WHERE STATCJOBYMD        = #statcJobYmd#
+		  AND STATCJOBCYCLDSTCD  = #statcJobCyclDstcd#
+  </statement>
+    
+  <statement id="deleteTseaist01" parameterClass="java.util.Map" resultClass="java.lang.Integer"> 
+		DELETE FROM $schemaId$.TSEAIST01
+		WHERE STATCJOBYMD = #statcJobYmd#
+		  AND STATCJOBCYCLDSTCD   = #statcJobCyclDstcd#
+  </statement>
+    
+  <statement id="deleteTSEAIST01" parameterClass="java.util.Map" resultClass="java.lang.Integer"> 
+		DELETE FROM $schemaId$.TSEAIST01 WHERE STATCJOBYMD LIKE #month#||'%'
+  </statement>
+    
+  <statement id="deleteTSEAIST02" parameterClass="java.util.Map" resultClass="java.lang.Integer"> 
+		DELETE FROM $schemaId$.TSEAIST02 WHERE STATCYMD LIKE #month#||'%'
+  </statement>
+    
+  <statement id="deleteTSEAIST03" parameterClass="java.util.Map" resultClass="java.lang.Integer"> 
+		DELETE FROM $schemaId$.TSEAIST03 WHERE STATCYM = #month#
+  </statement>
+    
+  <statement id="deleteTSEAIST04" parameterClass="java.util.Map" resultClass="java.lang.Integer"> 
+		DELETE FROM $schemaId$.TSEAIST04 WHERE STATCYM LIKE SUBSTR(#month#,1,4) || '%'
+  </statement>
+</sqlMap>

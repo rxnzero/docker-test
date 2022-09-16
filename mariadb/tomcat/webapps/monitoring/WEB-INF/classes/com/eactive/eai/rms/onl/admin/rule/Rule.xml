@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Rule">
+    
+    <statement id="iqmsQueryTR01" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT * FROM $schemaId$.TSEAITR01
+        WHERE CNVSNNAME IN ( $whereItem$ )
+        ORDER BY CNVSNNAME
+    </statement>
+    
+    <statement id="iqmsQueryTR02" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT * FROM $schemaId$.TSEAITR02
+        WHERE CNVSNNAME IN ( $whereItem$ )
+        ORDER BY CNVSNNAME
+    </statement>
+
+    <statement id="iqmsQueryTR03" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT * FROM $schemaId$.TSEAITR03
+        WHERE CNVSNNAME IN ( $whereItem$ )
+        ORDER BY CNVSNNAME
+    </statement>
+
+    <statement id="iqmsQueryTR07" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT * FROM $schemaId$.TSEAITR07
+        WHERE LOUTNAME IN ( $whereItem$ )
+        ORDER BY LOUTNAME    
+    </statement>
+
+    <statement id="iqmsQueryTR08" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT * FROM $schemaId$.TSEAITR08
+        WHERE LOUTNAME IN ( $whereItem$ )
+        ORDER BY LOUTNAME    
+    </statement>
+	
+</sqlMap>

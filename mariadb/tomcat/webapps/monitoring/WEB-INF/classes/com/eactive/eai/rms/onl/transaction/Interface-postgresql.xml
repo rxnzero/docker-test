@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Interface">
+  
+  <!-- 외부 인터페이스 관리 목록조회 ( PAGE ) -->
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			              
+	SELECT ROWNO AS "ROWNO",
+	 	EAISvcName AS "EAISVCNAME",
+	 	EAIBzwkDstcd AS "EAIBZWKDSTCD",
+	 	EAITRANNAME AS "EAITRANNAME",
+	 	EAISvcDesc AS "EAISVCDESC",
+	 	IO AS "IO",
+	 	SplizDmndDstcd AS "SPLIZDMNDDSTCD",
+	 	StndTelgmWtinExtnlDstcd AS "STNDTELGMWTINEXTNLDSTCD",
+	 	FromName AS "FROMNAME",
+	 	ToName AS "TONAME",
+	 	DevUser AS "DEVUSER",
+	 	DevUserName AS "DEVUSERNAME",
+	 	BankUser AS "BANKUSER",
+	 	BankUserName AS "BANKUSERNAME",
+	 	CreateBy AS "CREATEBY",
+	 	UpdateBy AS "UPDATEBY",
+	 	CreateByName AS "CREATEBYNAME",
+	 	UpdateByName AS "UPDATEBYNAME"
+	    FROM ( 
+	    	SELECT ROW_NUMBER() OVER(ORDER BY HE01.EAISvcName) ROWNO
+                   , HE01.EAISvcName
+                   , HE01.EAIBzwkDstcd
+                   , SUBSTR( HE01.EAISvcName, 1, LENGTH(HE01.EAISvcName)-2) EAITRANNAME
+                   , HE01.EAISvcDesc
+              , CASE WHEN '$schemaId$' = 'EAI' 
+              		THEN CASE WHEN SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME)-1, 2) IN ('S2','R2')
+              				  THEN 'O' ELSE 'I' END
+                     ELSE CASE WHEN SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName)-1, 2) in ('S2','R1') 
+                 	 			THEN 'O' ELSE 'I' END 
+                 END IO
+                   , SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME)-1, 1) SplizDmndDstcd 
+                      , SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME), 1) StndTelgmWtinExtnlDstcd    
+			 , SUBSTR( HE01.GstatSysAdptrBzwkGroupName,2,3) FromName
+		     , SUBSTR( HE02.PsvSysAdptrBzwkGroupName,2,3) ToName
+			 , HE01.DevUserId DevUser
+			 , '' DevUserName
+			 , HE01.BankUserId BankUser
+			 , '' BankUserName
+             , HE01.CreateBy
+             , HE01.UpdateBy
+             , '' CreateByName
+             , '' UpdateByName
+		  	FROM $schemaId$.TSEAIHE01 HE01 
+       		LEFT OUTER JOIN $schemaId$.TSEAIHE02 HE02 ON HE01.EAISvcName = HE02.EAISvcName AND HE02.SvcPrcssNo = 1
+       		WHERE HE01.EAIBzwkDstcd IN ( select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID=#loginId#  )
+		    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+		    HE01.EAIBzwkDstcd = #searchEaiBzwkDstcd#
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="searchEaiSvcName">
+		    HE01.EAISvcName LIKE '%' || #searchEaiSvcName# || '%'
+		    </isNotEmpty>
+		    ) AS TB
+		WHERE ROWNO BETWEEN #startNum# AND #endNum# 
+  </statement>
+  
+  <!-- 외부 인터페이스 목록조회 COUNT -->
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) AS "CNT"
+      FROM $schemaId$.TSEAIHE01 HE01 
+    WHERE HE01.EAIBzwkDstcd IN ( select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID=#loginId#  )
+   <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+          HE01.EAIBzwkDstcd = #searchEaiBzwkDstcd#
+   </isNotEmpty>
+   <isNotEmpty prepend="AND" property="searchEaiSvcName">
+          HE01.EAISvcName LIKE '%' || #searchEaiSvcName# || '%'
+   </isNotEmpty>
+  </statement>  
+  
+  <!-- 외부 인터페이스 DETAIL -->
+  <statement id="selectDetail"  parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	 	 SELECT HE01.EAISvcName AS "EAISVCNAME" 
+	 	      , HE01.EAIBzwkDstcd AS "EAIBZWKDSTCD"
+	 	      , SUBSTR(HE01.EAISvcName, 1, LENGTH(HE01.EAISvcName)-2) AS "EAITRANNAME"
+	          , HE01.EAISvcDesc AS "EAISVCDESC"
+              , CASE WHEN '$schemaId$' = 'EAI' 
+              		THEN CASE WHEN SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME)-1, 2) IN ('S2','R2')
+              				  THEN 'O' ELSE 'I' END
+                     ELSE CASE WHEN SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName)-1, 2) in ('S2','R1') 
+                 	 			THEN 'O' ELSE 'I' END 
+                 END AS "IO"
+              , SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName)-1, 1) AS "SPLIZDMNDDSTCD"
+	          , SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName), 1) AS "STNDTELGMWTINEXTNLDSTCD"
+		      , CASE WHEN HE01.SvcMotivUseDstcd ='SYNC' and HE02.PsvIntfacDsticName ='SYNC' then 'SYNC' 
+		             WHEN HE01.SvcMotivUseDstcd ='ASYN' and HE02.PsvIntfacDsticName ='ASYN' then 'ASYN' 
+		             WHEN HE01.SvcMotivUseDstcd ='SYNC' and HE02.PsvIntfacDsticName ='ASYN' then 'SYNC_ASYN'
+		             WHEN HE01.SvcMotivUseDstcd ='ASYN' and HE02.PsvIntfacDsticName ='SYNC' then 'ASYN_SYNC'
+		             end  AS "SVCMOTIVUSEDSTCD"  
+	          , trim(RecvTranName) AS "SERVICEID"
+              , HE02.RestOption AS "RESTOPTION"
+	          , MS02_1.RefMsgIDName || 
+	            CASE WHEN MS02_2.RefMsgIDName IS NOT NULL THEN ',' || MS02_2.RefMsgIDName ELSE '' END || 
+	            CASE WHEN MS02_3.RefMsgIDName IS NOT NULL THEN ',' || MS02_3.RefMsgIDName ELSE '' END     AS "LAYOUTMAPPINGNAME"
+	          , FR_1.BzwkFldName AS "BZWKFLDNAME1"
+	          , COALESCE(FR_1.MsgFldStartSituVal,0) AS "MSGFLDSTARTSITUVAL1"
+	          , COALESCE(FR_1.MsgFldLen,0) AS "MSGFLDLEN1"
+	          , FR_2.BzwkFldName AS "BZWKFLDNAME2"
+	          , COALESCE(FR_2.MsgFldStartSituVal,0) AS "MSGFLDSTARTSITUVAL2"
+	          , COALESCE(FR_2.MsgFldLen,0) AS "MSGFLDLEN2"
+	          , HE01.GstatSysAdptrBzwkGroupName AS "FROMADAPTER"
+	          , HE02.PsvSysAdptrBzwkGroupName AS "TOADAPTER"
+	          , HE02_2.PsvSysAdptrBzwkGroupName AS "EXTADAPTER"
+	          , HE01.DevUserId AS "DEVUSERID"
+	          , '' AS "DEVUSERNAME"
+	          , HE01.BankUserId AS "BANKUSERID"  
+	          , '' AS "BANKUSERNAME"
+	          , HS04.bzwkSvcKeyName AS "BZWKSVCKEYNAME"
+		  FROM  $schemaId$.TSEAIHE01 HE01 
+					  LEFT OUTER JOIN ( 
+                            SELECT EAISVCNAME ,hs04.bzwkSvcKeyName
+		                         , max((CASE WHEN COLUMNNAME = 'COMMON_SRVCID' THEN COLUMNVALUE ELSE '' END)) RecvTranName
+		                      FROM $schemaId$.TSEAIHS04 hs04 , $schemaId$.tseaihs05 hs05
+		                      where hs04.BZWKSVCKEYNAME =hs05.BZWKSVCKEYNAME
+		                     group by hs04.BZWKSVCKEYNAME,EAISVCNAME				
+					  ) HS04
+					  On HE01.EAISvcName = HS04.EAISvcName
+            LEFT OUTER JOIN $schemaId$.TSEAIHE02 HE02   ON HE01.EAISvcName = HE02.EAISvcName AND HE02.SvcPrcssNo = 1
+            LEFT OUTER JOIN $schemaId$.TSEAIHE02 HE02_2 ON HE01.EAISvcName = HE02_2.EAISvcName AND HE02_2.SvcPrcssNo = 2
+            LEFT OUTER JOIN (SELECT EAISvcName, RefMsgIDName FROM $schemaId$.TSEAIMS02 WHERE RefMsgIDNo=1 ) MS02_1 On HE01.EAISvcName = MS02_1.EAISvcName
+            LEFT OUTER JOIN (SELECT EAISvcName, RefMsgIDName FROM $schemaId$.TSEAIMS02 WHERE RefMsgIDNo=2 ) MS02_2 On HE01.EAISvcName = MS02_2.EAISvcName
+            LEFT OUTER JOIN (SELECT EAISvcName, RefMsgIDName FROM $schemaId$.TSEAIMS02 WHERE RefMsgIDNo=3 ) MS02_3 On HE01.EAISvcName = MS02_3.EAISvcName
+					  LEFT OUTER JOIN (SELECT EAISvcName, BzwkFldName, MsgFldStartSituVal, MsgFldLen FROM $schemaId$.TSEAIFR03 WHERE FldPrcssNo=1 ) FR_1 On HE01.EAISvcName = FR_1.EAISvcName
+					  LEFT OUTER JOIN (SELECT EAISvcName, BzwkFldName, MsgFldStartSituVal, MsgFldLen FROM $schemaId$.TSEAIFR03 WHERE FldPrcssNo=2 ) FR_2 On HE01.EAISvcName = FR_2.EAISvcName
+		 WHERE HE01.EAISvcName = #eaiSvcName#  
+  </statement>
+    
+  <!-- Detail 추가 정보 -->
+  <statement id="selectDetailHE10" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+  	SELECT 
+	  	 EAISVCNAME  AS "EAISVCNAME"
+		,'REALTIME' AS "OCCURDSTCD"
+		,TRANSKIND   AS "TRANSKIND"
+		,TRANSFREQ   AS "TRANSFREQ"
+		,SIZEONCE    AS "SIZEONCE"
+		,PROCTERM    AS "PROCTERM"
+		,REQCHGR     AS "REQCHGR"
+		,REQCHGRTLNO AS "REQCHGRTLNO"
+		,RESCHGR     AS "RESCHGR"
+		,RESCHGRTLNO AS "RESCHGRTLNO"
+		,RMK         AS "RMK"
+	FROM $schemaId$.TSEAIHE10
+  	WHERE EAISvcName = #eaiSvcName#
+  </statement>
+
+  <statement id="mergeHE10" parameterClass="java.util.HashMap">     
+     WITH UPSERT AS (
+	SELECT 
+		CAST(#eaiSvcName#  AS character varying(  30)) AS EAISvcName , 
+		CAST(#transKind#   AS character varying(  40)) AS TransKind  ,  
+		CAST(#transFreq#   AS character varying(  40)) AS TransFreq  ,  
+		CAST(#sizeOnce#    AS character varying(  40)) AS SizeOnce   ,  
+		CAST(#procTerm#    AS character varying(  40)) AS ProcTerm   ,
+		CAST(#reqChgr#     AS character varying(  40)) AS ReqChgr    ,	
+		CAST(#reqChgrTlno# AS character varying(  40)) AS ReqChgrTlno,	
+		CAST(#resChgr#     AS character varying(  40)) AS ResChgr    ,	
+		CAST(#resChgrTlno# AS character varying(  40)) AS ResChgrTlno,	
+		CAST(#rmk#         AS character varying(1000)) AS Rmk					
+	),
+	UPDATE_OPTION AS (
+		UPDATE $schemaId$.TSEAIHE10 A SET 
+			TransKind    = URSET.TransKind   ,
+			TransFreq    = URSET.TransFreq   ,
+			SizeOnce     = URSET.SizeOnce    ,
+			ProcTerm     = URSET.ProcTerm    ,
+			ReqChgr		 = URSET.ReqChgr     ,
+			ReqChgrTlno	 = URSET.ReqChgrTlno ,
+			ResChgr		 = URSET.ResChgr	 ,
+			ResChgrTlno	 = URSET.ResChgrTlno ,
+			Rmk			 = URSET.Rmk		 ,
+			FROM UPSERT 
+			WHERE A.eaiSvcName = UPSERT.eaiSvcName
+	)
+	INSERT INTO $schemaId$.TSEAIHE10 A (EaiSvcName       , TransKind   ,TransFreq      ,SizeOnce   ,ProcTerm,
+                    ReqChgr         ,ReqChgrTlno        ,ResChgr    ,ResChgrTlno    ,Rmk)
+	SELECT EaiSvcName       , TransKind	,TransFreq		,SizeOnce	,ProcTerm,
+            		ReqChgr			,ReqChgrTlno		,ResChgr	,ResChgrTlno	,Rmk FROM UPSERT 
+	WHERE NOT EXISTS (
+	SELECT 1 FROM TEST WHERE A.eaiSvcName = UPSERT.eaiSvcName
+	)
+  </statement>
+    
+  <statement id="deleteHE10" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHE10 
+     WHERE EAISvcName = #eaiSvcName#
+  </statement>
+   
+   
+   <statement id="selectListHS03"  parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+ 	 SELECT 
+	  COLUMNNAME    AS "COLUMNNAME"
+	, COLUMNDESC    AS "COLUMNDESC"
+	, COLUMNLENGTH  AS "COLUMNLENGTH"
+	, ISKEY         AS "ISKEY"
+	, KEYSEQ        AS "KEYSEQ"
+	, ISINTERFACE   AS "ISINTERFACE"
+	, COMBONAME     AS "COMBONAME"
+	, COMBODEPTH    AS "COMBODEPTH"
+	, COLUMNDEFAULT AS "COLUMNDEFAULT"
+	 FROM $schemaId$.TSEAIHS03 
+ 	</statement>
+  <statement id="deleteToHS04" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHS04 
+     WHERE EAISvcName = #eaiTranName#||#splizDmndDstcd#||#stndTelgmWtinExtnlDstcd#       
+  </statement>
+  <statement id="deleteToHS05" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIHS05 
+     WHERE bzwkSvcKeyName in (SELECT bzwkSvcKeyName from $schemaId$.TSEAIHS04 where EAISvcName = #eaiTranName#||#splizDmndDstcd#||#stndTelgmWtinExtnlDstcd#)       
+  </statement>  
+
+
+
+  
+  <statement id="detailToHS05" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        SELECT 
+	          HS04.BzwkSvcKeyName AS "BZWKSVCKEYNAME"
+	          , EAISVCNAME AS "EAISVCNAME"
+	          , COLUMNNAME AS "COLUMNNAME"
+	          , COLUMNVALUE AS "COLUMNVALUE"
+      FROM $schemaId$.TSEAIHS04 HS04 ,$schemaId$.TSEAIHS05 HS05
+     WHERE HS04.BzwkSvcKeyName = HS05.BzwkSvcKeyName
+       AND EAISVCNAME = #eaiTranName#||#splizDmndDstcd#||#stndTelgmWtinExtnlDstcd#
+  </statement>  
+  <!-- 내부표준전문 처리 -->
+  <statement id="mergeToHS04" parameterClass="java.util.HashMap">
+	WITH UPSERT AS (
+	SELECT CAST(#bzwkSvcKeyName# as character varying(40)) AS BzwkSvcKeyName
+	     , CAST(#COMMON_IFID#||#HEADER_MESGDMANDVCD#||#COMMON_HMABDVCD# as character varying(40)) AS EAISVCNAME
+	),
+	UPDATE_OPTION AS (
+	UPDATE $schemaId$.TSEAIHS04 A SET EAISVCNAME = UPSERT.EAISVCNAME FROM UPSERT 
+	WHERE A.BzwkSvcKeyName = UPSERT.BzwkSvcKeyName
+	)
+	INSERT INTO $schemaId$.TSEAIHS04
+	SELECT BzwkSvcKeyName,EAISVCNAME  FROM UPSERT 
+	WHERE NOT EXISTS (
+	SELECT 1 FROM $schemaId$.TSEAIHS04 A WHERE A.BzwkSvcKeyName = UPSERT.BzwkSvcKeyName
+	)
+  </statement>    
+  <statement id="mergeToHS05" parameterClass="java.util.HashMap">
+    WITH UPSERT AS (
+	SELECT CAST(#bzwkSvcKeyName# as character varying( 40)) AS BzwkSvcKeyName
+	     , CAST(#columnName#     as character varying( 40)) AS COLUMNNAME
+	     , CAST(#columnValue#    as character varying(200)) AS COLUMNVALUE
+	),
+	UPDATE_OPTION AS (
+	UPDATE $schemaId$.TSEAIHS05 A SET COLUMNVALUE = UPSERT.COLUMNVALUE FROM UPSERT 
+	WHERE A.BzwkSvcKeyName = UPSERT.BzwkSvcKeyName
+	AND A.COLUMNNAME = UPSERT.COLUMNNAME	
+	)
+	INSERT INTO $schemaId$.TSEAIHS05
+	SELECT BzwkSvcKeyName    , COLUMNNAME  , COLUMNVALUE  FROM UPSERT 
+	WHERE NOT EXISTS (
+	SELECT 1 FROM $schemaId$.TSEAIHS05 A WHERE A.BzwkSvcKeyName = UPSERT.BzwkSvcKeyName
+	AND A.COLUMNNAME = UPSERT.COLUMNNAME
+	)
+  </statement>    
+   
+   
+  <!-- EAI메세지 -->
+  <statement id="mergeToHE01" parameterClass="java.util.HashMap">
+	WITH UPSERT AS (
+	SELECT
+		CAST(#eaiSvcName#                 as character varying(30 )) AS EAISvcName                 , 
+		CAST(#eaiBzwkDstcd#               as character varying(4  )) AS EAIBzwkDstcd               ,
+		CAST(#svcHMSEonot#                as character        (1  )) AS SvcHMSEonot                ,
+		CAST(#svcMotivUseDstcd#           as character        (4  )) AS SvcMotivUseDstcd           ,
+		CAST(#svcPrcesDsticName#          as character varying(10 )) AS SvcPrcesDsticName          ,
+		CAST(#flowCtrlRoutName#           as character varying(50 )) AS FlowCtrlRoutName           ,
+		CAST(#intgraDsticName#            as character varying(6  )) AS IntgraDsticName            ,
+		CAST(#svcBfClmnLogYn#             as character        (1  )) AS SvcBfClmnLogYn             ,
+		CAST(#gstatSysAdptrBzwkGroupName# as character varying(50 )) AS GstatSysAdptrBzwkGroupName ,
+		CAST(#sevrLogLvelNo#              AS NUMERIC)                AS SevrLogLvelNo              ,
+		CAST(#svcLogLvelNo#               AS NUMERIC)                AS SvcLogLvelNo               ,
+		CAST(#eaiSvcDesc#                 as character varying(200)) AS EAISvcDesc                ,
+		CAST('N'                          as character        (1  )) AS SimYn                      ,
+		CAST(#loginId#                    as character varying(8  )) AS CreateBy                   ,
+		CAST(#loginId#                    as character varying(8  )) AS UpdateBy                   ,
+		CAST(#devUserId#                  as character varying(8  )) AS DevUserid                  ,
+		CAST(#bankUserId#                 as character varying(8  )) AS BankUserid                 ,
+		TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS') AS CreateOn                   ,  
+		TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS') AS UpdateOn
+	),
+	UPDATE_OPTION AS (
+	UPDATE $schemaId$.TSEAIHE01 A SET 
+             EAIBzwkDstcd               = COALESCE(UPSERT.EAIBzwkDstcd,              ' '),
+             SvcMotivUseDstcd           = COALESCE(UPSERT.SvcMotivUseDstcd,          ' '),
+             GstatSysAdptrBzwkGroupName = COALESCE(UPSERT.GstatSysAdptrBzwkGroupName,' '),
+             EAISvcDesc                 = COALESCE(UPSERT.EAISvcDesc,                ' '),
+             UpdateBy                   = COALESCE(UPSERT.UpdateBy,                  ' '),
+             DevUserId                  = COALESCE(UPSERT.DevUserId,                 A.DevUserId),
+             BankUserId                 = COALESCE(UPSERT.BankUserId,                A.BankUserId),
+             UpdateOn                   = UPSERT.UpdateOn ,
+             FlowCtrlRoutName           = COALESCE(UPSERT.FlowCtrlRoutName,          ' ')             
+	FROM UPSERT 
+	WHERE A.EAISvcName = UPSERT.EAISvcName	
+	)
+	INSERT INTO $schemaId$.TSEAIHE01 (EAISvcName        , EAIBzwkDstcd    , SvcHMSEonot    , SvcMotivUseDstcd           , SvcPrcesDsticName , 
+                    FlowCtrlRoutName  , IntgraDsticName , SvcBfClmnLogYn , GstatSysAdptrBzwkGroupName , SevrLogLvelNo     , 
+                    SvcLogLvelNo      , EAISvcDesc      , SimYn          , CreateBy                   , UpdateBy          , 
+                    DevUserid          , BankUserid         , CreateOn     , UpdateOn)
+		SELECT EAISvcName        , EAIBzwkDstcd    , SvcHMSEonot    , SvcMotivUseDstcd           , SvcPrcesDsticName , 
+                    FlowCtrlRoutName  , IntgraDsticName , SvcBfClmnLogYn , GstatSysAdptrBzwkGroupName , SevrLogLvelNo     , 
+                    SvcLogLvelNo      , EAISvcDesc      , SimYn          , CreateBy                   , UpdateBy          , 
+                    DevUserid          , BankUserid         , CreateOn     , UpdateOn
+        FROM UPSERT 
+	WHERE NOT EXISTS (
+	SELECT 1 FROM $schemaId$.TSEAIHE01 A WHERE A.EAISvcName = UPSERT.EAISvcName
+	)
+	
+  </statement>
+  <delete id="deleteNo2ToHE02" parameterClass="java.util.HashMap">
+     DELETE FROM $schemaId$.TSEAIHE02 WHERE EAISvcName = #eaiSvcName# AND SvcPrcssNo=2
+  </delete>
+  
+  <statement id="mergeToHE02" parameterClass="java.util.HashMap">      							 
+	WITH UPSERT AS (
+	SELECT
+		CAST(#eaiSvcName#               as character varying(30 )) AS EAISvcName              ,
+		CAST(#svcPrcssNo#               AS NUMERIC               ) AS SvcPrcssNo              ,
+		CAST(#psvIntfacDsticName#       as character varying(4  )) AS PsvIntfacDsticName      ,
+		CAST(#psvSysBzwkDstcd#          as character varying(4  )) AS PsvSysBzwkDstcd         ,
+		CAST(#psvSysIDName#             as character varying(12 )) AS PsvSysIDName            ,
+		CAST(#psvSysSvcDsticName#       as character varying(20 )) AS PsvSysSvcDsticName      ,
+		CAST(#psvSysAdptrBzwkGroupName# as character varying(50 )) AS PsvSysAdptrBzwkGroupName,
+		CAST(#flovrYn#                  as character        (1  )) AS FlovrYn                 ,
+		CAST(#chngEonot#                as character        (1  )) AS ChngEonot               ,
+		CAST(#chngMsgIDName#            as character varying(50 )) AS ChngMsgIDName           ,
+		CAST(#bascRspnsMsgCmprCtnt#     as character varying(20 )) AS BascRspnsMsgCmprCtnt    ,
+		CAST(#bascRspnsChngEonot#       as character varying(1  )) AS BascRspnsChngEonot      ,
+		CAST(#bascRspnsChngMsgIDName#   as character varying(50 )) AS BascRspnsChngMsgIDName  ,
+		CAST(#errRspnsMsgCmprCtnt#      as character varying(20 )) AS ErrRspnsMsgCmprCtnt     ,
+		CAST(#errRspnsChngEonot#        as character varying(1  )) AS ErrRspnsChngEonot       ,
+		CAST(#errRspnsChngMsgIDName#    as character varying(50 )) AS ErrRspnsChngMsgIDName   ,
+		CAST(#nextSvcPrcssNo#           AS NUMERIC               ) AS NextSvcPrcssNo          ,
+		CAST(#outbndRoutName#           as character varying(50 )) AS OutbndRoutName          ,
+		CAST(#toutVal#                  as numeric               ) AS ToutVal                 ,
+		CAST(#cmpenSvcPrcssDsticName#   as character varying(20 )) AS CmpenSvcPrcssDsticName  ,
+		CAST(#supplDelYn#               as character        (1  )) AS SupplDelYn              ,
+		CAST(#hdrCtrlDstcd#             as character        (2  )) AS HdrCtrlDstcd            ,
+		CAST(#hdrRefClsName#            as character varying(100)) AS HdrRefClsName           ,
+		CAST(#restOption#               as character varying(500)) AS RestOption              
+	),
+	UPDATE_OPTION AS (
+	UPDATE $schemaId$.TSEAIHE02 A SET 
+         PsvIntfacDsticName       = COALESCE(UPSERT.PsvIntfacDsticName       ,'  '),
+		 PsvSysBzwkDstcd          = COALESCE(UPSERT.PsvSysBzwkDstcd          ,'  '),
+		 PsvSysAdptrBzwkGroupName = COALESCE(UPSERT.PsvSysAdptrBzwkGroupName ,'  '),
+		 OutbndRoutName           = COALESCE(UPSERT.OutbndRoutName           ,'  '),
+		 SupplDelYn               = COALESCE(UPSERT.SupplDelYn               ,'0 '),
+		 HdrCtrlDstcd             = COALESCE(UPSERT.HdrCtrlDstcd             ,'01'),
+		 HdrRefClsName            = COALESCE(UPSERT.HdrRefClsName            ,'  '),
+		 RestOption               = COALESCE(UPSERT.RestOption               ,'  ')        
+	FROM UPSERT 
+	WHERE A.EAISvcName = UPSERT.EAISvcName
+	 AND A.SvcPrcssNo = UPSERT.SvcPrcssNo	
+	)
+	INSERT INTO $schemaId$.TSEAIHE02 (EAISvcName,            SvcPrcssNo,               PsvIntfacDsticName,     PsvSysBzwkDstcd,     PsvSysIDName, 
+                    PsvSysSvcDsticName,    PsvSysAdptrBzwkGroupName, FlovrYn,                ChngEonot,           ChngMsgIDName, 
+                    BascRspnsMsgCmprCtnt,  BascRspnsChngEonot,       BascRspnsChngMsgIDName, ErrRspnsMsgCmprCtnt, ErrRspnsChngEonot, 
+                    ErrRspnsChngMsgIDName, NextSvcPrcssNo,           OutbndRoutName,         ToutVal,             CmpenSvcPrcssDsticName, 
+                    SupplDelYn,            HdrCtrlDstcd,             HdrRefClsName,          RestOption)
+		SELECT EAISvcName,            SvcPrcssNo,               PsvIntfacDsticName,     PsvSysBzwkDstcd,     PsvSysIDName, 
+                    PsvSysSvcDsticName,    PsvSysAdptrBzwkGroupName, FlovrYn,                ChngEonot,           ChngMsgIDName, 
+                    BascRspnsMsgCmprCtnt,  BascRspnsChngEonot,       BascRspnsChngMsgIDName, ErrRspnsMsgCmprCtnt, ErrRspnsChngEonot, 
+                    ErrRspnsChngMsgIDName, NextSvcPrcssNo,           OutbndRoutName,         ToutVal,             CmpenSvcPrcssDsticName, 
+                    SupplDelYn,            HdrCtrlDstcd,             HdrRefClsName,          RestOption
+        FROM UPSERT 
+	WHERE NOT EXISTS (
+	SELECT 1 FROM $schemaId$.TSEAIHE02 A WHERE A.EAISvcName = UPSERT.EAISvcName
+                 AND A.SvcPrcssNo = UPSERT.SvcPrcssNo
+	)
+									 
+  </statement>   
+   
+	<statement id="selectPopListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS "CNT"
+		  FROM $schemaId$.TSEAIHE01 HE01 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="eaiSvcName">
+				UPPER(HE01.EAISvcName) LIKE UPPER('%' || #eaiSvcName# || '%')
+			</isNotEmpty>
+		</dynamic>
+	</statement>
+	
+	<statement id="selectPopList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROWNO AS "ROWNO",
+		EAISvcName AS "EAISVCNAME",
+		EAIBzwkDstcd AS "EAIBZWKDSTCD",
+		EAITRANNAME AS "EAITRANNAME",
+		EAISvcDesc AS "EAISVCDESC",
+		io AS "IO",
+		SplizDmndDstcd AS "SPLIZDMNDDSTCD",
+		StndTelgmWtinExtnlDstcd AS "STNDTELGMWTINEXTNLDSTCD"
+		  FROM ( SELECT ROW_NUMBER() OVER(ORDER BY HE01.EAISvcName) ROWNO
+					  , HE01.EAISvcName
+					  , HE01.EAIBzwkDstcd
+					  , SUBSTR( HE01.EAISvcName, 1, LENGTH(HE01.EAISvcName)-2) EAITRANNAME
+					  , HE01.EAISvcDesc
+					  , CASE WHEN '$schemaId$' = 'EAI' 
+								THEN CASE WHEN SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME)-1, 2) IN ('S2','R2')
+											THEN 'O' ELSE 'I' END
+							 ELSE CASE WHEN SUBSTR(HE01.EAISvcName, LENGTH(HE01.EAISvcName)-1, 2) in ('S2','R1') 
+										THEN 'O' ELSE 'I' END 
+						 END io
+					  , SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME)-1, 1) SplizDmndDstcd 
+					  , SUBSTR(HE01.EAISVCNAME, LENGTH(HE01.EAISVCNAME), 1) StndTelgmWtinExtnlDstcd
+				   FROM $schemaId$.TSEAIHE01 HE01
+					<dynamic prepend="WHERE">
+						<isNotEmpty prepend="AND" property="eaiSvcName">
+							UPPER(HE01.EAISvcName) LIKE UPPER('%' || #eaiSvcName# || '%')
+						</isNotEmpty>
+					</dynamic>
+			   ) AS TB
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum# 
+	</statement>  
+</sqlMap>
+  

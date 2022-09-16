@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatServer">
+
+    <statement id="selectList" resultClass="java.util.HashMap">
+        SELECT *
+        FROM (
+                SELECT  ROW_NUMBER() OVER(ORDER BY EAISEVRINSTNCNAME) ROWNO,
+                        EAISEVRINSTNCNAME,
+                        EAISEVRIP,
+                        SEVRLSNPORTNAME,
+                        FLOVRSEVRNAME,
+                        HOSTNAME
+                FROM $schemaId$.TSEAIEP03
+            ) ORGTABLE
+        WHERE ROWNO BETWEEN #startNum# AND #endNum#
+    </statement>
+
+    <statement id="getEaiServerIpPort" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT EAISEVRINSTNCNAME AS "EAISVRINSTNM",
+               EAISEVRIP AS "EAISVRIP",
+               SEVRLSNPORTNAME AS "EAISVRLSNPORT",
+               FLOVRSEVRNAME AS "FAILOVERSVRNM",
+               HOSTNAME AS "HOSTNAME"
+        FROM $schemaId$.TSEAIEP03
+        WHERE ROWNUM = 1
+    </statement>
+</sqlMap>

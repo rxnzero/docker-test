@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatInterface">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT *
+		FROM (
+                SELECT  @NO := @NO + 1 AS ROWNO, 
+                        B.BZWKDSTICNAME, 
+                        A.BATCHTYPE    ,
+                        A.INTFID       ,
+                        A.INTFNAME     ,
+                        A.INTFDESC     ,
+                        A.SNDADPTRCD   ,
+                        A.SNDADPTRCDSEQ,
+                        CONCAT( A.SNDADPTRCD , '[' ,  CAST(A.SNDADPTRCDSEQ AS CHAR) , ']') AS SNDADPTRCDSTR,
+                        SUBSTR(A.INTFSTARTDATE,1,8) AS INTFSTARTDATE,
+                        SUBSTR(A.INTFENDDATE,1,8)   AS INTFENDDATE,
+                        A.DELYN      ,
+                        A.EVENTCALLVAL
+		 	    FROM    $schemaId$.TSEAIEA04 A,
+		 	            $schemaId$.TSEAICM01 B,  (SELECT @NO := 0) R
+                WHERE   A.workGrpCd = B.EAIBzwkDstcd
+                AND     A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )         
+				<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+					A.workGrpCd =  #searchEaiBzwkDstcd#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchDelYn">
+					A.delYn =  #searchDelYn#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchBatchType">
+					A.batchType = #searchBatchType#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchInterfaceNm">
+				   ( A.intfName LIKE CONCAT( '%' , #searchInterfaceNm# , '%') OR A.intfId LIKE CONCAT( '%' , #searchInterfaceNm# , '%') )
+				</isNotEmpty>				
+				<isNotEmpty prepend="AND" property="searchFtpHostname">
+				    A.intfId IN (SELECT intfId FROM $schemaId$.TSEAIEA05 WHERE ftpHostname LIKE  #searchFtpHostname# )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchRmtSevrFTPUID">
+				    A.intfId IN (SELECT intfId FROM $schemaId$.TSEAIEA05 WHERE rmtSevrFTPUID LIKE  #searchRmtSevrFTPUID# )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchJndi">
+				    A.intfId IN (SELECT T2.intfId FROM $schemaId$.TSEAIEA02 T1, $schemaId$.TSEAIEA03 T2 WHERE T1.jndiDatasource LIKE #searchJndi# AND T1.adptrCd=T2.adptrCd )
+				</isNotEmpty>
+				ORDER BY batchType,intfId
+
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(A.INTFID) AS TOTALCOUNT
+		 	    FROM    $schemaId$.TSEAIEA04 A,
+		 	            $schemaId$.TSEAICM01 B
+                WHERE   A.workGrpCd = B.EAIBzwkDstcd
+                AND     A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )         
+				<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+					A.workGrpCd =  #searchEaiBzwkDstcd#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchDelYn">
+					A.delYn =  #searchDelYn#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchBatchType">
+					A.batchType = #searchBatchType#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchInterfaceNm">
+				    ( A.intfName LIKE CONCAT( '%' , #searchInterfaceNm# , '%') OR A.intfId LIKE CONCAT( '%' , #searchInterfaceNm# , '%') )
+				</isNotEmpty>				
+				<isNotEmpty prepend="AND" property="searchFtpHostname">
+				    A.intfId IN (SELECT intfId FROM $schemaId$.TSEAIEA05 WHERE ftpHostname LIKE #searchFtpHostname# )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchRmtSevrFTPUID">
+				    A.intfId IN (SELECT intfId FROM $schemaId$.TSEAIEA05 WHERE rmtSevrFTPUID LIKE #searchRmtSevrFTPUID# )
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchJndi">
+				    A.intfId IN (SELECT T2.intfId FROM $schemaId$.TSEAIEA02 T1, $schemaId$.TSEAIEA03 T2 WHERE T1.jndiDatasource LIKE #searchJndi# AND T1.adptrCd=T2.adptrCd )
+				</isNotEmpty>
+	</statement>	
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIEA04(		
+				intfId,         intfName, 
+				intfDesc,       workGrpCd,    Level4,  sndAdptrCd,				
+				sndAdptrCdSeq,  batchType,    regDate,					
+				regUserid,      modDate,      modUserid,
+				intfStartDate,  intfEndDate,  delYn,
+				eventCallVal,   postJobHostName,
+				postJobPortNoName,  postJobUID,
+				postJobUserPwdName, postJobCmd,
+				sizeOnce,           procTerm,
+				reqChgr,            reqChgrTlno,
+				resChgr,            resChgrTlno
+				)
+		VALUES	(
+		         #intfId#,         #intfName#, 
+			 	 #intfDesc#,       #workGrpCd#,      #Level4#, #sndAdptrCd#,
+				 #sndAdptrCdSeq#,  #batchType#,   SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),
+			 	 #userid  #,       SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ) ,     #userid#,
+			 	 IFNULL(#intfStartDate#, SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )  ),   
+			 	 IFNULL(#intfEndDate#,'99991231235959'),
+			 	 #delYn#,      #eventCallVal#,         #postJobHostName#,        #postJobPortNoName#,
+			 	 #postJobUID#,        #postJobUserPwdName#,        #postJobCmd#,
+			 	 #sizeOnce#,          #procTerm#,
+				 #reqChgr#,           #reqChgrTlno#,
+				 #resChgr#,           #resChgrTlno#
+				)
+	</statement>
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE  $schemaId$.TSEAIEA04 SET
+				intfName           = #intfName#,
+				intfDesc           = #intfDesc#,
+				Level4             = #Level4#,
+				sndAdptrCd         = #sndAdptrCd#,				
+				sndAdptrCdSeq      = #sndAdptrCdSeq#,
+				modDate            = SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f') ,
+				modUserid          = #userid#,	
+				intfStartDate      = IFNULL(#intfStartDate#,intfStartDate),	
+				intfEndDate        = IFNULL(#intfEndDate#,intfEndDate),
+				delYn              = #delYn#,
+				eventCallVal       = #eventCallVal#,
+				postJobHostName    = #postJobHostName#,
+                postJobPortNoName  = #postJobPortNoName#,
+                postJobUID         = #postJobUID#,
+                postJobUserPwdName = #postJobUserPwdName#,
+                postJobCmd         = #postJobCmd#,
+                sizeOnce           = #sizeOnce#,
+                procTerm           = #procTerm#,
+				reqChgr            = #reqChgr#,
+				reqChgrTlno        = #reqChgrTlno#,
+				resChgr            = #resChgr#,
+				resChgrTlno        = #resChgrTlno#
+		WHERE   intfId             = #intfId#
+
+	</statement>
+
+	<statement id="adapterList" resultClass="java.util.HashMap">
+		SELECT * FROM (
+			SELECT @NO := @NO + 1 AS ROWNO, TBL.* 
+			FROM (
+				SELECT  A.WORKGRPCD    ,
+				 	    C.BZWKDSTICNAME,
+				 	    B.ADPTRCD      ,
+				 	    B.ADPTRCDSEQ   ,
+				 	    B.SQLNAME      ,
+				 	    B.SQLNAMEDESC  ,
+				 	    A.ADPTRKIND    ,
+				 	    A.SNDRCVKIND   ,
+				 	    B.INTFID
+				FROM    $schemaId$.TSEAIEA02 A,
+				 	    $schemaId$.TSEAIEA03 B,
+				 	    $schemaId$.TSEAICM01 C
+				WHERE   A.adptrCd = B.adptrCd
+				AND     A.workGrpCd = C.EAIBzwkDstcd
+				AND     A.workGrpCd =  #searchEaiBzwkDstcd#
+				AND     A.sndRcvKind = #searchSndRcvKind#
+				AND     A.adptrKind =  #searchAdptrKind#
+				<isNotEmpty prepend="AND" property="searchAdptrName">
+						B.sqlName LIKE CONCAT( '%' , #searchAdptrName# , '%')
+				</isNotEmpty>
+				UNION ALL 
+				SELECT  A.workGrpCd    ,
+					    C.BzwkDsticName,
+					    B.adptrCd      ,
+					    B.adptrCdSeq   ,
+					    B.ftpName      ,
+					    B.ftpNameDesc  ,
+					    A.adptrKind    ,
+					    A.sndRcvKind   ,
+				 	    B.intfId
+				FROM    $schemaId$.TSEAIEA02 A,
+					    $schemaId$.TSEAIEA05 B,
+					    $schemaId$.TSEAICM01 C
+		        WHERE   A.adptrCd = B.adptrCd
+		        AND     A.workGrpCd = C.EAIBzwkDstcd
+		        AND     A.workGrpCd =  #searchEaiBzwkDstcd#
+				AND     A.sndRcvKind = #searchSndRcvKind#
+				AND     A.adptrKind =  #searchAdptrKind#
+				<isNotEmpty prepend="AND" property="searchAdptrName">
+						B.ftpName LIKE CONCAT( '%' , #searchAdptrName# , '%')
+				</isNotEmpty>			
+				ORDER BY workGrpCd, adptrCd, adptrCdSeq
+				) TBL 
+				, (SELECT @NO := 0) R
+			) ORGTABLE 
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+		
+	</statement>
+	
+	<statement id="adapterListCount" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM (
+			SELECT  A.workGrpCd    ,
+			 	    C.BzwkDsticName,
+			 	    B.adptrCd      ,
+			 	    B.adptrCdSeq   ,
+			 	    B.sqlName      ,
+			 	    B.sqlNameDesc  ,
+			 	    A.adptrKind    ,
+			 	    A.sndRcvKind   ,
+			 	    B.intfId
+			FROM    $schemaId$.TSEAIEA02 A,
+			 	    $schemaId$.TSEAIEA03 B,
+			 	    $schemaId$.TSEAICM01 C
+			WHERE   A.adptrCd = B.adptrCd
+			AND     A.workGrpCd = C.EAIBzwkDstcd
+			AND     A.workGrpCd =  #searchEaiBzwkDstcd#
+			AND     A.sndRcvKind = #searchSndRcvKind#
+			AND     A.adptrKind =  #searchAdptrKind#
+			<isNotEmpty prepend="AND" property="searchAdptrName">
+					B.sqlName LIKE CONCAT( '%' , #searchAdptrName# , '%')
+			</isNotEmpty>
+			UNION ALL 
+			SELECT  A.workGrpCd    ,
+				    C.BzwkDsticName,
+				    B.adptrCd      ,
+				    B.adptrCdSeq   ,
+				    B.ftpName      ,
+				    B.ftpNameDesc  ,
+				    A.adptrKind    ,
+				    A.sndRcvKind   ,
+			 	    B.intfId
+			FROM    $schemaId$.TSEAIEA02 A,
+				    $schemaId$.TSEAIEA05 B,
+				    $schemaId$.TSEAICM01 C
+	        WHERE   A.adptrCd = B.adptrCd
+	        AND     A.workGrpCd = C.EAIBzwkDstcd
+	        AND     A.workGrpCd =  #searchEaiBzwkDstcd#
+			AND     A.sndRcvKind = #searchSndRcvKind#
+			AND     A.adptrKind =  #searchAdptrKind#
+			<isNotEmpty prepend="AND" property="searchAdptrName">
+					B.ftpName LIKE CONCAT( '%' , #searchAdptrName# , '%')
+			</isNotEmpty>
+			ORDER BY workGrpCd, adptrCd, adptrCdSeq
+			) TBL
+	</statement>
+	 
+</sqlMap>

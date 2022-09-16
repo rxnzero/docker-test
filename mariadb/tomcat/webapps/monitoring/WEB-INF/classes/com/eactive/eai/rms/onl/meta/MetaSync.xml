@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MetaSync">
+
+  <statement id="getLastUpdateTimeItem" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    SELECT COALESCE(TO_CHAR(MAX(CHNG_DTTM),'YYYYMMDDHH24MISS') ,'20110101000000') TIME
+      FROM $schemaId$.TSEAIMX01
+  </statement>
+
+  <statement id="getLastUpdateTimeTelegram" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    SELECT COALESCE(TO_CHAR(MAX(CHNG_DTTM),'YYYYMMDDHH24MISS') ,'20110101000000') TIME
+      FROM $schemaId$.TSEAIMX02
+  </statement>
+
+  <statement id="getLastUpdateTimeStdErrMsg" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    SELECT COALESCE(TO_CHAR(MAX(CHNG_DTTM),'YYYYMMDDHH24MISS') ,'20110101000000') TIME
+      FROM $schemaId$.TSEAIMX03
+  </statement>
+  <statement id="getLastUpdateTimeCode" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    SELECT COALESCE(TO_CHAR(MAX(CHNG_DTTM),'YYYYMMDDHH24MISS') ,'20110101000000') TIME
+      FROM $schemaId$.TSEAIMX04
+  </statement>
+
+  <statement id="getLastUpdateTimeActnMsg" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    SELECT COALESCE(TO_CHAR(MAX(CHNG_DTTM),'YYYYMMDDHH24MISS') ,'20110101000000') TIME
+      FROM $schemaId$.TSEAIMX05
+  </statement>
+
+
+
+
+
+  
+  
+  <statement id="selectSyncItem" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT ITEM_ID
+         , ITEM_KNM
+         , ITEM_ENM
+         , DATA_TYPE
+         , DATA_LENGTH
+         , DATA_SCALE
+         , DESCRIPTION
+         , TO_CHAR(CHNG_DTTM , 'YYYYMMDDHH24MISS') CHNG_DTTM
+         , DEL_YN 
+      FROM TB_MET_ITEM 
+     WHERE CHNG_DTTM &gt;= (TO_DATE ( #time# , 'YYYYMMDDHH24MISS') - (1/24/60*7))
+  </statement>
+  
+  <statement id="selectSyncTelegram" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT TELEGRAM_ID
+         , TELEGRAM_KNM
+         , TELEGRAM_ENM
+         , DATA_TYPE
+         , DATA_LENGTH
+         , DATA_SCALE
+         , DESCRIPTION
+         , TO_CHAR(CHNG_DTTM , 'YYYYMMDDHH24MISS') CHNG_DTTM
+         , DEL_YN 
+      FROM TB_MET_TELEGRAM 
+     WHERE CHNG_DTTM &gt;= (TO_DATE ( #time#, 'YYYYMMDDHH24MISS') - (1/24/60*7))
+  </statement>
+
+
+  <statement id="selectSyncStdErrMsg" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT OBJ_ID
+         , STD_ERR_CD_YN
+         , ERR_CD
+         , STSY_ERR_CD
+         , ERR_TLG_LAN_DSCD
+         , MSG_DIT
+         , ERR_TP_CD
+         , ERR_CD_US_YN
+         , IPT_MSG_CD_YN
+         , ISD_ERR_CAS_CTS
+         , OSD_ERR_CAS_CTS
+         , ERR_CD_APL_DT
+         , ACTN_CD
+         , OF_ACTN_CD
+         , TO_CHAR(CHNG_DTTM , 'YYYYMMDDHH24MISS') CHNG_DTTM
+         , DEL_YN
+      FROM TB_MET_STD_ERR_MSG
+     WHERE CHNG_DTTM &gt;= (TO_DATE ( #time#, 'YYYYMMDDHH24MISS') - (1/24/60*7))
+  </statement>
+
+  <statement id="selectSyncCode" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT CODE_ID
+	     , CD_KNM
+	     , VLD_VAL
+	     , CD_IDTF_ID
+	     , CLSF_TYPE_ID
+	     , CD_ENM
+	     , CD_CLSF_TYPE_NM
+	     , VLD_VAL_SNO
+	     , VLD_VAL_NM
+	     , VLD_VAL_FRMAL_NM
+	     , UPPER_VLD_VAL
+	     , UPPSER_VLD_VAL_NM
+	     , DOMN_KNM
+	     , DOMN_ENM
+	     , TO_CHAR(VLD_SDT , 'YYYYMMDDHH24MISS') VLD_SDT
+	     , TO_CHAR(VLD_EDT , 'YYYYMMDDHH24MISS') VLD_EDT
+	     , TO_CHAR(CRT_DTTI , 'YYYYMMDDHH24MISS') CRT_DTTI
+	     , TO_CHAR(CHNG_DTTM , 'YYYYMMDDHH24MISS') CHNG_DTTM
+	     , STD_COD_ID
+	     , DATA_TYPE
+	     , DATA_LENGTH
+	     , DEL_YN
+      FROM TB_MET_CODE
+     WHERE CHNG_DTTM &gt;= (TO_DATE ( #time#, 'YYYYMMDDHH24MISS') - (1/24/60*7))
+  </statement>
+
+  <statement id="selectSyncActnMsg" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT OBJ_ID
+    	, ERR_ACT_CD
+        , ERR_TLG_LAN_DSCD
+        , CHNL_MSG_CD
+        , CHNL_TYP_CD
+        , ACTN_MSG_CTNT
+        , USE_YN
+        , ACTN_CD_APCL_DT
+        , MCI_LNK_YN
+        , MCI_LNK_DT
+        , ACTN_DEL_YN
+        , TO_CHAR(CHNG_DTTM , 'YYYYMMDDHH24MISS') CHNG_DTTM
+        , DEL_YN
+      FROM TB_MET_ACTN_MSG
+     WHERE CHNG_DTTM &gt;= (TO_DATE ( #time#, 'YYYYMMDDHH24MISS') - (1/24/60*7))
+  </statement>
+
+
+
+
+
+
+
+  <statement id="updataSyncItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    MERGE INTO $schemaId$.TSEAIMX01
+    USING DUAL ON (ITEM_ID = #ITEM_ID#)
+    WHEN NOT MATCHED THEN
+    	INSERT ( ITEM_ID 
+	    	   , ITEM_KNM
+	           , ITEM_ENM
+	           , DATA_TYPE
+	           , DATA_LENGTH
+	           , DATA_SCALE
+	           , DESCRIPTION
+	           , CHNG_DTTM
+	           , DEL_YN
+    	) 
+    	VALUES ( #ITEM_ID#
+    	       , #ITEM_KNM#
+               , #ITEM_ENM#
+               , #DATA_TYPE#
+               , #DATA_LENGTH#
+               , #DATA_SCALE#
+               , #DESCRIPTION#
+               , TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')   
+               , #DEL_YN#
+    	)
+    WHEN MATCHED THEN
+        UPDATE SET ITEM_KNM     = #ITEM_KNM#
+                 , ITEM_ENM     = #ITEM_ENM#    
+                 , DATA_TYPE    = #DATA_TYPE#   
+                 , DATA_LENGTH  = #DATA_LENGTH# 
+                 , DATA_SCALE   = #DATA_SCALE#  
+                 , DESCRIPTION  = #DESCRIPTION# 
+                 , CHNG_DTTM    = TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')  
+                 , DEL_YN       = #DEL_YN#      
+  </statement>
+
+  <statement id="updataSyncTelegram" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    MERGE INTO $schemaId$.TSEAIMX02
+    USING DUAL ON (TELEGRAM_ID = #TELEGRAM_ID#)
+    WHEN NOT MATCHED THEN
+    	INSERT ( TELEGRAM_ID
+    	       , TELEGRAM_KNM         
+               , TELEGRAM_ENM         
+               , DATA_TYPE            
+               , DATA_LENGTH          
+               , DATA_SCALE           
+               , DESCRIPTION          
+               , CHNG_DTTM
+               , DEL_YN               
+    	) 
+    	VALUES ( #TELEGRAM_ID#
+    	       , #TELEGRAM_KNM#
+               , #TELEGRAM_ENM#
+               , #DATA_TYPE#
+               , #DATA_LENGTH# 
+               , #DATA_SCALE#
+               , #DESCRIPTION#
+               , TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')  
+               , #DEL_YN#
+    	)
+    WHEN MATCHED THEN
+        UPDATE SET TELEGRAM_KNM  = #TELEGRAM_KNM#
+                 , TELEGRAM_ENM  = #TELEGRAM_ENM#  
+                 , DATA_TYPE     = #DATA_TYPE#     
+                 , DATA_LENGTH   = #DATA_LENGTH#   
+                 , DATA_SCALE    = #DATA_SCALE#    
+                 , DESCRIPTION   = #DESCRIPTION#   
+                 , CHNG_DTTM     = TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')  
+                 , DEL_YN        = #DEL_YN#        
+
+  </statement>
+
+  <statement id="updataSyncStdErrMsg" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    MERGE INTO $schemaId$.TSEAIMX03
+    USING DUAL ON (OBJ_ID = #OBJ_ID#)
+    WHEN NOT MATCHED THEN
+    	INSERT ( OBJ_ID
+               , STD_ERR_CD_YN
+               , ERR_CD
+               , STSY_ERR_CD
+               , ERR_TLG_LAN_DSCD
+               , MSG_DIT
+               , ERR_TP_CD
+               , ERR_CD_US_YN
+               , IPT_MSG_CD_YN
+               , ISD_ERR_CAS_CTS
+               , OSD_ERR_CAS_CTS
+               , ERR_CD_APL_DT
+               , ACTN_CD
+               , OF_ACTN_CD
+               , CHNG_DTTM
+               , DEL_YN               
+    	) 
+    	VALUES ( #OBJ_ID#
+               , #STD_ERR_CD_YN#
+               , #ERR_CD#
+               , #STSY_ERR_CD#
+               , #ERR_TLG_LAN_DSCD#
+               , #MSG_DIT#
+               , #ERR_TP_CD#
+               , #ERR_CD_US_YN#
+               , #IPT_MSG_CD_YN#
+               , #ISD_ERR_CAS_CTS#
+               , #OSD_ERR_CAS_CTS#
+               , #ERR_CD_APL_DT#
+               , #ACTN_CD#
+               , #OF_ACTN_CD#
+               , TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')  
+               , #DEL_YN#                  
+    	)
+    WHEN MATCHED THEN
+        UPDATE SET STD_ERR_CD_YN        = #STD_ERR_CD_YN#                          
+                 , ERR_CD               = #ERR_CD#                                 
+                 , STSY_ERR_CD          = #STSY_ERR_CD#                            
+                 , ERR_TLG_LAN_DSCD     = #ERR_TLG_LAN_DSCD#                       
+                 , MSG_DIT              = #MSG_DIT#                                
+                 , ERR_TP_CD            = #ERR_TP_CD#                              
+                 , ERR_CD_US_YN         = #ERR_CD_US_YN#                           
+                 , IPT_MSG_CD_YN        = #IPT_MSG_CD_YN#                          
+                 , ISD_ERR_CAS_CTS      = #ISD_ERR_CAS_CTS#                        
+                 , OSD_ERR_CAS_CTS      = #OSD_ERR_CAS_CTS#                        
+                 , ERR_CD_APL_DT        = #ERR_CD_APL_DT#                          
+                 , ACTN_CD              = #ACTN_CD#                                
+                 , OF_ACTN_CD           = #OF_ACTN_CD#                             
+                 , CHNG_DTTM            = TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')
+                 , DEL_YN               = #DEL_YN#                                 
+  </statement>
+  <statement id="updataSyncCode" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    MERGE INTO $schemaId$.TSEAIMX04
+    USING DUAL ON (CODE_ID = #CODE_ID#)
+    WHEN NOT MATCHED THEN
+    	INSERT ( CODE_ID
+		       , CD_KNM
+		       , VLD_VAL
+		       , CD_IDTF_ID
+		       , CLSF_TYPE_ID
+		       , CD_ENM
+		       , CD_CLSF_TYPE_NM
+		       , VLD_VAL_SNO
+		       , VLD_VAL_NM
+		       , VLD_VAL_FRMAL_NM
+		       , UPPER_VLD_VAL
+		       , UPPSER_VLD_VAL_NM
+		       , DOMN_KNM
+		       , DOMN_ENM
+		       , VLD_SDT
+		       , VLD_EDT
+		       , CRT_DTTI
+		       , CHNG_DTTM
+		       , STD_COD_ID
+		       , DATA_TYPE
+		       , DATA_LENGTH
+		       , DEL_YN             
+    	) 
+    	VALUES ( #CODE_ID#            
+			   , #CD_KNM#             
+			   , #VLD_VAL#            
+			   , #CD_IDTF_ID#         
+			   , #CLSF_TYPE_ID#       
+			   , #CD_ENM#             
+			   , #CD_CLSF_TYPE_NM#    
+			   , #VLD_VAL_SNO#        
+			   , #VLD_VAL_NM#         
+			   , #VLD_VAL_FRMAL_NM#   
+			   , #UPPER_VLD_VAL#      
+			   , #UPPSER_VLD_VAL_NM#  
+			   , #DOMN_KNM#           
+			   , #DOMN_ENM#           
+			   , TO_DATE (#VLD_SDT#, 'YYYYMMDDHH24MISS')              
+			   , TO_DATE (#VLD_EDT#, 'YYYYMMDDHH24MISS')              
+			   , TO_DATE (#CRT_DTTI#, 'YYYYMMDDHH24MISS')              
+			   , TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')  
+			   , #STD_COD_ID#         
+			   , #DATA_TYPE#          
+			   , #DATA_LENGTH#        
+			   , #DEL_YN#              
+    	)
+    WHEN MATCHED THEN                                              
+        UPDATE SET CD_KNM              =  #CD_KNM#                                     
+                 , VLD_VAL             =  #VLD_VAL#                                    
+                 , CD_IDTF_ID          =  #CD_IDTF_ID#                                 
+                 , CLSF_TYPE_ID        =  #CLSF_TYPE_ID#                               
+                 , CD_ENM              =  #CD_ENM#                                     
+                 , CD_CLSF_TYPE_NM     =  #CD_CLSF_TYPE_NM#                            
+                 , VLD_VAL_SNO         =  #VLD_VAL_SNO#                                
+                 , VLD_VAL_NM          =  #VLD_VAL_NM#                                 
+                 , VLD_VAL_FRMAL_NM    =  #VLD_VAL_FRMAL_NM#                           
+                 , UPPER_VLD_VAL       =  #UPPER_VLD_VAL#                              
+                 , UPPSER_VLD_VAL_NM   =  #UPPSER_VLD_VAL_NM#                          
+                 , DOMN_KNM            =  #DOMN_KNM#                                   
+                 , DOMN_ENM            =  #DOMN_ENM#                                   
+                 , VLD_SDT             =  TO_DATE (#VLD_SDT#, 'YYYYMMDDHH24MISS')                                       
+                 , VLD_EDT             =  TO_DATE (#VLD_EDT#, 'YYYYMMDDHH24MISS')                                       
+                 , CRT_DTTI            =  TO_DATE (#CRT_DTTI#, 'YYYYMMDDHH24MISS')                                      
+                 , CHNG_DTTM           =  TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')    
+                 , STD_COD_ID          =  #STD_COD_ID#                                 
+                 , DATA_TYPE           =  #DATA_TYPE#                                  
+                 , DATA_LENGTH         =  #DATA_LENGTH#                                
+                 , DEL_YN              =  #DEL_YN#                                      
+  </statement>
+  <statement id="updataSyncActnMsg" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    MERGE INTO $schemaId$.TSEAIMX05
+    USING DUAL ON (OBJ_ID = #OBJ_ID#)
+    WHEN NOT MATCHED THEN
+    	INSERT ( OBJ_ID
+               , ERR_ACT_CD
+               , ERR_TLG_LAN_DSCD
+               , CHNL_MSG_CD
+               , CHNL_TYP_CD
+               , ACTN_MSG_CTNT
+               , USE_YN
+               , ACTN_CD_APCL_DT
+               , MCI_LNK_YN
+               , MCI_LNK_DT
+               , ACTN_DEL_YN
+               , CHNG_DTTM
+               , DEL_YN          
+    	) 
+    	VALUES (  #OBJ_ID#
+				, #ERR_ACT_CD#
+				, #ERR_TLG_LAN_DSCD#
+				, #CHNL_MSG_CD#
+				, #CHNL_TYP_CD#
+				, #ACTN_MSG_CTNT#
+				, #USE_YN#
+				, #ACTN_CD_APCL_DT#
+				, #MCI_LNK_YN#
+				, TO_DATE (#MCI_LNK_DT#, 'YYYYMMDDHH24MISS')  
+				, #ACTN_DEL_YN#
+				, TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')  
+				, #DEL_YN#          
+    	)
+    WHEN MATCHED THEN                                              
+        UPDATE SET ERR_ACT_CD       = #ERR_ACT_CD#
+                 , ERR_TLG_LAN_DSCD = #ERR_TLG_LAN_DSCD#
+                 , CHNL_MSG_CD      = #CHNL_MSG_CD#
+                 , CHNL_TYP_CD      = #CHNL_TYP_CD#
+                 , ACTN_MSG_CTNT    = #ACTN_MSG_CTNT#
+                 , USE_YN           = #USE_YN#
+                 , ACTN_CD_APCL_DT  = #ACTN_CD_APCL_DT#
+                 , MCI_LNK_YN       = #MCI_LNK_YN#
+                 , MCI_LNK_DT       = TO_DATE (#MCI_LNK_DT#, 'YYYYMMDDHH24MISS')    
+                 , ACTN_DEL_YN      = #ACTN_DEL_YN#
+                 , CHNG_DTTM        = TO_DATE (#CHNG_DTTM#, 'YYYYMMDDHH24MISS')    
+                 , DEL_YN           = #DEL_YN#                                  
+  </statement>  
+ 
+</sqlMap>

@@ -1,0 +1,24 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.io.*, 
+java.util.*,
+javax.xml.parsers.*,
+org.w3c.dom.*,
+javax.xml.xpath.*,
+java.sql.*,
+javax.sql.*,
+javax.naming.*
+
+"%>
+
+
+
+<%
+	response.setHeader("Pragma", "No-cache");
+	response.setHeader("Cache-Control", "no-cache");
+	response.setHeader("Expires", "0");
+	
+	response.sendRedirect("http://172.31.32.101:21210/mwsmgt/fep/feplist.jsp");
+%>
+
+
+

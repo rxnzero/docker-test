@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TSEAIHK05 --><!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="B2BAdapterMap">
+<!-- 
+  <statement id="findAdptrBzwkGroups" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT DISTINCT A.ADPTRBZWKGROUPNAME CODE, A.ADPTRBZWKGROUPNAME NAME
+    FROM $schemaId$.TSEAIAD01 A, $schemaId$.TSEAIAD02 B 
+    WHERE (A.ADPTRCD = 'SOC' OR A.ADPTRCD = 'NET') 
+        AND  A.ADPTRIODSTCD       = 'O' 
+        AND  A.ADPTRBZWKGROUPNAME = B.ADPTRBZWKGROUPNAME 
+    ORDER BY A.ADPTRBZWKGROUPNAME    
+  </statement>
+
+  <statement id="findAdptrBzwkNamesByAdptrBzwkGroup" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT DISTINCT B.ADPTRBZWKNAME CODE, B.ADPTRBZWKNAME NAME
+    FROM $schemaId$.TSEAIAD01 A, $schemaId$.TSEAIAD02 B 
+    WHERE (A.ADPTRCD = 'SOC' OR A.ADPTRCD = 'NET') 
+        AND  A.ADPTRIODSTCD       = 'O' 
+        AND  A.ADPTRBZWKGROUPNAME = B.ADPTRBZWKGROUPNAME 
+        AND  A.ADPTRBZWKGROUPNAME = #psvSysAdptrBzwkGroupName#
+    ORDER BY B.ADPTRBZWKNAME
+  </statement>
+-->
+
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT  
+            A.EAISEVRINSTNCNAME AS "EAISEVRINSTNCNAME",      
+            A.EAISVCNAME AS "EAISVCNAME",              
+            A.EXTNLINSTIIDNFINAME AS "EXTNLINSTIIDNFINAME",
+            A.DMNDDTALSBZWKDSTICNAME AS "DMNDDTALSBZWKDSTICNAME", 
+            A.PSVSYSADPTRBZWKGROUPNAME AS "PSVSYSADPTRBZWKGROUPNAME", 
+            A.ADPTRBZWKNAME AS "ADPTRBZWKNAME",
+            B.EAISVCDESC AS "EAISVCDESC"
+    FROM    $schemaId$.TSEAIFR07 A
+    		RIGHT OUTER JOIN
+        	$schemaId$.TSEAIHE01 B
+           ON   A.EAISVCNAME = B.EAISVCNAME
+    	WHERE A.EAISEVRINSTNCNAME      = #eaiSevrInstncName# 
+        AND A.EAISVCNAME             = #eaiSvcName#
+        AND A.EXTNLINSTIIDNFINAME    = #extnlInstiIdnfiName#
+        AND A.DMNDDTALSBZWKDSTICNAME = #dmndDtalsBzwkDsticName#
+    ORDER BY A.EAISVCNAME , A.DMNDDTALSBZWKDSTICNAME
+  </statement>
+
+  
+  <insert id="insert" parameterClass="java.util.HashMap">
+    INSERT INTO $schemaId$.TSEAIFR07 (
+            EAISEVRINSTNCNAME,      EAISVCNAME ,              EXTNLINSTIIDNFINAME, 
+            DMNDDTALSBZWKDSTICNAME, PSVSYSADPTRBZWKGROUPNAME, ADPTRBZWKNAME       )
+    VALUES (
+            #eaiSevrInstncName#,      #eaiSvcName#,               #extnlInstiIdnfiName#, 
+            #dmndDtalsBzwkDsticName#, #psvSysAdptrBzwkGroupName#, #adptrBzwkName# )
+  </insert>
+
+  <update id="update" parameterClass="java.util.HashMap">
+    UPDATE $schemaId$.TSEAIFR07
+    SET     PSVSYSADPTRBZWKGROUPNAME  =#psvSysAdptrBzwkGroupName# , 
+            ADPTRBZWKNAME             =#adptrBzwkName# 
+    WHERE   EAISEVRINSTNCNAME         =#eaiSevrInstncName# 
+      AND   EAISVCNAME                =#eaiSvcName# 
+      AND   EXTNLINSTIIDNFINAME       =#extnlInstiIdnfiName# 
+      AND   DMNDDTALSBZWKDSTICNAME    =#dmndDtalsBzwkDsticName#
+  </update>
+
+  <delete id="delete" parameterClass="java.util.HashMap">
+    DELETE FROM $schemaId$.TSEAIFR07
+    WHERE   EAISEVRINSTNCNAME         =#eaiSevrInstncName# 
+      AND   EAISVCNAME                =#eaiSvcName# 
+      AND   EXTNLINSTIIDNFINAME       =#extnlInstiIdnfiName# 
+      AND   DMNDDTALSBZWKDSTICNAME    =#dmndDtalsBzwkDsticName#
+  </delete>
+
+</sqlMap>

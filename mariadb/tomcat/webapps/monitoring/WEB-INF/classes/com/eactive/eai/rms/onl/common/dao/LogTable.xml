@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="LogTable">
+
+  <statement id="clearLogTable" parameterClass="java.util.HashMap" resultClass="java.lang.Integer"><![CDATA[
+    DELETE FROM $schemaId$.$tableName$
+     WHERE MSGDPSTYMS < #targetDay# || '000000000'
+     ]]>
+  </statement>
+  
+  <statement id="truncLogTable" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    TRUNCATE TABLE $schemaId$.$tableName$
+  </statement>
+  </sqlMap>

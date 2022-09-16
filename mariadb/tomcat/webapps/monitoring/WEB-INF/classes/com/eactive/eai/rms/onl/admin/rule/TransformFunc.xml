@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TransformFunc">
+	
+<!--  #### 변환함수 ###  -->
+
+	<statement id="selectListAll" resultClass="java.util.HashMap">
+		 SELECT	TB.CNVSNFUNTNNAME AS "CNVSNFUNTNNAME", 
+				TB.CNVSNFUNTNDESC AS "CNVSNFUNTNDESC", 
+				TB.CNVSNFUNTNRETUNPTRNIDNAME AS "CNVSNFUNTNRETUNPTRNIDNAME", 
+				TB.CNVSNFUNTNPTRNIDNAME AS "CNVSNFUNTNPTRNIDNAME", 
+				TB.CNVSNFUNTNCLSNAME AS "CNVSNFUNTNCLSNAME"  
+		 FROM $schemaId$.TSEAITR04 TB
+		 ORDER BY TB.CNVSNFUNTNNAME           
+	</statement>	
+	
+	<!--  상세 조회 -->
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	TB.CNVSNFUNTNNAME AS "CNVSNFUNTNNAME", 
+				TB.CNVSNFUNTNDESC AS "CNVSNFUNTNDESC" , 
+				TB.CNVSNFUNTNRETUNPTRNIDNAME AS "CNVSNFUNTNRETUNPTRNIDNAME", 
+				TB.CNVSNFUNTNPTRNIDNAME AS "CNVSNFUNTNPTRNIDNAME", 
+				TB.CNVSNFUNTNCLSNAME AS "CNVSNFUNTNCLSNAME"
+		FROM $schemaId$.TSEAITR04 TB 
+		WHERE TB.CNVSNFUNTNNAME=#cnvsnFuntnName#
+	</statement>  
+	
+	<statement id="selectRuleDetail" resultClass="java.util.HashMap">
+		SELECT	TB.CNVSNFUNTNNAME AS "CNVSNFUNTNNAME", 
+				TB.CNVSNFUNTNPARMNAME AS "CNVSNFUNTNPARMNAME", 
+				TB.CNVSNFUNTNPARMDESC AS "CNVSNFUNTNPARMDESC",  
+				TB.CNVSNFUNTNPARMPTRNIDNAME AS "CNVSNFUNTNPARMPTRNIDNAME", 
+				TB.CNVSNFUNTNPARMSERNO AS "CNVSNFUNTNPARMSERNO"
+		FROM $schemaId$.TSEAITR05 TB 
+		WHERE TB.CNVSNFUNTNNAME=#cnvsnFuntnName#
+	</statement>  	
+	
+	<!--  delete  -->
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE FROM $schemaId$.TSEAITR04 
+	 	WHERE 	CNVSNFUNTNNAME = #cnvsnFuntnName#
+	</statement>	
+
+	<statement id="deleteRuleAll" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE FROM $schemaId$.TSEAITR05 
+	 	WHERE 	CNVSNFUNTNNAME = #cnvsnFuntnName#
+	</statement>
+	
+</sqlMap>

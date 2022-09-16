@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CodeMan">
+	<!-- Start CodeGroup 입력, 수정, 삭제 -->
+	<statement id="insertGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAICM19(
+					CODEGROUP
+				,	DESCRIPTION
+				)
+		VALUES	(
+					#cdGroup#
+				,	#cdGroupDesc#
+				)		
+	</statement>
+	
+	<statement id="updateGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	UPDATE	$schemaId$.TSEAICM19 
+	 	   SET	DESCRIPTION	= #cdGroupDesc#
+		 WHERE	CODEGROUP	= #cdGroup#
+	</statement>
+	
+	<statement id="deleteGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE FROM $schemaId$.TSEAICM19
+	 	 WHERE CODEGROUP = #cdGroup#
+	</statement>
+	<!-- End CodeGroup 입력, 수정, 삭제 -->
+	
+</sqlMap>

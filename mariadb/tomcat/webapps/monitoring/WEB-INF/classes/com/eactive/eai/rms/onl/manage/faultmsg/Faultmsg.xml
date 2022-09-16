@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="faultmsg">
+
+  <statement id="findTotalCount" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo" resultClass="java.lang.Integer">
+		    SELECT COUNT(*) AS "CNT"
+             FROM $schemaId$.TSEAIFA01 A, $schemaId$.TSEAIHE01 B
+        	 WHERE A.EAISVCNAME = B.EAISVCNAME   
+		      <isNotEmpty prepend="AND" property="eaiSvcName">
+		        UPPER(A.EAISVCNAME) LIKE CONCAT('%' , CONCAT( UPPER(#eaiSvcName#) , '%') )
+		      </isNotEmpty>		      
+  </statement>
+  <statement id="findPaginatedList" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo" resultClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+    SELECT ROWNO AS "ROWNO", LTRIM(RTRIM(EAISVCNAME)) AS "EAISVCNAME", 
+    		EAISVCDESC AS "EAISVCDESC", EAISEVRINSTNCADDRNAME AS "EAISEVRINSTNCADDRNAME"
+	 <!-- FROM ( SELECT ROW_NUMBER() OVER (ORDER BY 1) ROWNO, A.* FROM -->
+     FROM ( SELECT ROWNUM AS ROWNO, A.* FROM
+    (
+             SELECT 
+                 A.EAISVCNAME EAISVCNAME,          										
+				 B.EAISVCDESC EAISVCDESC,
+                 A.EAISEVRINSTNCADDRNAME EAISEVRINSTNCADDRNAME       
+             FROM $schemaId$.TSEAIFA01 A, $schemaId$.TSEAIHE01 B 
+        	 WHERE A.EAISVCNAME = B.EAISVCNAME   
+		      <isNotEmpty prepend="AND" property="eaiSvcName">
+		        UPPER(A.EAISVCNAME) LIKE CONCAT('%' , CONCAT( UPPER(#eaiSvcName#) , '%') )
+		      </isNotEmpty>
+    ) A ) B WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+  <statement id="findListAll" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo" resultClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+             SELECT 
+                 A.EAISVCNAME AS "EAISVCNAME", A.EAISVCDESC AS "EAISVCDESC"         		     
+             FROM $schemaId$.TSEAIHE01 A, $schemaId$.TSEAIFA01 B 
+        	 WHERE A.EAISVCNAME = B.EAISVCNAME   		      
+	    	 ORDER BY 1
+  </statement>
+
+  <statement id="findNewListAll" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo" resultClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+				SELECT DISTINCT(A.EAISVCNAME) AS "EAISVCNAME", D.EAIBZWKDSTCD AS "EAIBZWKDSTCD",  D.EAISVCDESC AS "EAISVCDESC" 
+				   FROM $schemaId$.TSEAIHE02 A, $schemaId$.TSEAITR02 B, $schemaId$.TSEAITR07 C, $schemaId$.TSEAIHE01 D 
+				   WHERE A.CHNGMSGIDNAME = B.CNVSNNAME      
+				   AND   B.LOUTNAME = C.LOUTNAME
+				   AND   A.EAISVCNAME = D.EAISVCNAME 			       
+				   AND 	 A.EAISVCNAME NOT IN 
+				   		(SELECT EAISVCNAME FROM $schemaId$.TSEAIFA01)
+				ORDER BY 1
+  </statement>
+
+  <statement id="findDetail" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo" resultClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+             SELECT 
+                SMLTORMSGNAME AS "SMLTORMSGNAME", SMLTORMSGCTNT AS "SMLTORMSGCTNT", 
+		  		MSGIODSTCD AS "MSGIODSTCD", EAIBZWKDSTCD AS "EAIBZWKDSTCD", BZWKDSTICNAME AS "BZWKDSTICNAME", 
+		  		SMLTORMSGTELGMCTNT AS "SMLTORMSGTELGMCTNT", SMLTORTRANCTNT AS "SMLTORTRANCTNT"
+             FROM $schemaId$.TSEAICM05 A 
+             WHERE LTRIM(RTRIM(SMLTORMSGNAME)) = #smltorMsgName#
+		      <isNotEmpty prepend="AND" property="msgIODstcd">
+		        MSGIODSTCD = #msgIODstcd#
+		      </isNotEmpty>
+		      <isNotEmpty prepend="AND" property="menuDstcd">
+		        MENUDSTCD = #menuDstcd#
+		      </isNotEmpty>
+  </statement>
+  
+<!--   <statement id="findDataList" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo" resultClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo"> -->
+<!-- 		WITH TEMPTAB(LEVEL, LOUTNAME, LOUTITEMLENCNT, LOUTITEMIDNAME, LOUTITEMNAME, LOUTITEMSERNO, LOUTITEMNODEPTRNIDNAME, LOUTITEMPTRNIDNAME) -->
+<!-- 		AS -->
+<!-- 		( -->
+<!-- 		SELECT 1,  ROOT.LOUTNAME, ROOT.LOUTITEMLENCNT, ROOT.LOUTITEMIDNAME, ROOT.LOUTITEMNAME, ROOT.LOUTITEMSERNO -->
+<!-- 		, ROOT.LOUTITEMNODEPTRNIDNAME, ROOT.LOUTITEMPTRNIDNAME -->
+<!-- 		FROM $schemaId$.TSEAITR08 ROOT, $schemaId$.TSEAIHE02 A, $schemaId$.TSEAITR02 B -->
+<!--         WHERE A.EAISVCNAME = #eaiSvcName#  -->
+<!-- 	        AND   A.$cnvsnNameField$ = B.CNVSNNAME  -->
+<!-- 	        AND   B.LOUTNAME = ROOT.LOUTNAME  -->
+<!--             AND   B.LOUTNAME LIKE #layoutType# -->
+<!-- 		AND ROOT.PARNTLOUTITEMIDNAME = 0 -->
+<!-- 		UNION ALL -->
+<!-- 		SELECT SUPER.LEVEL+1, SUB.LOUTNAME, SUB.LOUTITEMLENCNT, SUB.LOUTITEMIDNAME, SUB.LOUTITEMNAME, SUB.LOUTITEMSERNO -->
+<!-- 		, SUB.LOUTITEMNODEPTRNIDNAME, SUB.LOUTITEMPTRNIDNAME -->
+<!-- 		FROM $schemaId$.TSEAITR08 SUB, TEMPTAB SUPER, $schemaId$.TSEAIHE02 A, $schemaId$.TSEAITR02 B -->
+<!--         WHERE A.EAISVCNAME = #eaiSvcName#  -->
+<!-- 	        AND   A.$cnvsnNameField$ = B.CNVSNNAME  -->
+<!-- 	        AND   B.LOUTNAME = SUB.LOUTNAME  -->
+<!--             AND   B.LOUTNAME LIKE #layoutType# -->
+<!-- 		AND SUB.PARNTLOUTITEMIDNAME = SUPER.LOUTITEMIDNAME -->
+<!-- 		) -->
+<!-- 		SELECT  -->
+<!-- 		     C.LEVEL, '$eaiSvcName$' EAISVCNAME, C.LOUTNAME LOUTNAME, C.LOUTITEMNAME LYOUTITEMNAME, C.LOUTITEMSERNO LYOUTITEMSERNO,  -->
+<!--             C.LOUTITEMLENCNT LOUTITEMLENCNT, C.LOUTITEMPTRNIDNAME LOUTITEMPTRNIDNAME, -->
+<!--             D.EAILYOUTITEMCTNT EAILYOUTITEMCTNT, D.SYSTIMEUSEYN SYSTIMEUSEYN -->
+<!-- 		FROM TEMPTAB C LEFT OUTER JOIN $schemaId$.TSEAIFA02 D -->
+<!--         ON    C.LOUTNAME = D.EAILOUTNAME  -->
+<!--         AND   C.LOUTITEMNAME = D.EAILYOUTITEMNAME  -->
+<!--         AND   C.LOUTITEMSERNO = SMALLINT(D.EAILYOUTITEMSERNO)  -->
+<!--         AND LTRIM(RTRIM(D.EAISVCNAME)) = #eaiSvcName#      -->
+<!-- 		ORDER BY LOUTITEMSERNO -->
+<!--   </statement> -->
+
+  <insert id="insert" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+            INSERT INTO $schemaId$.TSEAIFA01 ( 
+            EAISVCNAME,  EAISEVRINSTNCADDRNAME
+            ) VALUES ( 
+            #eaiSvcName#,  #eaiSevrInstncAddrName#
+            )
+  </insert>  
+  
+  
+  
+  <insert id="insert_data" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">          
+            INSERT INTO $schemaId$.TSEAIFA02 ( 
+            EAISVCNAME,  EAILOUTNAME, EAILYOUTITEMNAME, EAILYOUTITEMSERNO, 
+            EAILYOUTITEMCTNT, SYSTIMEUSEYN
+            ) VALUES ( 
+            #eaiSvcName#,  #eaiLoutName#, #eaiLyoutItemName#, #eaiLyoutItemSerno#, 
+            #eaiLyoutItemCtnt#, #sysTimeUseYn#
+            )
+  </insert> 
+
+  <update id="update" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+ 		UPDATE $schemaId$.TSEAIFA01 SET 
+             EAISVCNAME      			= #eaiSvcName#   , 
+             EAISEVRINSTNCADDRNAME    = #eaiSevrInstncAddrName#         
+             WHERE LTRIM(RTRIM(EAISVCNAME)) = #eaiSvcName#		      
+  </update>
+
+  <update id="update_data" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+ 		UPDATE $schemaId$.TSEAIFA02 SET 
+             EAISVCNAME        = #eaiSvcName#   , 
+             EAILOUTNAME       = #eaiLoutName#       , 
+             EAILYOUTITEMNAME  = #eaiLyoutItemName#     , 
+             EAILYOUTITEMSERNO = #eaiLyoutItemSerno#   , 
+             EAILYOUTITEMCTNT  = #eaiLyoutItemCtnt# , 
+             SYSTIMEUSEYN = #sysTimeUseYn#     
+        WHERE LTRIM(RTRIM(EAISVCNAME)) = #eaiSvcName#	     
+        AND EAILOUTNAME = #eaiLoutName# 
+        AND EAILYOUTITEMNAME = #eaiLyoutItemName#
+        AND EAILYOUTITEMSERNO = #eaiLyoutItemSerno#                                                
+  </update>
+  
+  <delete id="delete" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+           DELETE FROM $schemaId$.TSEAIFA01           
+             WHERE LTRIM(RTRIM(EAISVCNAME)) = #eaiSvcName#		      
+  </delete>
+  <delete id="delete_data_all" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+           DELETE FROM $schemaId$.TSEAIFA02 
+            WHERE LTRIM(RTRIM(EAISVCNAME)) = #eaiSvcName#		     
+  </delete>
+  
+  <delete id="delete_data" parameterClass="com.eactive.eai.rms.onl.manage.faultmsg.vo.FaultmsgVo">
+           DELETE FROM $schemaId$.TSEAICM06 
+            WHERE LTRIM(RTRIM(EAISVCNAME)) = #eaiSvcName#		     
+	        AND EAILOUTNAME = #eaiLoutName# 
+        	AND EAILYOUTITEMNAME = #eaiLyoutItemName#
+        	AND EAILYOUTITEMSERNO = #eaiLyoutItemSerno#                                         
+  </delete>
+  </sqlMap>

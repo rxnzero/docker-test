@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TransactionCtrl">
+ 	<!-- INSERT CONTROL -->
+ 	<insert id="insertControl" parameterClass="java.util.HashMap">
+        INSERT INTO $schemaId$.TSEAITI01 ( 
+            EAICTRLNAME, EAICTRLNAMEDSTCD, EAICTRLDSTICCTNT
+            , CTRLPRCSSYMS, TRANCTRLPRCSSNAME
+          ) VALUES ( 
+        	#eaiCtrlName#, #eaiCtrlNameDstcd#, #eaiCtrlDsticCtnt#
+        	, #ctrlPrcssYMS#, #tranCtrlPrcssName# ) 
+ 	</insert>
+ 	
+ 	<!-- INSERT CONTROL ALL -->
+ 	<insert id="insertControlAll" parameterClass="java.util.HashMap">
+        INSERT INTO $schemaId$.TSEAITI01 ( 
+            EAICTRLNAME, EAICTRLNAMEDSTCD, EAICTRLDSTICCTNT
+            , CTRLPRCSSYMS, TRANCTRLPRCSSNAME) 
+		SELECT HE.EAISVCNAME, '$eaiCtrlNameDstcd$', '$eaiCtrlDsticCtnt$'
+	       	, '$ctrlPrcssYMS$', '$tranCtrlPrcssName$'
+		  FROM $schemaId$.TSEAIHE01 HE
+		 WHERE HE.EAISVCNAME NOT IN ( SELECT EAICTRLNAME FROM $schemaId$.TSEAITI01 )
+ 	</insert>
+ 	
+ 	<!-- DELETE CONTROL -->
+ 	<delete id="deleteControl" parameterClass="java.util.HashMap">
+ 		DELETE FROM $schemaId$.TSEAITI01 WHERE EAICTRLNAME = #eaiCtrlName#
+ 	</delete>
+ 	
+ 	<!-- DELETE CONTROL ALL -->
+ 	<delete id="deleteControlAll" parameterClass="java.util.HashMap">
+ 		DELETE FROM $schemaId$.TSEAITI01
+ 	</delete>
+ 	
+ 	<!-- INSERT CONTROL HISTORY -->
+ 	<insert id="insertHistory" parameterClass="java.util.HashMap">
+        INSERT INTO $schemaId$.TSEAITL01 ( 
+            EAICTRLNAME, CTRLPRCSSYMS, CTRLREVOCYMS, EAICTRLNAMEDSTCD
+            , EAICTRLDSTICCTNT, CTRLPRCSSNAME, REVOCPRCSSNAME
+          ) VALUES ( 
+        	#eaiCtrlName#, #ctrlPrcssYMS#, #ctrlRevocYMS#, #eaiCtrlNameDstcd#
+        	, #eaiCtrlDsticCtnt#, #ctrlPrcssName#, #revocPrcssName# ) 
+ 	</insert>
+ 	
+ 	<!-- INSERT CONTROL HISTORY ALL -->
+    <!-- CTRLREVOCYMS, REVOCPRCSSNAME 항목 제거 > 거래통제 해제시 CTRLREVOCYMS 데이터가 null인 대상을 찾으므로 insert시 생략함(YYJ:20180125) -->
+ 	<insert id="insertHistoryAll" parameterClass="java.util.HashMap">
+        INSERT INTO $schemaId$.TSEAITL01 ( 
+            EAICTRLNAME, CTRLPRCSSYMS, EAICTRLNAMEDSTCD
+            , EAICTRLDSTICCTNT, CTRLPRCSSNAME)
+		SELECT HE.EAISVCNAME, '$ctrlPrcssYMS$', '$eaiCtrlNameDstcd$'
+        	, '$eaiCtrlDsticCtnt$', '$ctrlPrcssName$'
+		  FROM $schemaId$.TSEAIHE01 HE
+		 WHERE HE.EAISVCNAME NOT IN ( SELECT EAICTRLNAME FROM $schemaId$.TSEAITI01 )
+ 	</insert>
+ 	
+ 	<!-- UPDATE CONTROL HISTORY -->
+ 	<update id="updateHistory" parameterClass="java.util.HashMap">
+ 		UPDATE $schemaId$.TSEAITL01
+ 		  SET CTRLREVOCYMS = #ctrlRevocYMS#
+ 			, REVOCPRCSSNAME = #revocPrcssName#
+ 		 WHERE EAICTRLNAME = #eaiCtrlName#
+ 		  AND CTRLREVOCYMS IS NULL
+ 	</update>
+ 	
+ 	<!-- UPDATE CONTROL HISTORY ALL -->
+ 	<update id="updateHistoryAll" parameterClass="java.util.HashMap">
+ 		UPDATE $schemaId$.TSEAITL01
+ 		  SET CTRLREVOCYMS = #ctrlRevocYMS#
+ 			, REVOCPRCSSNAME = #revocPrcssName#
+ 		WHERE CTRLREVOCYMS IS NULL
+ 	</update>
+</sqlMap>

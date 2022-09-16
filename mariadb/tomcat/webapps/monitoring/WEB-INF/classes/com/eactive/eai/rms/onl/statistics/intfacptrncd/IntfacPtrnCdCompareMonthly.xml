@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="IntfacPtrnCdCompareMonthly">
+  
+  <statement id="findByTransactionIntfacPtrnCdMonthly" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.intfacptrncd.vo.IntfacPtrnCdCompareMonthlyVO">
+        SELECT A.INTFACPTRNCD AS "INTFACPTRNCD" ,
+		          COALESCE(A.$thisMonthProcColumnName$, 0) AS "THISMONTHPROCCOLUMNNAME",
+		          COALESCE(B.$lastMonthProcColumnName$, 0) AS "LASTMONTHPROCCOLUMNNAME"
+	        FROM ( SELECT INTFACPTRNCD,
+	             				  SUM($thisMonthProcColumnName$) AS $thisMonthProcColumnName$
+				          FROM $schemaId$.TSEAIST04
+				          WHERE STATCYM BETWEEN #thisYear# AND #thisYear#
+				          GROUP BY INTFACPTRNCD
+			          ) A
+			          LEFT OUTER JOIN
+			          ( SELECT INTFACPTRNCD,
+			         					 SUM($lastMonthProcColumnName$) AS $lastMonthProcColumnName$
+					          FROM $schemaId$.TSEAIST04
+					          WHERE STATCYM BETWEEN #lastYear# AND #lastYear#
+					          GROUP BY INTFACPTRNCD
+			          ) B
+	        ON  A.INTFACPTRNCD= B.INTFACPTRNCD
+  </statement>
+</sqlMap>

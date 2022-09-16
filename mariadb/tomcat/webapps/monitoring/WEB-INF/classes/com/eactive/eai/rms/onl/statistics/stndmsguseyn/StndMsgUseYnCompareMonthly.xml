@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="StndMsgUseYnCompareMonthly">
+  
+  <statement id="findByTransactionStndMsgUseYnMonthly" parameterClass="java.util.HashMap" resultClass="com.eactive.eai.rms.onl.statistics.stndmsguseyn.vo.StndMsgUseYnCompareMonthlyVO">
+        SELECT A.STNDMSGUSEYN AS "STNDMSGUSEYN",
+		          COALESCE(A.$thisMonthProcColumnName$, 0) AS "THISMONTHPROCCOLUMNNAME",
+		          COALESCE(B.$lastMonthProcColumnName$, 0) AS "LASTMONTHPROCCOLUMNNAME"
+	        FROM ( SELECT STNDMSGUSEYN,
+	             				  SUM($thisMonthProcColumnName$) AS $thisMonthProcColumnName$
+				          FROM $schemaId$.TSEAIST04
+				          WHERE STATCYM BETWEEN #thisYear# AND #thisYear#
+				          GROUP BY STNDMSGUSEYN
+			          ) A
+			          LEFT OUTER JOIN
+			          ( SELECT STNDMSGUSEYN,
+			         					 SUM($lastMonthProcColumnName$) AS $lastMonthProcColumnName$
+					          FROM $schemaId$.TSEAIST04
+					          WHERE STATCYM BETWEEN #lastYear# AND #lastYear#
+					          GROUP BY STNDMSGUSEYN
+			          ) B
+	        ON  A.STNDMSGUSEYN= B.STNDMSGUSEYN
+  </statement>
+</sqlMap>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+			http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+			">    
+  <bean class="com.eactive.eai.rms.common.spring.CustomBeanFactoryPostProcessor" />
+  
+  <!-- EAI   --> 
+  <bean
+    id="EAI"
+    class="com.eactive.eai.rms.common.datasource.DataSourceType"
+    p:name="EAI"
+    p:text="EAI"
+    p:schema="EAI"
+    p:dynamic="true"    
+    p:jndiName="java:/comp/env/jdbc/dsCHN_eai" 
+    p:render="ONL,BAT"
+    />
+ 
+  <!-- FEP -->
+  <bean
+    id="FEP"
+    class="com.eactive.eai.rms.common.datasource.DataSourceType"
+    p:name="FEP"
+    p:text="FEP"
+    p:schema="FEP"
+    p:dynamic="true"    
+    p:jndiName="java:/comp/env/jdbc/dsCHN_fep" 
+    p:render="ONL,BAP"
+    />    
+
+     
+  <!-- RMS_DEFAULT -->
+  <bean
+    id="MONITORING"
+    class="com.eactive.eai.rms.common.datasource.DataSourceType"
+    p:name="MONITORING"
+    p:text="MONITORING"
+    p:schema="EAI"
+    p:dynamic="false"
+    p:jndiName="java:/comp/env/jdbc/dsCHN_eai" 
+    />        
+    
+  <!-- BATCH(EAI)    --> 
+  <bean
+    id="EAI_BATCH"
+    class="com.eactive.eai.rms.common.datasource.DataSourceType"
+    p:name="EAI_BATCH"
+    p:text="EAI_BATCH"
+    p:schema="EAI"
+    p:dynamic="false"
+    p:jndiName="java:/comp/env/jdbc/dsCHN_eai" 
+    
+    />
+ 
+     
+  <!-- BATCH(FEP)      -->
+  <bean
+    id="BATCH"
+    class="com.eactive.eai.rms.common.datasource.DataSourceType"
+    p:name="BATCH"
+    p:text="BATCH"
+    p:schema="FEP"
+    p:dynamic="false"  
+    p:jndiName="java:/comp/env/jdbc/dsCHN_fep" 
+    />  
+
+  <!-- META --> 
+  <bean
+    id="META"
+    class="com.eactive.eai.rms.common.datasource.DataSourceType"
+    p:name="META"
+    p:text="META"
+    p:schema="WISEMETA"
+    p:dynamic="false"
+    p:jndiName="java:/comp/env/jdbc/dsIMA_imaeai" 
+    />   
+    
+</beans>

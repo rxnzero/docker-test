@@ -1,0 +1,824 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+    
+<sqlMap namespace="BapTranStatus">
+    <statement id="list_e" resultClass="java.util.HashMap">
+         SELECT *
+         FROM ( SELECT COALESCE(BS05.SendRecvYn, BJ08.SendRecvYn )             AS "SENDRECVYN" ,
+                       COALESCE(BS05.OsidInstiDstcd, BJ08.OsidInstiDstcd )     AS "OSIDINSTIDSTCD"     ,
+                       COALESCE(BS05.BjobBzwkDstcd, BJ08.BjobBzwkDstcd)        AS "BJOBBZWKDSTCD"      ,
+                       COALESCE(BS05.BjobBzwkName, BJ08.BjobBzwkName)          AS "BJOBBZWKNAME"       ,
+                       COALESCE(BS05.OsidInstiName, BJ08.OsidInstiName)        AS "OSIDINSTINAME"      ,
+                       COALESCE(BS05.BjobTranDstcdName,BJ08.BjobTranDstcdName) AS "BJOBTRANDSTCDNAME"  ,
+                       BS05.SndrcvStartHMS                                     AS "SNDRCVSTARTHMS"     ,
+                       BS05.SndrcvEndHMS                                       AS "SNDRCVENDHMS"       ,
+                       BS05.EAIWarnYn                                          AS "EAIWARNYN"          ,
+                       BJ08.BjobDmndMsgID                                      AS "BJOBDMNDMSGID"      ,
+                       BJ08.BjobDmndSubMsgID                                   AS "BJOBDMNDSUBMSGID"   ,
+                       BJ08.TranPrcssDstcd                                     AS "TRANPRCSSDSTCD"     ,
+                       BJ08.SndrcvFileName                                     AS "SNDRCVFILENAME"     ,
+                       BJ08.SndrcvRecCnt                                       AS "SNDRCVRECCNT"       ,
+                       BJ08.SndrcvFileSize                                     AS "SNDRCVFILESIZE"     ,
+                       BJ08.BjobDmndMsgCretnHMS                                AS "BJOBDMNDMSGCRETNHMS" ,
+                       BJ08.TranStartHMS                                       AS "TRANSTARTHMS"       ,
+                       BJ08.TranEndHMS                                         AS "TRANENDHMS"         ,
+                       BS05.CurrentTime                                        AS "CURRENTTIME"        ,
+                       $searchEndTime$                                         AS "SEARCHSTART"        ,
+                       TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS') AS "CURRENTTIMESTAMP"   ,
+                       COALESCE(BS05.GroupCoCd,BJ08.GroupCoCd)                 AS "GROUPCOCD"
+                FROM ( SELECT X.BjobMsgDstcd,
+                              Y.BjobBzwkDstcd,
+                              X.OsidInstiDstcd,
+                              X.SendRecvYn,
+                              RTRIM(X.SndrcvStartHMS)                          AS SndrcvStartHMS     ,
+                              RTRIM(X.SndrcvEndHMS)                            AS SndrcvEndHMS       ,
+                              X.EAIWarnYn,    
+                              Y.BjobBzwkName,
+                              Y.OsidInstiName,
+                              Y.BjobTranDstcdName,
+                              TO_CHAR(now(), 'HH24MI')                       AS CurrentTime        ,
+                              COALESCE(Y.GroupCoCd, ' ' )                      AS GroupCoCd
+                       FROM   $schemaId$.TSEAIBS05 X INNER JOIN
+                            ( SELECT P.BjobMsgDstcd,
+                                     P.BjobBzwkDstcd,
+                                     P.BjobTranDstcdName,
+                                     S.BjobBzwkName,
+                                     H.OsidInstiDstcd,
+                                     H.OsidInstiName,
+                                     P.GroupCoCd
+                              FROM $schemaId$.TSEAIBJ01 P INNER JOIN $schemaId$.TSEAIBJ02 S ON P.BjobBzwkDstcd = S.BjobBzwkDstcd
+                                                          INNER JOIN $schemaId$.TSEAIBJ06 H ON P.BjobBzwkDstcd = H.BjobBzwkDstcd
+                             ) Y on X.BjobMsgDstcd = Y.BjobMsgDstcd AND X.OsidInstiDstcd=Y.OsidInstiDstcd
+                       WHERE X.ThisMsgUseYn = '1'
+                       <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+                             Y.BjobBzwkDstcd  LIKE #searchBjobBzwkDstcd# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+                             X.OsidInstiDstcd  LIKE  #searchOsidInstiDstcd# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchProcessType">
+                             X.SendRecvYn  LIKE #searchProcessType# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+                              Y.BjobTranDstcdName LIKE  #searchSndrcvFileName# || '%'
+                       </isNotEmpty>
+                       <dynamic prepend="AND RTRIM(X.SndrcvCyclTypName) IN" open="(" close=")">
+                             <iterate property="basis" conjunction=", ">
+                                 #basis[]#
+                            </iterate>
+                       </dynamic>
+                       AND (to_char(now(), 'HH24MI') > X.SndrcvEndHMS)
+                       ) BS05 FULL OUTER JOIN
+                       ( SELECT A.BjobDmndMsgID,
+                                A.BjobDmndSubMsgID      ,
+                                A.BjobDmndMsgCretnHMS   ,
+                                A.BjobBzwkDstcd         ,
+                                C.BjobBzwkName          ,
+                                A.OsidInstiDstcd        ,
+                                D.OsidInstiName         ,
+                                SUBSTR(A.BjobPtrnDstcd,2,1) AS SendRecvYn,
+                                COALESCE( B.TranStartHMS, A.TranStartHMS ) AS TranStartHMS ,
+                                COALESCE( B.TranEndHMS  , A.TranEndHMS   ) AS TranEndHMS   ,
+                                B.BjobMsgDstcd          ,
+                                COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd )  AS TranPrcssDstcd ,
+                                B.SndrcvFileName,
+                                B.SndrcvRecCnt,
+                                B.SndrcvFileSize,
+                                B.BjobTranDstcdName,
+                                COALESCE(B.GroupCoCd, ' ' ) AS GroupCoCd                                    
+                         FROM   $schemaId$.TSEAIBJ03 A LEFT OUTER JOIN
+                              ( SELECT /*+USE_NL(E F)*/ 
+                                       F.BjobDmndMsgID,
+                                       F.BjobDmndSubMsgID,
+                                       E.BjobMsgDstcd,
+                                       F.SndrcvFileName,
+                                       F.SndrcvRecCnt,
+                                       F.SndrcvFileSize,
+                                       E.BjobTranDstcdName,
+                                       F.ThisStgePrcssRsultCd,
+                                       F.EAIObstclOccurCausCtnt,
+                                       F.FileTrsmtStartHMS AS TranStartHMS,
+                                       F.FileTrsmtEndHMS   AS TranEndHMS,
+                                       E.GroupCoCd    
+                                FROM   $schemaId$.TSEAIBJ01 E JOIN $schemaId$.TSEAIBJ08 F ON E.BjobBzwkDstcd=F.BjobBzwkDstcd 
+                                                                                        AND  E.BjobTranDstcdName = F.BjobTranDstcdName
+                                WHERE  F.ThisStgePrcssRsultCd = 'E' OR ThisStgePrcssRsultCd = 'C'
+                              ) B ON A.BjobDmndMsgID = B.BjobDmndMsgID AND A.BjobDmndSubMsgID = B.BjobDmndSubMsgID
+                                                       LEFT OUTER JOIN $schemaId$.TSEAIBJ02 C ON A.BjobBzwkDstcd = C.BjobBzwkDstcd
+                                                       LEFT OUTER JOIN $schemaId$.TSEAIBJ06 D ON A.BjobBzwkDstcd = D.BjobBzwkDstcd
+                                                                                             AND A.OsidInstiDstcd = D.OsidInstiDstcd
+                       WHERE (TranPrcssDstcd  = 'E' OR TranPrcssDstcd  = 'C')
+                       <isNotEmpty prepend="AND" property="searchBjobDmndMsgID">
+                           A.BjobDmndMsgID LIKE  #searchBjobDmndMsgID# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchBbjobDmndSubMsgID">
+                           A.BjobDmndSubMsgID  LIKE  #searchBbjobDmndSubMsgID# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchStartTime">
+                           A.BjobDmndMsgCretnHMS   BETWEEN  #searchStartTime#  || '%' AND #searchEndTime# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+                           A.BjobBzwkDstcd  LIKE  #searchBjobBzwkDstcd# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+                           A.OsidInstiDstcd  LIKE  #searchOsidInstiDstcd# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+                            B.SndrcvFileName LIKE  #searchSndrcvFileName# || '%'
+                       </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchProcessType">
+                           SUBSTR(A.BjobPtrnDstcd,2,1)  LIKE  #searchProcessType# || '%'
+                       </isNotEmpty>
+            ) BJ08 ON BS05.BjobMsgDstcd = BJ08.BjobMsgDstcd
+                        AND BS05.SendRecvYn   = BJ08.SendRecvYn  ) A
+            <isNotEmpty prepend="WHERE" property="groupCoCd">
+                A.GroupCoCd = #groupCoCd#
+            </isNotEmpty>
+            ORDER BY A.BjobDmndMsgCretnHMS DESC, A.TranStartHMS DESC, A.BjobDmndMsgID, A.BjobDmndSubMsgID
+    </statement>
+    
+    <statement id="list_l" resultClass="java.util.HashMap">
+         SELECT *
+         FROM ( SELECT COALESCE(BS05.SendRecvYn, BJ08.SendRecvYn )             AS "SENDRECVYN"         ,
+                       COALESCE(BS05.OsidInstiDstcd, BJ08.OsidInstiDstcd )     AS "OSIDINSTIDSTCD"     ,
+                       COALESCE(BS05.BjobBzwkDstcd, BJ08.BjobBzwkDstcd)        AS "BJOBBZWKDSTCD"      ,
+                       COALESCE(BS05.BjobBzwkName, BJ08.BjobBzwkName)          AS "BJOBBZWKNAME"       ,
+                       COALESCE(BS05.OsidInstiName, BJ08.OsidInstiName)        AS "OSIDINSTINAME"      ,
+                       COALESCE(BS05.BjobTranDstcdName,BJ08.BjobTranDstcdName) AS "BJOBTRANDSTCDNAME"  ,
+                       BS05.SndrcvStartHMS                                     AS "SNDRCVSTARTHMS"     ,
+                       BS05.SndrcvEndHMS                                       AS "SNDRCVENDHMS"       ,
+                       BS05.EAIWarnYn                                          AS "EAIWARNYN"          ,
+                       BJ08.BjobDmndMsgID                                      AS "BJOBDMNDMSGID"      ,
+                       BJ08.BjobDmndSubMsgID                                   AS "BJOBDMNDSUBMSGID"   ,
+                       BJ08.TranPrcssDstcd                                     AS "TRANPRCSSDSTCD"     ,
+                       BJ08.SndrcvFileName                                     AS "SNDRCVFILENAME"     ,
+                       BJ08.SndrcvFileSize                                     AS "SNDRCVFILESIZE"     ,
+                       BJ08.BjobDmndMsgCretnHMS                                AS "BJOBDMNDMSGCRETNHMS",
+                       BJ08.TranStartHMS                                       AS "TRANSTARTHMS"       ,
+                       BJ08.TranEndHMS                                         AS "TRANENDHMS"         ,
+                       BS05.CurrentTime                                        AS "CURRENTTIME"        ,
+                       $searchEndTime$                                         AS "SEARCHSTART"        ,
+                       TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')             AS "CURRENTTIMESTAMP"
+                   FROM (  SELECT X.BjobMsgDstcd,
+                                  Y.BjobBzwkDstcd,
+                                  X.OsidInstiDstcd,
+                                  X.SendRecvYn,
+                                  RTRIM(X.SndrcvStartHMS)                      AS SndrcvStartHMS,
+                                  RTRIM(X.SndrcvEndHMS)                        AS SndrcvEndHMS,
+                                  X.EAIWarnYn,    
+                                  Y.BjobBzwkName,
+                                  Y.OsidInstiName,
+                                  Y.BjobTranDstcdName,
+                                  TO_CHAR(now(), 'HH24MI')                   AS CurrentTime
+                          FROM $schemaId$.TSEAIBS05 X INNER JOIN
+                                (SELECT P.BjobMsgDstcd,
+                                    P.BjobBzwkDstcd,
+                                    P.BjobTranDstcdName,
+                                    S.BjobBzwkName,
+                                    H.OsidInstiDstcd,
+                                    H.OsidInstiName
+                                FROM $schemaId$.TSEAIBJ01 P INNER JOIN $schemaId$.TSEAIBJ02 S ON P.BjobBzwkDstcd = S.BjobBzwkDstcd
+                                    INNER JOIN $schemaId$.TSEAIBJ06 H ON P.BjobBzwkDstcd = H.BjobBzwkDstcd
+                                ) Y on X.BjobMsgDstcd = Y.BjobMsgDstcd AND X.OsidInstiDstcd=Y.OsidInstiDstcd
+                          WHERE X.ThisMsgUseYn = '1'
+                          <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+                                Y.BjobBzwkDstcd  LIKE  #searchBjobBzwkDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+                                X.OsidInstiDstcd  LIKE  #searchOsidInstiDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="searchProcessType">
+                                X.SendRecvYn  LIKE  #searchProcessType# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+                                 Y.BjobTranDstcdName LIKE  #searchSndrcvFileName# || '%'
+                          </isNotEmpty>
+                          <dynamic prepend="AND RTRIM(X.SndrcvCyclTypName) IN" open="(" close=")">
+                                <iterate property="basis" conjunction=", ">
+                                    #basis[]#
+                               </iterate>
+                          </dynamic>
+                            AND TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS') >  (SUBSTR(CHAR($searchEndHHMM$),1,8) || X.SndrcvEndHMS)
+                            )
+                          ) BS05
+                         LEFT OUTER JOIN (
+                            SELECT A.BjobDmndMsgID,
+                                    A.BjobDmndSubMsgID      ,
+                                    A.BjobDmndMsgCretnHMS   ,
+                                    A.BjobBzwkDstcd         ,
+                                    C.BjobBzwkName          ,
+                                    A.OsidInstiDstcd        ,
+                                    D.OsidInstiName         ,
+                                    SUBSTR(A.BjobPtrnDstcd,2,1) AS SendRecvYn,
+                                    COALESCE( B.TranStartHMS, A.TranStartHMS ) AS TranStartHMS ,
+                                    COALESCE( B.TranEndHMS  , A.TranEndHMS   ) AS TranEndHMS   ,
+                                    B.BjobMsgDstcd                    ,
+                                    COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd )  AS TranPrcssDstcd ,
+                                    B.SndrcvFileName,
+                                    B.SndrcvFileSize,
+                                    B.BjobTranDstcdName                                    
+                             FROM   $schemaId$.TSEAIBJ03 A LEFT OUTER JOIN
+                                    (SELECT /*+USE_NL(E F)*/ 
+                                                F.BjobDmndMsgID,
+                                                F.BjobDmndSubMsgID,
+                                                E.BjobMsgDstcd,
+                                                F.SndrcvFileName,
+                                                F.SndrcvFileSize,
+                                                E.BjobTranDstcdName,
+                                                F.FileTrsmtStartHMS AS TranStartHMS,
+                                                F.FileTrsmtEndHMS   AS TranEndHMS,
+                                                F.ThisStgePrcssRsultCd    
+                                        FROM $schemaId$.TSEAIBJ01 E JOIN $schemaId$.TSEAIBJ08 F ON E.BjobBzwkDstcd=F.BjobBzwkDstcd     AND  E.BjobTranDstcdName = F.BjobTranDstcdName
+                                        WHERE   F.ThisStgePrcssRsultCd = 'E' OR ThisStgePrcssRsultCd  = 'C'
+                                        ) B ON A.BjobDmndMsgID = B.BjobDmndMsgID   AND A.BjobDmndSubMsgID = B.BjobDmndSubMsgID
+                                                LEFT OUTER JOIN $schemaId$.TSEAIBJ02 C ON A.BjobBzwkDstcd = C.BjobBzwkDstcd
+                                                LEFT OUTER JOIN $schemaId$.TSEAIBJ06 D ON A.BjobBzwkDstcd = D.BjobBzwkDstcd
+                                        AND A.OsidInstiDstcd = D.OsidInstiDstcd
+                            WHERE (TranPrcssDstcd  = 'E' OR TranPrcssDstcd  = 'C')
+                    <isNotEmpty prepend="AND" property="searchBjobDmndMsgID">
+                        A.BjobDmndMsgID LIKE  #searchBjobDmndMsgID# || '%'
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchBbjobDmndSubMsgID">
+                        A.BjobDmndSubMsgID  LIKE  #searchBbjobDmndSubMsgID# || '%'
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchStartTime">
+                        A.BjobDmndMsgCretnHMS   BETWEEN  #searchStartTime#  || '%' AND #searchEndTime# || '%'
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+                        A.BjobBzwkDstcd  LIKE  #searchBjobBzwkDstcd# || '%'
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+                        A.OsidInstiDstcd  LIKE  #searchOsidInstiDstcd# || '%'
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+                         B.SndrcvFileName LIKE  #searchSndrcvFileName# || '%'
+                    </isNotEmpty>
+                    <isNotEmpty prepend="AND" property="searchProcessType">
+                        SUBSTR(A.BjobPtrnDstcd,2,1)  LIKE  #searchProcessType# || '%'
+                    </isNotEmpty>
+            )BJ08 ON BS05.BjobMsgDstcd = BJ08.BjobMsgDstcd
+                        AND BS05.SendRecvYn   = BJ08.SendRecvYn  ) A
+            ORDER BY A.BjobDmndMsgCretnHMS DESC, A.TranStartHMS DESC, A.BjobDmndMsgID, A.BjobDmndSubMsgID
+    </statement>
+    <statement id="list_normal" resultClass="java.util.HashMap">
+         SELECT *
+         FROM ( SELECT COALESCE( BS05.SendRecvYn, BJ08.SendRecvYn )            AS "SENDRECVYN"         ,
+                       COALESCE( BS05.OsidInstiDstcd, BJ08.OsidInstiDstcd )    AS "OSIDINSTIDSTCD"     ,
+                       COALESCE(BS05.BjobBzwkDstcd, BJ08.BjobBzwkDstcd)        AS "BJOBBZWKDSTCD"      ,
+                       COALESCE(BS05.BjobBzwkName, BJ08.BjobBzwkName)          AS "BJOBBZWKNAME"       ,
+                       COALESCE(BS05.OsidInstiName, BJ08.OsidInstiName)        AS "OSIDINSTINAME"      ,
+                       COALESCE(BS05.BjobTranDstcdName,BJ08.BjobTranDstcdName) AS "BJOBTRANDSTCDNAME"  ,
+                       BS05.SndrcvStartHMS                                     AS "SNDRCVSTARTHMS"     ,
+                       BS05.SndrcvEndHMS                                       AS "SNDRCVENDHMS"       ,
+                       BS05.EAIWarnYn                                          AS "EAIWARNYN"          ,
+                       BJ08.BjobDmndMsgID                                      AS "BJOBDMNDMSGID"      ,
+                       BJ08.BjobDmndSubMsgID                                   AS "BJOBDMNDSUBMSGID"   ,
+                       BJ08.TranPrcssDstcd                                     AS "TRANPRCSSDSTCD"     ,
+                       BJ08.BjobMsgScheID                                      AS "BJOBMSGSCHEID"      ,
+                       BJ08.SndrcvFileName                                     AS "SNDRCVFILENAME"     ,
+                       BS05.BjobTranDstcdName                                  AS "BJOBTRANDSTCDNAME2" ,
+                       BJ08.SndrcvRecCnt                                       AS "SNDRCVRECCNT "      ,
+                       BJ08.SndrcvFileSize                                     AS "SNDRCVFILESIZE"     ,
+                       BJ08.BjobDmndMsgCretnHMS                                AS "BJOBDMNDMSGCRETNHMS",
+                       RTRIM(BJ08.TranStartHMS )                               AS "TRANSTARTHMS"       ,
+                       RTRIM(BJ08.TranEndHMS )                                 AS "TRANENDHMS"         ,
+                      TO_CHAR(now(), 'HH24MI')                              AS "CURRENTTIME"        ,
+                       $searchEndTime$                                         AS SEARCHSTART        ,
+                       TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS') AS "CURRENTTIMESTAMP"   ,
+                       COALESCE(BS05.GroupCoCd,BJ08.GroupCoCd) AS "GROUPCOCD"
+                   FROM (  SELECT X.BjobMsgDstcd,
+                                  Y.BjobBzwkDstcd,
+                                  X.OsidInstiDstcd,
+                                  X.SendRecvYn,
+                                  RTRIM(X.SndrcvStartHMS)                      AS SndrcvStartHMS,
+                                  RTRIM(X.SndrcvEndHMS)                        AS SndrcvEndHMS,
+                                  X.EAIWarnYn,
+                                  Y.BjobBzwkName,
+                                  Y.OsidInstiName,
+                                  Y.BjobTranDstcdName,
+                                  COALESCE(Y.GroupCoCd, ' ' ) AS GroupCoCd
+                           FROM   $schemaId$.TSEAIBS05 X INNER JOIN
+                                  (SELECT P.BjobMsgDstcd,
+                                          P.BjobBzwkDstcd,
+                                          P.BjobTranDstcdName,
+                                          S.BjobBzwkName,
+                                          H.OsidInstiDstcd,
+                                          H.OsidInstiName,
+                                          P.GroupCoCd
+                                   FROM   $schemaId$.TSEAIBJ01 P INNER JOIN $schemaId$.TSEAIBJ02 S ON P.BjobBzwkDstcd = S.BjobBzwkDstcd
+                                                                 INNER JOIN $schemaId$.TSEAIBJ06 H ON P.BjobBzwkDstcd = H.BjobBzwkDstcd
+                                   ) Y on X.BjobMsgDstcd = Y.BjobMsgDstcd AND X.OsidInstiDstcd=Y.OsidInstiDstcd
+                           WHERE X.ThisMsgUseYn = '1'
+                           <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+                                Y.BjobBzwkDstcd  LIKE  #searchBjobBzwkDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+                                X.OsidInstiDstcd  LIKE  #searchOsidInstiDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="searchProcessType">
+                                X.SendRecvYn  LIKE  #searchProcessType# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+                                 Y.BjobTranDstcdName LIKE  #searchSndrcvFileName# || '%'
+                          </isNotEmpty>
+                          <dynamic prepend="AND RTRIM(X.SndrcvCyclTypName) IN" open="(" close=")">
+                                <iterate property="basis" conjunction=", ">
+                                    #basis[]#
+                               </iterate>
+                        </dynamic>
+                          ) BS05
+                        FULL OUTER JOIN (
+                            SELECT A.BjobDmndMsgID,
+                                   A.BjobDmndSubMsgID      ,
+                                   A.BjobDmndMsgCretnHMS   ,
+                                   A.BjobBzwkDstcd         ,
+                                   SUBSTR(A.BjobMsgScheID,8,LENGTH(RTRIM(A.BjobMsgScheID))-10) AS BjobMsgScheID,
+                                   C.BjobBzwkName          ,
+                                   A.OsidInstiDstcd        ,
+                                   D.OsidInstiName         ,
+                                   SUBSTR(A.BjobPtrnDstcd,2,1) AS SendRecvYn,
+                                   COALESCE( B.TranStartHMS, A.TranStartHMS ) AS TranStartHMS ,
+                                   COALESCE( B.TranEndHMS  , A.TranEndHMS   ) AS TranEndHMS   ,
+                                   B.BjobMsgDstcd                    ,
+                                   COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd )  AS TranPrcssDstcd ,
+                                   B.SndrcvFileName,
+                                   B.SndrcvRecCnt,
+                                   B.SndrcvFileSize,
+                                   B.BjobTranDstcdName,
+                                   COALESCE(B.GroupCoCd, ' ' ) AS GroupCoCd                                        
+                            FROM   $schemaId$.TSEAIBJ03 A LEFT OUTER JOIN
+                                    (SELECT /*+USE_NL(E F)*/ 
+                                                F.BjobDmndMsgID,
+                                                F.BjobDmndSubMsgID,
+                                                E.BjobMsgDstcd,
+                                                F.SndrcvFileName,
+                                                F.SndrcvRecCnt,
+                                                F.SndrcvFileSize,
+                                                E.BjobTranDstcdName,
+                                                F.ThisStgePrcssRsultCd,
+                                                F.FileTrsmtStartHMS AS TranStartHMS,
+                                                F.FileTrsmtEndHMS   AS TranEndHMS,
+                                                E.GroupCoCd
+                                        FROM $schemaId$.TSEAIBJ01 E JOIN $schemaId$.TSEAIBJ08 F ON E.BjobBzwkDstcd=F.BjobBzwkDstcd     AND  E.BjobTranDstcdName = F.BjobTranDstcdName
+                                        ) B ON A.BjobDmndMsgID = B.BjobDmndMsgID  AND A.BjobDmndSubMsgID = B.BjobDmndSubMsgID
+                                                LEFT OUTER JOIN $schemaId$.TSEAIBJ02 C ON A.BjobBzwkDstcd = C.BjobBzwkDstcd
+                                                LEFT OUTER JOIN $schemaId$.TSEAIBJ06 D ON A.BjobBzwkDstcd = D.BjobBzwkDstcd
+                                        AND A.OsidInstiDstcd = D.OsidInstiDstcd
+                    <dynamic prepend="WHERE">
+                        <isNotEmpty prepend="AND" property="searchBjobDmndMsgID">
+                            A.BjobDmndMsgID LIKE  #searchBjobDmndMsgID# || '%'
+                        </isNotEmpty>
+                        <isNotEmpty prepend="AND" property="searchBbjobDmndSubMsgID">
+                            A.BjobDmndSubMsgID  LIKE  #searchBbjobDmndSubMsgID# || '%'
+                        </isNotEmpty>
+                        <isNotEmpty prepend="AND" property="searchStartTime">
+                            A.BjobDmndMsgCretnHMS   BETWEEN  #searchStartTime#  || '%' AND #searchEndTime# || '%'
+                        </isNotEmpty>
+                        <isNotEmpty prepend="AND" property="bjobBzwkDstcd">
+                            A.BjobBzwkDstcd  LIKE  #bjobBzwkDstcd# || '%'
+                        </isNotEmpty>
+                        <isNotEmpty prepend="AND" property="osidInstiDstcd">
+                            A.OsidInstiDstcd  LIKE  #osidInstiDstcd# || '%'
+                        </isNotEmpty>
+                        <isNotEmpty prepend="AND" property="sndrcvFileName">
+                             B.SndrcvFileName LIKE  #sndrcvFileName# || '%'
+                        </isNotEmpty>
+                        <isNotEmpty prepend="AND" property="bjobPtrnDstcd">
+                            SUBSTR(A.BjobPtrnDstcd,2,1)  LIKE  #bjobPtrnDstcd# || '%'
+                        </isNotEmpty>
+                    </dynamic>
+            )BJ08 ON BS05.BjobMsgDstcd = BJ08.BjobMsgDstcd
+                        AND BS05.SendRecvYn   = BJ08.SendRecvYn  ) A
+            <dynamic prepend="WHERE TranPrcssDstcd IN" open="(" close=")">
+                <iterate property="tranPrcssDstcds" conjunction=", ">
+                    #tranPrcssDstcds[]#
+               </iterate>
+            </dynamic>
+            <isNotEmpty prepend="AND" property="groupCoCd">
+                A.GroupCoCd = #groupCoCd#
+            </isNotEmpty>
+            ORDER BY A.BjobDmndMsgCretnHMS DESC, A.TranStartHMS DESC, A.BjobDmndMsgID, A.BjobDmndSubMsgID
+    </statement>
+    <statement id="list_f" resultClass="java.util.HashMap">
+         SELECT *
+         FROM ( SELECT  COALESCE( BS05.SendRecvYn, BJ08.SendRecvYn )            AS "SENDRECVYN"       ,
+                        COALESCE( BS05.OsidInstiDstcd, BJ08.OsidInstiDstcd )    AS "OSIDINSTIDSTCD"     ,
+                        COALESCE(BS05.BjobBzwkDstcd, BJ08.BjobBzwkDstcd)        AS "BJOBBZWKDSTCD"   ,
+                        COALESCE(BS05.BjobBzwkName, BJ08.BjobBzwkName)          AS "BJOBBZWKNAME",
+                        COALESCE(BS05.OsidInstiName, BJ08.OsidInstiName)        AS "OSIDINSTINAME" ,
+                        COALESCE(BS05.BjobTranDstcdName,BJ08.BjobTranDstcdName) AS "BJOBTRANDSTCDNAME",
+                        BS05.SndrcvStartHMS                                       AS "SNDRCVSTARTHMS"   ,
+                        BS05.SndrcvEndHMS                                         AS "SNDRCVENDHMS"     ,
+                        BS05.EAIWarnYn                                            AS "EAIWARNYN"        ,
+                        BJ08.BjobDmndMsgID                                        AS "BJOBDMNDMSGID"    ,
+                        BJ08.BjobDmndSubMsgID                                     AS "BJOBDMNDSUBMSGID" ,
+                        COALESCE(BJ08.TranPrcssDstcd , ' ')                            AS "TRANPRCSSDSTCD",
+                        BJ08.BjobDmndMsgCretnHMS                                  AS "BJOBDMNDMSGCRETNHMS",
+                        BS05.CurrentTime                                          AS "CURRENTTIME",
+                        $searchEndHHMM$                                                AS "SEARCHSTART",
+                        TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')                AS "CURRENTTIMESTAMP",
+                        COALESCE(BS05.GroupCoCd,BJ08.GroupCoCd) AS "GROUPCOCD"
+                   FROM (  SELECT X.BjobMsgDstcd,
+                                  Y.BjobBzwkDstcd,
+                                  X.OsidInstiDstcd,
+                                  X.SendRecvYn,
+                                  RTRIM(X.SndrcvStartHMS)                         AS SndrcvStartHMS,
+                                  RTRIM(X.SndrcvEndHMS)                           AS SndrcvEndHMS,
+                                  X.EAIWarnYn,
+                                  Y.BjobBzwkName,
+                                  Y.OsidInstiName,
+                                  Y.BjobTranDstcdName,
+                                 TO_CHAR(now(), 'HH24MI')                         AS CurrentTime,
+                                  COALESCE(Y.GroupCoCd, ' ' )                     AS GroupCoCd
+                           FROM   $schemaId$.TSEAIBS05 X INNER JOIN
+                                (SELECT P.BjobMsgDstcd,
+                                        P.BjobBzwkDstcd,
+                                        P.BjobTranDstcdName,
+                                        S.BjobBzwkName,
+                                        H.OsidInstiDstcd,
+                                        H.OsidInstiName,
+                                        P.GroupCoCd
+                                 FROM   $schemaId$.TSEAIBJ01 P INNER JOIN $schemaId$.TSEAIBJ02 S ON P.BjobBzwkDstcd = S.BjobBzwkDstcd
+                                                               INNER JOIN $schemaId$.TSEAIBJ06 H ON P.BjobBzwkDstcd = H.BjobBzwkDstcd
+                                ) Y on X.BjobMsgDstcd = Y.BjobMsgDstcd AND X.OsidInstiDstcd=Y.OsidInstiDstcd
+                          WHERE X.ThisMsgUseYn = '1'
+                          <isNotEmpty prepend="AND" property="bjobBzwkDstcd">
+                                Y.BjobBzwkDstcd  LIKE  #bjobBzwkDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="osidInstiDstcd">
+                                X.OsidInstiDstcd  LIKE  #osidInstiDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="bjobPtrnDstcd">
+                                X.SendRecvYn  LIKE  #bjobPtrnDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="sndrcvFileName">
+                                 Y.BjobTranDstcdName LIKE  #sndrcvFileName# || '%'
+                          </isNotEmpty>
+                          <dynamic prepend="AND RTRIM(X.SndrcvCyclTypName) IN" open="(" close=")">
+                                <iterate property="basis" conjunction=", ">
+                                    #basis[]#
+                               </iterate>
+                        </dynamic>
+                        AND TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISS') &lt;  (SUBSTR(TO_CHAR($searchEndHHMM$),1,8) || X.SndrcvEndHMS)
+                         ) BS05
+                         LEFT OUTER JOIN  (
+                            SELECT A.BjobDmndMsgID,
+                                   A.BjobDmndSubMsgID      ,
+                                   A.BjobDmndMsgCretnHMS   ,
+                                   A.BjobBzwkDstcd         ,
+                                   C.BjobBzwkName          ,
+                                   A.OsidInstiDstcd        ,
+                                   D.OsidInstiName         ,
+                                   SUBSTR(A.BjobPtrnDstcd,2,1) AS SendRecvYn,
+                                   B.BjobMsgDstcd,
+                                   B.BjobTranDstcdName                    ,
+                                   COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd )  AS TranPrcssDstcd,
+                                   B.GroupCoCd
+                            FROM   $schemaId$.TSEAIBJ03 A LEFT OUTER JOIN
+                                    (SELECT /*+USE_NL(E F)*/ 
+                                                F.BjobDmndMsgID,
+                                                F.BjobDmndSubMsgID,
+                                                E.BjobMsgDstcd,
+                                                F.SndrcvFileName,
+                                                F.SndrcvFileSize,
+                                                E.BjobTranDstcdName,
+                                                F.ThisStgePrcssRsultCd,
+                                                F.FileTrsmtStartHMS AS TranStartHMS,
+                                                F.FileTrsmtEndHMS   AS TranEndHMS,
+                                                E.GroupCoCd
+                                        FROM $schemaId$.TSEAIBJ01 E JOIN $schemaId$.TSEAIBJ08 F ON E.BjobBzwkDstcd=F.BjobBzwkDstcd     AND  E.BjobTranDstcdName = F.BjobTranDstcdName
+                                        ) B ON A.BjobDmndMsgID = B.BjobDmndMsgID   AND A.BjobDmndSubMsgID = B.BjobDmndSubMsgID
+                                                LEFT OUTER JOIN $schemaId$.TSEAIBJ02 C ON A.BjobBzwkDstcd = C.BjobBzwkDstcd
+                                                LEFT OUTER JOIN $schemaId$.TSEAIBJ06 D ON A.BjobBzwkDstcd = D.BjobBzwkDstcd
+                                        AND A.OsidInstiDstcd = D.OsidInstiDstcd
+                         <dynamic prepend="WHERE">
+                            <isNotEmpty prepend="AND" property="bjobDmndMsgID">
+                                A.BjobDmndMsgID LIKE  #bjobDmndMsgID# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="bjobDmndSubMsgID">
+                                A.BjobDmndSubMsgID  LIKE  #bjobDmndSubMsgID# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="tanStartHMS">
+                                A.BjobDmndMsgCretnHMS   BETWEEN  #tanStartHMS#  || '%' AND #searchEndHHMM# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+                                A.BjobBzwkDstcd  LIKE  #searchBjobBzwkDstcd# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+                                A.OsidInstiDstcd  LIKE  #searchOsidInstiDstcd# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+                                 B.SndrcvFileName LIKE  #searchSndrcvFileName# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchProcessType">
+                                SUBSTR(A.BjobPtrnDstcd,2,1)  LIKE  #searchProcessType# || '%'
+                            </isNotEmpty>
+                        </dynamic>
+            )BJ08 ON BS05.BjobMsgDstcd = BJ08.BjobMsgDstcd
+                        AND BS05.SendRecvYn   = BJ08.SendRecvYn
+            ) A
+               WHERE  A.TranPrcssDstcd != 'T'
+            <isNotEmpty prepend="AND" property="groupCoCd">
+                A.GroupCoCd = #groupCoCd#
+            </isNotEmpty>
+            ORDER BY A.BjobDmndMsgCretnHMS DESC, A.SndrcvStartHMS DESC, A.BjobDmndMsgID, A.BjobDmndSubMsgID
+    </statement>
+    <statement id="speclist" resultClass="java.util.HashMap">
+         SELECT *
+         FROM ( SELECT COALESCE( BS05.SendRecvYn, BJ08.SendRecvYn )            AS "SENDRECVYN"         ,
+                       COALESCE( BS05.OsidInstiDstcd, BJ08.OsidInstiDstcd )    AS "OSIDINSTIDSTCD"     ,
+                       COALESCE(BS05.BjobBzwkDstcd, BJ08.BjobBzwkDstcd)        AS "BJOBBZWKDSTCD"      ,
+                       COALESCE(BS05.BjobBzwkName, BJ08.BjobBzwkName)          AS "BJOBBZWKNAME"       ,
+                       COALESCE(BS05.OsidInstiName, BJ08.OsidInstiName)        AS "OSIDINSTINAME"      ,
+                       BS05.SndrcvStartHMS                                     AS "SNDRCVSTARTHMS"     ,
+                       BS05.SndrcvEndHMS                                       AS "SNDRCVENDHMS"       ,
+                       BJ08.TranPrcssDstcd                                     AS "TRANPRCSSDSTCD"     ,
+                       BJ08.BjobDmndMsgID                                      AS "BJOBDMNDMSGID"      ,
+                       BJ08.BjobDmndSubMsgID                                   AS "BJOBDMNDSUBMSGID"   ,
+                       BJ08.BjobMsgScheID                                      AS "BJOBMSGSCHEID"      ,
+                       BJ08.SndrcvFileName                                     AS "SNDRCVFILENAME"     ,
+                       BJ08.SndrcvRecCnt                                       AS "SNDRCVRECCNT"       ,
+                       BJ08.SndrcvFileSize                                     AS "SNDRCVFILESIZE"     ,
+                       BJ08.BjobDmndMsgCretnHMS                                AS "BJOBDMNDMSGCRETNHMS",
+                       BJ08.TranStartHMS                                       AS "TRANSTARTHMS"       ,
+                       BJ08.TranEndHMS                                         AS "TRANENDHMS"         ,
+                       COALESCE(BS05.BjobTranDstcdName,BJ08.BjobTranDstcdName) AS "BJOBTRANDSTCDNAME"  ,
+                       $searchEndHHMM$                                         AS "SEARCHSTART"        ,
+                       TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')            AS "CURRENTTIME"        ,
+                       COALESCE(BS05.GroupCoCd,BJ08.GroupCoCd) AS "GROUPCOCD"
+                FROM (  SELECT X.BjobMsgDstcd,
+                               Y.BjobBzwkDstcd,
+                               X.OsidInstiDstcd,
+                               X.SendRecvYn,
+                               RTRIM(X.SndrcvStartHMS)                           AS SndrcvStartHMS,
+                               RTRIM(X.SndrcvEndHMS)                             AS SndrcvEndHMS,
+                               Y.BjobBzwkName,
+                               Y.BjobTranDstcdName,
+                               Y.OsidInstiName,
+                               COALESCE(Y.GroupCoCd, ' ' ) AS GroupCoCd
+                          FROM $schemaId$.TSEAIBS05 X INNER JOIN
+                                (SELECT P.BjobMsgDstcd,
+                                        P.BjobBzwkDstcd,
+                                        S.BjobBzwkName,
+                                        P.BjobTranDstcdName,
+                                        H.OsidInstiDstcd,
+                                        H.OsidInstiName,
+                                        P.GroupCoCd
+                                 FROM $schemaId$.TSEAIBJ01 P INNER JOIN $schemaId$.TSEAIBJ02 S ON P.BjobBzwkDstcd = S.BjobBzwkDstcd
+                                                             INNER JOIN $schemaId$.TSEAIBJ06 H ON P.BjobBzwkDstcd = H.BjobBzwkDstcd
+                                ) Y on X.BjobMsgDstcd = Y.BjobMsgDstcd AND X.OsidInstiDstcd=Y.OsidInstiDstcd
+                          WHERE X.ThisMsgUseYn = '1'
+                          <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+                                Y.BjobBzwkDstcd  LIKE  #searchBjobBzwkDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+                                X.OsidInstiDstcd  LIKE  #searchOsidInstiDstcd# || '%'
+                          </isNotEmpty>
+                          <isNotEmpty prepend="AND" property="searchProcessType">
+                                X.SendRecvYn  LIKE  #searchProcessType# || '%'
+                          </isNotEmpty>
+                       <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+                              Y.BjobTranDstcdName LIKE  #searchSndrcvFileName# || '%'
+                       </isNotEmpty>
+                          <dynamic prepend="AND RTRIM(X.SndrcvCyclTypName) IN" open="(" close=")">
+                                <iterate property="basis" conjunction=", ">
+                                    #basis[]#
+                               </iterate>
+                        </dynamic>
+                         ) BS05
+                        FULL OUTER JOIN (
+                            SELECT A.BjobDmndMsgID,
+                                    A.BjobDmndSubMsgID      ,
+                                    A.BjobDmndMsgCretnHMS   ,
+                                    A.BjobBzwkDstcd         ,
+                                    C.BjobBzwkName          ,
+                                    A.OsidInstiDstcd        ,
+                                    SUBSTR(A.BjobMsgScheID,8,LENGTH(RTRIM(A.BjobMsgScheID))-10) AS BjobMsgScheID,
+                                    D.OsidInstiName         ,
+                                    SUBSTR(A.BjobPtrnDstcd,2,1) AS SendRecvYn,
+                                    COALESCE( B.TranStartHMS, A.TranStartHMS ) AS TranStartHMS ,
+                                    COALESCE( B.TranEndHMS  , A.TranEndHMS   ) AS TranEndHMS   ,
+                                    B.BjobMsgDstcd          ,
+                                    B.BjobTranDstcdName     ,
+                                    COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd )  AS TranPrcssDstcd ,
+                                    B.SndrcvFileName,
+                                    B.SndrcvRecCnt,
+                                    B.SndrcvFileSize,
+                                    COALESCE(B.GroupCoCd, ' ' ) AS GroupCoCd
+                            FROM   $schemaId$.TSEAIBJ03 A LEFT OUTER JOIN
+                                        (SELECT /*+USE_NL(E F)*/ 
+                                                F.BjobDmndMsgID,
+                                                F.BjobDmndSubMsgID,
+                                                E.BjobMsgDstcd,
+                                                F.SndrcvFileName,
+                                                F.SndrcvRecCnt,
+                                                F.SndrcvFileSize,
+                                                E.BjobTranDstcdName,
+                                                F.ThisStgePrcssRsultCd,
+                                                F.FileTrsmtStartHMS AS TranStartHMS,
+                                                F.FileTrsmtEndHMS   AS TranEndHMS,
+                                                E.GroupCoCd    
+                                        FROM $schemaId$.TSEAIBJ01 E JOIN $schemaId$.TSEAIBJ08 F ON E.BjobBzwkDstcd=F.BjobBzwkDstcd     AND  E.BjobTranDstcdName = F.BjobTranDstcdName
+                                        ) B  ON A.BjobDmndMsgID = B.BjobDmndMsgID AND A.BjobDmndSubMsgID = B.BjobDmndSubMsgID
+                                                LEFT OUTER JOIN $schemaId$.TSEAIBJ02 C ON A.BjobBzwkDstcd = C.BjobBzwkDstcd
+                                                LEFT OUTER JOIN $schemaId$.TSEAIBJ06 D ON A.BjobBzwkDstcd = D.BjobBzwkDstcd  AND A.OsidInstiDstcd = D.OsidInstiDstcd
+                        <dynamic prepend="WHERE">
+                            <isNotEmpty prepend="AND" property="searchBjobDmndMsgID">
+                                A.BjobDmndMsgID LIKE  #searchBjobDmndMsgID# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchBbjobDmndSubMsgID">
+                                A.BjobDmndSubMsgID  LIKE  #searchBbjobDmndSubMsgID# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchStartTime">
+                                A.BjobDmndMsgCretnHMS   BETWEEN  #searchStartTime#  || '%' AND #searchEndTime# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchBjobBzwkDstcd">
+                                A.BjobBzwkDstcd  LIKE  #searchBjobBzwkDstcd# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchOsidInstiDstcd">
+                                A.OsidInstiDstcd  LIKE  #searchOsidInstiDstcd# || '%'
+                            </isNotEmpty>
+                            <isEqual prepend="AND" property="searchStatus" compareValue="A">
+                                COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd ) != 'N'
+                            </isEqual>
+                            <isNotEqual prepend="AND" property="searchStatus" compareValue="A">
+                                COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd ) like #searchStatus#
+                            </isNotEqual>
+                            <isNotEmpty prepend="AND" property="searchSndrcvFileName">
+                                 B.SndrcvFileName LIKE  #searchSndrcvFileName# || '%'
+                            </isNotEmpty>
+                            <isNotEmpty prepend="AND" property="searchProcessType">
+                                SUBSTR(A.BjobPtrnDstcd,2,1)  LIKE  #searchProcessType# || '%'
+                            </isNotEmpty>
+                        </dynamic>
+            )BJ08 ON BS05.BjobMsgDstcd = BJ08.BjobMsgDstcd
+                        AND BS05.SendRecvYn   = BJ08.SendRecvYn  ) A
+            <isNotEmpty prepend="WHERE" property="groupCoCd">
+                A.GroupCoCd = #groupCoCd#
+            </isNotEmpty>
+            ORDER BY A.BjobDmndMsgCretnHMS DESC, A.TranStartHMS DESC, A.BjobDmndMsgID, A.BjobDmndSubMsgID
+    </statement>
+    <statement id="masterlog" resultClass="java.util.HashMap">
+         SELECT A.BjobDmndMsgID         AS "BJOBDMNDMSGID",
+			A.BjobDmndSubMsgID      AS "BJOBDMNDSUBMSGID",
+			A.TelgmReTralCnt        AS "TELGMRETRALCNT",
+			A.BjobMsgScheID         AS "BJOBMSGSCHEID",
+			A.BjobDmndMsgCretnHMS   AS "BJOBDMNDMSGCRETNHMS",
+			A.BjobBzwkDstcd         AS "BJOBBZWKDSTCD",
+			C.BjobBzwkName          AS "BJOBBZWKNAME",
+			A.OsidInstiDstcd        AS "OSIDINSTIDSTCD",
+			D.OsidInstiName         AS "OSIDINSTINAME",
+			A.BjobPtrnDstcd         AS "BJOBPTRNDSTCD",
+			A.MsgSndrID             AS "MSGSNDRID",
+			A.MsgSndrName           AS "MSGSNDRNAME",
+			A.SysLnkgDstcd          AS "SYSLNKGDSTCD",
+			A.LnkgIPInfoName        AS "LNKGIPINFONAME",
+			A.FlowRuleCd            AS "FLOWRULECD",
+			A.EAISevrInstncName     AS "EAISEVRINSTNCNAME",
+			A.TranStartHMS          AS "TRANSTARTHMS",
+			A.TranEndHMS            AS "TRANENDHMS",
+			A.TranPrcssDstcd        AS "TRANPRCSSDSTCD"
+        FROM    $schemaId$.TSEAIBJ03 A LEFT OUTER JOIN $schemaId$.TSEAIBJ02 C ON A.BjobBzwkDstcd = C.BjobBzwkDstcd
+                                       LEFT OUTER JOIN $schemaId$.TSEAIBJ06 D ON A.BjobBzwkDstcd = D.BjobBzwkDstcd AND A.OsidInstiDstcd = D.OsidInstiDstcd
+        WHERE   A.BjobDmndMsgID     = #bjobDmndMsgID#
+        AND     A.BjobDmndSubMsgID  = #bjobDmndSubMsgID#
+    </statement>
+
+    <statement id="filelog" resultClass="java.util.HashMap">
+         SELECT B.BjobDmndMsgID            AS "BJOBDMNDMSGID",
+			B.BjobDmndSubMsgID         AS "BJOBDMNDSUBMSGID",
+			E.BjobMsgDstcd             AS "BJOBMSGDSTCD",
+			E.BjobMsgDsticName         AS "BJOBMSGDSTICNAME",
+			B.BjobTranDstcdName        AS "BJOBTRANDSTCDNAME",
+			B.RqstRecvFileStorgDirName AS "RQSTRECVFILESTORGDIRNAME",
+			B.SndrcvFileName           AS "SNDRCVFILENAME",
+			B.BkupSndrcvFileName       AS "BKUPSNDRCVFILENAME",
+			B.SndrcvRecCnt             AS "SNDRCVRECCNT",
+			B.SndrcvFileSize           AS "SNDRCVFILESIZE",
+			B.FileTrsmtStartHMS        AS "FILETRSMTSTARTHMS",
+			B.FileTrsmtEndHMS          AS "FILETRSMTENDHMS",
+			B.ThisStgePrcssRsultCd     AS "THISSTGEPRCSSRSULTCD",
+			B.EAIObstclOccurCausCtnt   AS "EAIOBSTCLOCCURCAUSCTNT",
+			B.BjobFileHdrCtnt          AS "BJOBFILEHDRCTNT",
+			B.BjobFileTrailCtnt        AS "BJOBFILETRAILCTNT",
+			E.UapplCd                  AS "UAPPLCD",
+			E.ThisMsgChrgIDs           AS "THISMSGCHRGIDS",
+			B.HdrInfoName              AS "HDRINFONAME"
+         FROM   $schemaId$.TSEAIBJ08 B LEFT OUTER JOIN $schemaId$.TSEAIBJ01 E ON   B.BjobBzwkDstcd     = E.BjobBzwkDstcd AND  B.BjobTranDstcdName = E.BjobTranDstcdName
+         WHERE  B.BjobDmndMsgID     = #bjobDmndMsgID#
+         AND    B.BjobDmndSubMsgID  = #bjobDmndSubMsgID#
+         ORDER BY B.BjobDmndMsgID, B.BjobDmndSubMsgID, B.FileTrsmtStartHMS
+    </statement>
+
+    <statement id="stagelog" resultClass="java.util.HashMap">
+         SELECT B.BjobDmndMsgID            AS "BJOBDMNDMSGID",
+			B.BjobDmndSubMsgID         AS "BJOBDMNDSUBMSGID",
+			B.BjobStgeID               AS "BJOBSTGEID",
+			B.PrcssStgeDstcd           AS "PRCSSSTGEDSTCD",
+			B.BjobRuleCd               AS "BJOBRULECD",
+			C.FlowRulePtrnDesc         AS "FLOWRULEPTRNDESC",
+			B.BjobStgeCd               AS "BJOBSTGECD",
+			D.BjobStgeFlxblCndnDesc    AS "BJOBSTGEFLXBLCNDNDESC",
+			B.BjobStgeSerno            AS "BJOBSTGESERNO",
+			B.BjobStgePtrnName         AS "BJOBSTGEPTRNNAME",
+			B.BjobFlowCmpoClsName      AS "BJOBFLOWCMPOCLSNAME",
+			B.TelgmDcsnID              AS "TELGMDCSNID",
+			B.TelgmDcsnClsName         AS "TELGMDCSNCLSNAME",
+			B.TelgmDcsnMsgCd           AS "TELGMDCSNMSGCD",
+			B.ThisStgeTelgmID          AS "THISSTGETELGMID",
+			B.ThisStgeClsName          AS "THISSTGECLSNAME",
+			B.ThisStgeMsgCd            AS "THISSTGEMSGCD",
+			B.TelgmPertypCdValCtnt     AS "TELGMPERTYPCDVALCTNT",
+			B.TelgmDstcdValCtnt        AS "TELGMDSTCDVALCTNT",
+			B.TelgmMgtCdValCtnt        AS "TELGMMGTCDVALCTNT",
+			B.RspnsCdValCtnt           AS "RSPNSCDVALCTNT",
+			B.BjobNodeCasNo            AS "BJOBNODECASNO",
+			B.BjobMsgDstcd             AS "BJOBMSGDSTCD",
+			E.BjobMsgDsticName         AS "BJOBMSGDSTICNAME",
+			B.BjobTranDstcdName        AS "BJOBTRANDSTCDNAME",
+			B.RqstRecvFileStorgDirName AS "RQSTRECVFILESTORGDIRNAME",
+			B.SndrcvFileName           AS "SNDRCVFILENAME",
+			B.BkupSndrcvFileName       AS "BKUPSNDRCVFILENAME",
+			B.ThisStgeStartHMS         AS "THISSTGESTARTHMS",
+			B.ThisStgeEndHMS           AS "THISSTGEENDHMS",
+			B.ThisStgePrcssRsultCd     AS "THISSTGEPRCSSRSULTCD",
+			B.EAIObstclOccurCausCtnt   AS "EAIOBSTCLOCCURCAUSCTNT",
+			B.BjobTelgmHdr             AS "BJOBTELGMHDR",
+			B.BjobTelgmTbody           AS "BJOBTELGMTBODY"
+         FROM  $schemaId$.TSEAIBJ04 B LEFT OUTER JOIN $schemaId$.TSEAIBR04 C ON B.BjobRuleCd        = C.BjobBzwkPrcssDstcd
+                                      LEFT OUTER JOIN $schemaId$.TSEAIBR02 D ON B.BjobRuleCd        = D.BjobBzwkPrcssDstcd
+                                                                            AND B.BjobStgeSerno     = D.BjobStgeSerno
+                                      LEFT OUTER JOIN $schemaId$.TSEAIBJ01 E ON B.BjobBzwkDstcd     = E.BjobBzwkDstcd
+                                                                           AND  B.BjobTranDstcdName = E.BjobTranDstcdName
+         WHERE  B.BjobDmndMsgID     = #bjobDmndMsgID#
+         AND    B.BjobDmndSubMsgID  = #bjobDmndSubMsgID#
+          ORDER BY B.BjobDmndMsgID, B.BjobDmndSubMsgID, B.ThisStgeStartHMS,  TO_NUMBER(B.BjobNodeCasNo)
+    </statement>
+            
+    <statement id="count" resultClass="java.lang.Integer">
+         SELECT     COUNT(*) AS "TOTALCOUNT"
+            FROM ( SELECT A.BjobDmndMsgID       ,
+                        A.BjobDmndSubMsgID      ,
+                        A.BjobDmndMsgCretnHMS   ,
+                        A.BjobBzwkDstcd         ,
+                        C.BjobBzwkName          ,
+                        A.OsidInstiDstcd        ,
+                        D.OsidInstiName         ,
+                        A.BjobPtrnDstcd         ,
+                        A.TranStartHMS          ,
+                        A.TranEndHMS            ,
+                        COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd ) AS TranPrcssDstcd ,
+                        B.SndrcvFileName,
+                        B.SndrcvFileSize                                        
+                     FROM   $schemaId$.TSEAIBJ03 A LEFT OUTER JOIN $schemaId$.TSEAIBJ08 B ON A.BjobDmndMsgID    = B.BjobDmndMsgID
+                                                                                         AND A.BjobDmndSubMsgID = B.BjobDmndSubMsgID
+                                                   LEFT OUTER JOIN $schemaId$.TSEAIBJ02 C ON A.BjobBzwkDstcd    = C.BjobBzwkDstcd
+                                                   LEFT OUTER JOIN $schemaId$.TSEAIBJ06 D ON A.BjobBzwkDstcd    = D.BjobBzwkDstcd
+                                                                                         AND A.OsidInstiDstcd   = D.OsidInstiDstcd
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="bjobDmndMsgID">
+                A.BjobDmndMsgID LIKE  #bjobDmndMsgID# || '%'
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="bjobDmndSubMsgID">
+                A.BjobDmndSubMsgID  LIKE  #bjobDmndSubMsgID# || '%'
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="tanStartHMS">
+                A.BjobDmndMsgCretnHMS   BETWEEN  #tanStartHMS#  || '%' AND #searchEndHHMM# || '%'
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="bjobBzwkDstcd">
+                A.BjobBzwkDstcd  LIKE  #bjobBzwkDstcd# || '%'
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="osidInstiDstcd">
+                A.OsidInstiDstcd  LIKE  #osidInstiDstcd# || '%'
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="bjobPtrnDstcd">
+                SUBSTR(A.BjobPtrnDstcd,2,1) LIKE  #bjobPtrnDstcd# || '%'
+            </isNotEmpty>
+            <isEqual prepend="AND" property="tranPrcssDstcd" compareValue="A">
+                COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd" ) != 'N'
+            </isEqual>
+            <isNotEqual prepend="AND" property="tranPrcssDstcd" compareValue="A">
+                COALESCE( B.ThisStgePrcssRsultCd , A.TranPrcssDstcd ) like #tranPrcssDstcd#
+            </isNotEqual>
+            <isNotEmpty prepend="AND" property="sndrcvFileName">
+                 B.SndrcvFileName LIKE  #sndrcvFileName# || '%'
+            </isNotEmpty>
+        </dynamic>
+            ORDER BY A.BjobDmndMsgCretnHMS DESC, A.BjobDmndMsgID, A.BjobDmndSubMsgID
+            ) TMP    
+    </statement>    
+
+    <statement id="selectOsidInstiDstcd" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+         SELECT DISTINCT 
+                OsidInstiDstcd AS "CODE",
+                '[' || OsidInstiDstcd || ']' || OsidInstiName  AS "NAME"
+         FROM $schemaId$.TSEAIBJ06
+         WHERE ThisMsgUseYn = '1'
+         <isNotEmpty prepend="AND" property="bjobBzwkDstcd">
+                BjobBzwkDstcd = #bjobBzwkDstcd#
+        </isNotEmpty>
+         ORDER BY "NAME"
+    </statement>
+    
+</sqlMap>

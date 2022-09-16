@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapHoliday">
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS "TotalCount"
+		FROM $schemaId$.TSEAIBE02
+    	<dynamic prepend="WHERE">
+		    <isNotEmpty prepend="AND" property="likeHoldyYmd">
+				HoldyYmd LIKE #likeHoldyYmd#
+			</isNotEmpty>  
+		</dynamic>  			
+	</statement>	  
+    
+	<statement id="update" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBE02 
+		SET
+			EvntSchdrHoldyCtnt = #evntSchdrHoldyCtnt#        
+		WHERE HoldyYmd   = #holdyYmd#
+		AND   HoldyDstcd = #holdyDstcd#
+	</statement>
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBE02 (
+			 HoldyYmd,
+			 HoldyDstcd,
+			 EvntSchdrHoldyCtnt)
+		VALUES (
+			#holdyYmd# ,
+			#holdyDstcd# ,
+			#evntSchdrHoldyCtnt#
+		)
+	</statement>
+
+	<statement id="delete" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBE02 
+        WHERE HoldyYmd = #holdyYmd#
+        	AND HoldyDstcd = #holdyDstcd#
+	</statement>
+
+	<!--  Check count -->
+    <statement id="checkCount" resultClass="java.lang.Integer">
+        SELECT COUNT(HoldyYmd)
+        FROM   $schemaId$.TSEAIBE02
+        WHERE HoldyYmd = #holdyYmd#
+    </statement>
+    
+</sqlMap>

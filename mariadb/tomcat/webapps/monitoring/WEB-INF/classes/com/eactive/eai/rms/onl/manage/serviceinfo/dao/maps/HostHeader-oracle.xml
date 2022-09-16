@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="hostHeader">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	SELECT COUNT(*) CNT
+	  FROM   $schemaId$.TSEAIHL01
+	<dynamic prepend="WHERE">
+		<isNotEmpty prepend="AND" property="eaiBizCode">
+			UPPER(EAIBZWKDSTCD) LIKE UPPER('%' || #eaiBizCode# || '%')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="searchUbmugign">
+			UPPER(UBMUGIGN) LIKE UPPER('%' || #searchUbmugign# || '%')
+		</isNotEmpty>
+	</dynamic>
+  </statement>
+
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	SELECT *
+	  FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY EAIBZWKDSTCD) ROWNO
+				, EAIBZWKDSTCD
+				 , TRANCODE
+				 , STARTBIT
+				 , SYSMODE
+				 , SYSTYPE
+				 , SYSSEND
+				 , SYSRECV
+				 , UBMUGIGN
+				 , UBMUSEQ
+			  FROM $schemaId$.TSEAIHL01
+		    <dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="eaiBizCode">
+					UPPER(EAIBZWKDSTCD) LIKE UPPER('%' || #eaiBizCode# || '%')
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="searchUbmugign">
+					UPPER(UBMUGIGN) LIKE UPPER('%' || #searchUbmugign# || '%')
+				</isNotEmpty>
+			</dynamic>
+		   )
+	 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+</sqlMap>

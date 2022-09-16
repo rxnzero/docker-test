@@ -1,0 +1,115 @@
+/* Syntax highlighting for JSON objects */
+.json-body {
+  margin: 10px 20px;
+}
+
+ul.json-dict, ol.json-array {
+  list-style-type: none;
+  margin: 0 0 0 1px;
+  border-left: 1px dotted #ccc;
+  padding-left: 2em;
+  font: 13px/18px monospace;
+  -webkit-font-smoothing: antialiased;
+}
+.json-string {
+  color: #0B7500;
+  word-break: break-all;
+  white-space: pre-line;
+}
+.json-literal {
+  color: #1A01CC;
+  font-weight: bold;
+}
+
+/* Toggle button */
+a.json-toggle {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+}
+a.json-toggle:focus {
+  outline: none;
+}
+a.json-toggle:before {
+  content: "\25B6"; /* left arrow */
+  transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  color: #d9d9d9;
+  position: absolute;
+  display: inline-block;
+  width: 1em;
+  font-size: 10px;
+  left: -1.5em;
+}
+a.json-toggle.collapsed:before {
+  content: "\25B6"; /* left arrow */
+  transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  -webkit-transform: rotate(0deg);
+  font-size: 10px;
+}
+
+/* Collapsable placeholder links */
+a.json-placeholder {
+  color: #aaa;
+  padding: 0 1em;
+  text-decoration: none;
+}
+a.json-placeholder:hover {
+  text-decoration: underline;
+}
+
+    
+.pop-layer .pop-container {
+  padding: 20px 25px;
+}
+
+.pop-layer p.ctxt {
+  color: #666;
+  line-height: 25px;
+}
+
+.pop-layer .btn-r {
+  width: 100%;
+  margin: 10px 0 20px;
+  padding-top: 10px;
+  border-top: 1px solid #DDD;
+  text-align: right;
+}
+
+.pop-layer .btn-b {
+  width: 100%;
+  margin: 0px 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #DDD;
+  text-align: right;
+}
+
+.pop-layer {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1050px;
+  height: auto;
+  background-color: #fff;
+  border: 5px solid #3571B5;
+  z-index: 10;
+}
+a.btn-layerClose {
+  display: inline-block;
+  height: 25px;
+  padding: 0 14px 0;
+  border: 1px solid #304a8a;
+  background-color: #3f5a9d;
+  font-size: 13px;
+  color: #fff;
+  line-height: 25px;
+}
+
+a.btn-layerClose:hover {
+  border: 1px solid #091940;
+  background-color: #1f326a;
+  color: #fff;
+}

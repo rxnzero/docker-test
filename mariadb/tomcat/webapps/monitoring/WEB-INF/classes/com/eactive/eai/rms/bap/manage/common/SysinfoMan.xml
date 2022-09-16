@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BapSysinfo">
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	SYSCD AS "SYSCD" ,
+				SYSNAME AS "SYSNAME",
+                SYSIP AS "SYSIP" ,
+                SYSPORT AS "SYSPORT" ,
+                USERID AS "USERID" ,
+                USERPASSWORD AS "USERPASSWORD" ,
+                SENDDIR AS "SENDDIR" ,
+                RECVDIR AS "RECVDIR" ,
+                SFTPYN AS "SFTPYN" ,
+                THISMSGUSEYN AS "THISMSGUSEYN"
+		FROM    $schemaId$.TSEAIBJ11   
+	    WHERE   SysCd = #sysCd#
+	</statement>  
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBJ11 WHERE SysCd = #sysCd#
+	</statement>
+	
+</sqlMap>

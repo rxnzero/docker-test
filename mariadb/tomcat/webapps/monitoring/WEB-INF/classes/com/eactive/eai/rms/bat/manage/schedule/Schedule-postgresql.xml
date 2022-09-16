@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatSchedule">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT 
+			ROWNO           AS "ROWNO" ,
+			WorkGrpCd       AS "WORKGRPCD" ,
+			BjobMsgScheID   AS "BJOBMSGSCHEID" ,
+			BatchType       AS "BATCHTYPE" ,
+			SndrcvStartHMS  AS "SNDRCVSTARTHMS" ,
+			SndrcvEndHMS    AS "SNDRCVENDHMS" ,
+			DayCycleTime    AS "DAYCYCLETIME" ,
+			ScheKind        AS "SCHEKIND" ,
+			ThisMsgUseYn    AS "THISMSGUSEYN" ,
+			ThisMsgScheDesc AS "THISMSGSCHEDESC" ,
+			ThisMsgRegsntID AS "THISMSGREGSNTID" ,
+			ThisMsgRegiHMS  AS "THISMSGREGIHMS" ,
+			ThisMsgAmndrID  AS "THISMSGAMNDRID" ,
+			ThisMsgAmndHMS  AS "THISMSGAMNDHMS"
+		FROM ( SELECT ROW_NUMBER() OVER(ORDER BY BjobMsgScheID) ROWNO,  
+		              SUBSTR(A.BjobMsgScheID, 3,3 ) AS WorkGrpCd,
+		              A.BjobMsgScheID,
+		              A.BatchType,
+	                  A.SndrcvStartHMS,
+	                  A.SndrcvEndHMS,
+	                  A.DayCycleTime,
+	                  A.ScheKind,
+	                  A.ThisMsgUseYn,
+	                  A.ThisMsgScheDesc,
+	                  A.ThisMsgRegsntID,
+	                  SUBSTR(A.ThisMsgRegiHMS,1,14) AS ThisMsgRegiHMS,
+	                  A.ThisMsgAmndrID,
+	                  SUBSTR(A.ThisMsgAmndHMS,1,14) AS ThisMsgAmndHMS
+	           FROM   $schemaId$.TSEAIES07 A
+	           WHERE  SUBSTR(A.BjobMsgScheID, 3,3 ) IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	           <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+                      SUBSTR(A.BjobMsgScheID, 3,3 ) = #searchEaiBzwkDstcd# 
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchBatchType">
+         			  A.batchType = #searchBatchType#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchThisMsgScheDesc">
+                      A.ThisMsgScheDesc LIKE '%' || #searchThisMsgScheDesc# || '%'
+               </isNotEmpty>
+	           ORDER BY ROWNO
+			 ) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(A.BjobMsgScheID) AS "TOTALCOUNT"
+		FROM    $schemaId$.TSEAIES07 A
+	    WHERE  SUBSTR(A.BjobMsgScheID, 3,3 ) IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+               SUBSTR(A.BjobMsgScheID, 3,3 ) = #searchEaiBzwkDstcd# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchBatchType">
+         		A.batchType = #searchBatchType#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchThisMsgScheDesc">
+                A.ThisMsgScheDesc LIKE '%' || #searchThisMsgScheDesc# || '%'
+        </isNotEmpty>
+	</statement>	
+	
+	<statement id="selectScheID" resultClass="java.lang.String">
+		SELECT #bjobMsgScheID# || 
+		LPAD( CAST( 
+			COALESCE(
+				MAX( 
+					CAST(  SUBSTR(BjobMsgScheID,14,3)  AS INTEGER)
+				),
+			0)
+			+1 AS CHAR)
+		,3,'0') AS "BJOBMSGSCHEID"
+		FROM   $schemaId$.TSEAIES07
+ 		WHERE  SUBSTR(BjobMsgScheID,1,13)= #bjobMsgScheID#
+	</statement>
+
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIES07(		
+				    BjobMsgScheID     ,
+				    BatchType         ,				
+				    ThisMsgScheDesc   ,	
+				    SndrcvStartHMS    ,
+				    SndrcvEndHMS      ,
+				    DayCycleTime      ,
+				    ScheKind          ,
+				    ThisMsgUseYn      ,
+				    ThisMsgRegsntID   ,
+				    ThisMsgRegiHMS    ,
+				    ThisMsgAmndrID    ,
+				    ThisMsgAmndHMS     )
+		VALUES	(   #bjobMsgScheID#   ,
+		            #batchType#       , 
+			 	    #thisMsgScheDesc# ,
+				    #sndrcvStartHMS#  ,
+			 	    #sndrcvEndHMS#    ,
+			 	    #dayCycleTime#    ,
+			 	    #scheKind#        ,
+			 	    #thisMsgUseYn#    ,
+			 	    #userid#          ,
+			 	    TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS') ,
+			 	    #userid#          ,
+			 	    TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+				)
+	</statement>
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE  $schemaId$.TSEAIES07 SET
+				ThisMsgScheDesc = #thisMsgScheDesc#,
+				SndrcvStartHMS  = #sndrcvStartHMS# ,
+				SndrcvEndHMS    = #sndrcvEndHMS#   ,
+				DayCycleTime    = #dayCycleTime#   ,
+				ThisMsgUseYn    = #thisMsgUseYn#   ,
+				ThisMsgAmndrID  = #userid# ,
+				ThisMsgAmndHMS  = TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+		WHERE   BjobMsgScheID   = #bjobMsgScheID#
+
+	</statement>
+
+	<statement id="insertInterface" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIES09(		
+					BjobMsgScheID,
+					IntfId,
+					RegId,
+					RegDate
+				)
+		VALUES	(
+		         #bjobMsgScheID#,
+		         #intfId#,
+		         #userid#,
+		         TO_CHAR(LOCALTIMESTAMP,'YYYYMMDDHH24MISSMS')
+				)
+	</statement>
+
+</sqlMap>

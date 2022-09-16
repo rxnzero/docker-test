@@ -1,0 +1,6 @@
+CREATE TABLESPACE elink
+DATAFILE '/home/tibero/tibero6/database/tibero/elink.dbf' SIZE 500M
+AUTOEXTEND ON NEXT 50M;
+SQL> CREATE USER elink IDENTIFIED BY elink DEFAULT TABLESPACE elink;
+SQL> grant connect, resource, dba to elink;
+Granted.

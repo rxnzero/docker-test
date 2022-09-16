@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AdapterPropGroup">
+
+	<statement id="selectListByAdapterGroupName" resultClass="java.util.HashMap">
+		SELECT MAIN.PRPTYGROUPNAME AS "PRPTYGROUPNAME"
+		     , MAIN.PRPTYNAME AS "PRPTYNAME"
+		     , AD15.PRPTY2VAL AS "PRPTY2VAL"
+		     , MAIN.PRPTYDESC AS "PRPTYDESC"
+		     , MAIN.DMNKND AS "DMNKND"
+		     , CM23.DOMAINTYPE AS "DOMAINTYPE"
+		FROM (
+		       SELECT AD02.PRPTYGROUPNAME
+		           ,  AD04.ADPTRPRPTYNAME PRPTYNAME
+		           ,  AD04.ADPTRPRPTYDESC PRPTYDESC
+		           ,  AD04.DMNKND	  
+		   FROM  $schemaId$.TSEAIAD04 AD04 , $schemaId$.TSEAIAD02 AD02
+		  WHERE AD02.ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#
+		       AND AD04.ADPTRCD in (SELECT ADPTRCD FROM $schemaId$.TSEAIAD01 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME# )
+		       AND AD04.ADPTRIODSTCD in (SELECT ADPTRIODSTCD FROM $schemaId$.TSEAIAD01 WHERE ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME#)
+		  ) MAIN LEFT OUTER JOIN $schemaId$.TSEAIAD15 AD15 ON
+		  ( MAIN.PRPTYNAME = AD15.PRPTYNAME and MAIN.PRPTYGROUPNAME = AD15.PRPTYGROUPNAME)	
+		  LEFT OUTER JOIN $schemaId$.TSEAICM23 CM23 ON ( MAIN.DMNKND = CM23.DOMAINNM)
+	    ORDER BY 1,2
+	</statement>
+
+	<statement id="deleteForAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIAD14 
+		WHERE PRPTYGROUPNAME in (
+						select PRPTYGROUPNAME 
+						from $schemaId$.TSEAIAD02
+						where ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME# 
+						) 
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIAD14
+				(PRPTYGROUPNAME, PRPTYGROUPDESC) 
+                VALUES(#PRPTYGROUPNAME#, #PRPTYGROUPDESC#)	
+	</statement>
+		
+	<statement id="deleteAdapterPropForAdapterGroup" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE FROM $schemaId$.TSEAIAD15 
+		WHERE PRPTYGROUPNAME in (
+						select PRPTYGROUPNAME 
+						from $schemaId$.TSEAIAD02
+						where ADPTRBZWKGROUPNAME = #ADPTRBZWKGROUPNAME# 
+						) 
+	</statement>
+
+	<statement id="insertAdapterProp" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIAD15
+				(PRPTYGROUPNAME, PRPTYNAME, PRPTY2VAL) 
+                VALUES(#PRPTYGROUPNAME#, #PRPTYNAME#, #PRPTY2VAL# )	
+	</statement>
+	
+	<statement id="selectListAdapterProp" resultClass="java.util.HashMap">
+		SELECT '' AS "PRPTYGROUPNAME"
+		     , AD04.ADPTRPRPTYNAME AS "PRPTYNAME"
+		     , null AS "PRPTY2VAL"
+		     , AD04.ADPTRPRPTYDESC AS "PRPTYDESC"
+		     , AD04.DMNKND AS "DMNKND"
+		     ,(SELECT DOMAINTYPE FROM $schemaId$.TSEAICM23 WHERE DOMAINNM = AD04.DMNKND) DOMAINTYPE
+		FROM  $schemaId$.TSEAIAD04 AD04
+		WHERE ADPTRCD = #ADPTRCD#
+		  AND ADPTRIODSTCD= #ADPTRIODSTCD#
+	    ORDER BY 1,2
+	</statement>		
+</sqlMap>

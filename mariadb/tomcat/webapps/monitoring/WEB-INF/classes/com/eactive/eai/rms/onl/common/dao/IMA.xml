@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="AdapterStatus">
+
+   <statement id="updateStatus" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    UPDATE C118_RTEXTERMANAGE SET SEND_LNK_STCD =#SEND_LNK_STCD# , DEP_LNK_STCD = #DEP_LNK_STCD# ,CHNG_DTTM = CURRENT DATE
+     WHERE OTSD_CHNL_DVCD=#OTSD_CHNL_DVCD# 
+       AND OTSD_CHNL_INST_CD =#OTSD_CHNL_INST_CD#
+       AND OSDCH_CO_ID =#OSDCH_CO_ID#
+  </statement> 
+  
+  <statement id="updateStatusForRecv" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    UPDATE C118_RTEXTERMANAGE SET DEP_LNK_STCD = #DEP_LNK_STCD# ,CHNG_DTTM = CURRENT DATE
+     WHERE OTSD_CHNL_DVCD=#OTSD_CHNL_DVCD# 
+       AND OTSD_CHNL_INST_CD =#OTSD_CHNL_INST_CD#
+       AND OSDCH_CO_ID =#OSDCH_CO_ID#
+  </statement>
+
+  <statement id="updateStatusForSend" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    UPDATE C118_RTEXTERMANAGE SET SEND_LNK_STCD =#SEND_LNK_STCD# ,CHNG_DTTM = CURRENT DATE
+     WHERE OTSD_CHNL_DVCD=#OTSD_CHNL_DVCD# 
+       AND OTSD_CHNL_INST_CD =#OTSD_CHNL_INST_CD#
+       AND OSDCH_CO_ID =#OSDCH_CO_ID#
+  </statement>
+    
+  <statement id="selectAdapterStatus" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	SELECT * 
+	  FROM C118_RTEXTERMANAGE
+	 WHERE OTSD_CHNL_DVCD=#OTSD_CHNL_DVCD#
+    <isNotEmpty prepend="AND" property="OTSD_CHNL_INST_CD">
+      OTSD_CHNL_INST_CD LIKE #OTSD_CHNL_INST_CD#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="OSDCH_CO_ID">
+      OSDCH_CO_ID = #OSDCH_CO_ID#
+    </isNotEmpty>      
+  </statement>
+ 
+</sqlMap>

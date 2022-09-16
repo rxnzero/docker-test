@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="JmsQueueReceiver">
+	<!--  상세 조회 -->
+	<statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT  QUERCVERNAME                 AS "QUERCVERNAME" ,
+				NONSYNCZTRANQUENAME          AS "NONSYNCZTRANQUENAME" ,
+				NONSYNCZTRANOBSTCLQUENAME    AS "NONSYNCZTRANOBSTCLQUENAME" ,
+				QUEMSGSELCTCTNT              AS "QUEMSGSELCTCTNT" ,
+				SENDDLAYTTMVAL               AS "SENDDLAYTTMVAL" ,
+				SENDRETRALNOTMS              AS "SENDRETRALNOTMS" ,
+				QUERCVERCNT                  AS "QUERCVERCNT" ,
+				QUERCVERDTALSCTNT            AS "QUERCVERDTALSCTNT" ,
+				BASCQUERCVERYN               AS "BASCQUERCVERYN",
+				EAISEVRINSTNCNAME            AS "SEVRINSTNCNAME" 
+        FROM   $schemaId$.TSEAIQM02
+        WHERE  QUERCVERNAME = #queRcverName#
+	</statement>  
+	
+	<!--  DELETE-->
+	<statement id="delete" parameterClass="java.util.HashMap">
+        DELETE FROM $schemaId$.TSEAIQM02
+        WHERE  QUERCVERNAME = #queRcverName#
+	</statement>  
+
+  
+    <!--  Check count -->
+    <statement id="checkCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(QUERCVERNAME)
+        FROM   $schemaId$.TSEAIQM02
+        WHERE  QUERCVERNAME = #queRcverName#
+    </statement>
+ 
+</sqlMap>

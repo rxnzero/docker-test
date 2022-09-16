@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0"> -->
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+   version="2.5"> 
+   
+<!-- deplicated : changed SpringBean   AppInitializer  -->
+<!--     <listener> -->
+<!--         <listener-class>com.eactive.eai.rms.common.startup.AppListener</listener-class> -->
+<!--     </listener>   -->
+    
+	<display-name>monitoring</display-name>
+	
+	<resource-ref>
+    	<description>Monitoring MariaDB Connection</description>
+      	<res-ref-name>jdbc/dsCHN_eai</res-ref-name>
+      	<res-type>javax.sql.DataSource</res-type>
+      	<res-auth>Container</res-auth>
+  	</resource-ref>
+  	<resource-ref>
+    	<description>Monitoring MariaDB Connection</description>
+      	<res-ref-name>jdbc/dsCHN_fep</res-ref-name>
+      	<res-type>javax.sql.DataSource</res-type>
+      	<res-auth>Container</res-auth>
+  	</resource-ref>
+  	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
+
+	<filter>
+		<filter-name>MonitoringFrontFilter</filter-name>
+		<filter-class>com.eactive.eai.rms.common.filter.MonitoringFrontFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>MonitoringFrontFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>euc-kr</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/＊</url-pattern>
+	</filter-mapping>
+
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>springapp</servlet-name>
+		<servlet-class>
+			org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>springapp</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>springapp</servlet-name>
+		<url-pattern>*.json</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>springapp</servlet-name>
+		<url-pattern>*.view</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet>
+		<servlet-name>springapp-file</servlet-name>
+		<servlet-class>
+			org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
+		<load-on-startup>2</load-on-startup>
+		<multipart-config></multipart-config>
+		
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>springapp-file</servlet-name>
+		<url-pattern>*.file</url-pattern>
+	</servlet-mapping>	
+
+	<welcome-file-list>
+		<welcome-file>/login.jsp</welcome-file>
+		<!--welcome-file>/initech/login_exec.jsp</welcome-file-->
+	</welcome-file-list>
+
+	<error-page>
+		<error-code>404</error-code>
+		<location>/common/errors/error404.jsp</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<location>/common/errors/error500.jsp</location>
+	</error-page>
+
+	<jsp-config>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
+			<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/functions</taglib-uri>
+			<taglib-location>/WEB-INF/tld/fn.tld</taglib-location>
+		</taglib>
+	</jsp-config>
+	
+	<session-config>
+    	<session-timeout>360</session-timeout>
+	</session-config>
+ 
+</web-app>

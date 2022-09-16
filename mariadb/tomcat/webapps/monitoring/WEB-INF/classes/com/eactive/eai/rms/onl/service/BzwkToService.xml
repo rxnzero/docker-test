@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BzwkToService">
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT EAIBZWKDSTCD AS "EAIBZWKDSTCD", INSTANCECODE AS "INSTANCECODE"
+	      FROM $schemaId$.TSEAIIF06 A
+	    WHERE A.EAIBZWKDSTCD = #eaiBzwkDstcd#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap" >
+		UPDATE 	$schemaId$.TSEAIIF06 
+				SET INSTANCECODE = #instanceCode#
+	    WHERE  EAIBZWKDSTCD = #eaiBzwkDstcd#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" >
+		INSERT 	INTO $schemaId$.TSEAIIF06(
+				EAIBZWKDSTCD, INSTANCECODE) 
+				VALUES(#eaiBzwkDstcd#, #instanceCode#)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" >
+		DELETE 	FROM $schemaId$.TSEAIIF06 
+        WHERE   EAIBZWKDSTCD = #eaiBzwkDstcd#
+	</statement>
+</sqlMap>

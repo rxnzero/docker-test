@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatCode">
+
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	MSGID AS "MSGID", MSGCTNT AS "MSGCTNT"
+	            FROM $schemaId$.TSEAIEA11   
+	    WHERE MSGID = #msgId#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAIEA11 
+				SET MSGCTNT = #msgCtnt# 
+		WHERE 	MSGID = #msgId#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIEA11(
+				MSGID, MSGCTNT) 
+				VALUES(#msgId# ,#msgCtnt#)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIEA11 WHERE MSGID = #msgId#
+	</statement>
+	
+</sqlMap>

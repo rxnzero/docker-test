@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stdMessage">
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) as "CNT"
+    FROM   $schemaId$.TSEAIHS04 HS04 
+      JOIN $schemaId$.TSEAIHE01 HE01 ON (HE01.EAISVCNAME = HS04.EAISVCNAME )
+    WHERE HE01.EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where UserId=#loginId#) 
+      <isNotEmpty prepend="AND" property="searchBzwkSvcKeyName">
+        UPPER(BZWKSVCKEYNAME) LIKE '%'||#searchBzwkSvcKeyName#||'%'
+      </isNotEmpty>
+  </statement>
+
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT ROWNO AS "ROWNO", BZWKSVCKEYNAME AS "BZWKSVCKEYNAME"
+         , EAISVCNAME AS "EAISVCNAME"
+         , (SELECT COLUMNVALUE FROM $schemaId$.TSEAIHS05 HS05 WHERE B.BZWKSVCKEYNAME = HS05.BZWKSVCKEYNAME AND HS05.COLUMNNAME='COMMON_SRVCID' ) AS "COMMON_SRVCID"
+     FROM ( SELECT ROW_NUMBER() OVER() AS ROWNO, A.* FROM
+    (
+    	SELECT HS04.BZWKSVCKEYNAME
+            , HS04.EAISVCNAME
+    	FROM $schemaId$.TSEAIHS04 HS04 
+      JOIN $schemaId$.TSEAIHE01 HE01 ON (HE01.EAISVCNAME = HS04.EAISVCNAME ) 
+    WHERE EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where UserId=#loginId#) 
+      <isNotEmpty prepend="AND" property="searchBzwkSvcKeyName">
+        UPPER(BZWKSVCKEYNAME) LIKE '%'||#searchBzwkSvcKeyName#||'%'
+      </isNotEmpty>
+    ) A ) B WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+  
+  <statement id="mergeHS05" parameterClass="java.util.HashMap">
+	WITH UPSERT AS (
+	SELECT #bzwkSvcKeyName# AS BzwkSvcKeyName, #columnName# AS COLUMNNAME, #columnValue# AS COLUMNVALUE
+	),
+	UPDATE_OPTION AS (
+	UPDATE $schemaId$.TSEAIHS05 A SET COLUMNVALUE = UPSERT.COLUMNVALUE FROM UPSERT 
+	WHERE A.bzwkSvcKeyName = UPSERT.BzwkSvcKeyName
+	AND A.COLUMNNAME = UPSERT.COLUMNNAME
+	)
+	INSERT INTO $schemaId$.TSEAIHS05
+	SELECT BzwkSvcKeyName, COLUMNNAME, COLUMNVALUE FROM UPSERT 
+	WHERE NOT EXISTS (
+	SELECT 1 FROM $schemaId$.TSEAIHS05 A WHERE A.bzwkSvcKeyName = UPSERT.BzwkSvcKeyName
+	AND A.COLUMNNAME = UPSERT.COLUMNNAME
+	)			             
+  </statement>      
+</sqlMap>

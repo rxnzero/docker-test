@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="MessageMeta">
+
+	<statement id="detail"  resultClass="java.util.HashMap">
+		SELECT 
+			MSGMETADSTCD AS "MSGMETADSTCD",
+            MSGDESC AS "MSGDESC",
+            THISMSGUSEYN AS "THISMSGUSEYN"
+		FROM $schemaId$.TSEAIBM03
+        WHERE MsgMetaDstcd = #msgMetaDstcd#
+	</statement>  
+	
+	<statement id="msgList"  resultClass="java.util.HashMap">
+		SELECT
+		    M2.MSGMETADSTCD AS "MSGMETADSTCD" ,
+		    M2.MSGCLMNSEQ AS "MSGCLMNSEQ" ,
+		    M2.MSGITEMDSTICNAME AS "MSGITEMDSTICNAME" ,
+		    M2.THISMSGCLMNUSEYN AS "THISMSGCLMNUSEYN" ,
+		    M1.MSGCLMNNAME AS "MSGCLMNNAME" ,
+		    M1.MSGCLMNATTRIPTRNCD AS "MSGCLMNATTRIPTRNCD" ,
+		    M1.MSGCLMNVAL AS "MSGCLMNVAL"
+		FROM $schemaId$.TSEAIBM02 M2,
+		     $schemaId$.TSEAIBM03 M3,
+		     $schemaId$.TSEAIBM01 M1
+		WHERE M3.MsgMetaDstcd      = M2.MsgMetaDstcd
+		AND   M2.MsgItemDsticName  = M1.MsgItemDsticName
+		AND   M3.MsgMetaDstcd      = #msgMetaDstcd#
+		ORDER BY  M2.MsgClmnSeq 
+	</statement>
+	
+	<statement id="delete_bm03"  resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBM03 
+        WHERE MsgMetaDstcd = #msgMetaDstcd#
+	</statement>
+	
+	<statement id="delete_bm02"  resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBM02 
+        WHERE MsgMetaDstcd = #msgMetaDstcd#
+	</statement>
+	
+	<!--  Check count -->
+    <statement id="checkCount"  resultClass="java.lang.Integer">
+        SELECT COUNT(MsgMetaDstcd)
+        FROM   $schemaId$.TSEAIBM03
+        WHERE MsgMetaDstcd = #msgMetaDstcd#
+    </statement>
+    
+</sqlMap>

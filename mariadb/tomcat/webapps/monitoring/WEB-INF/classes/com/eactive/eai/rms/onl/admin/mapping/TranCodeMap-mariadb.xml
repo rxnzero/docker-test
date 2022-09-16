@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TranCodeMap">
+ 	<statement id="list" parameterClass="com.eactive.eai.rms.onl.manage.mapping.vo.TranCodeMapVo" resultClass="com.eactive.eai.rms.onl.manage.mapping.vo.TranCodeMapVo">
+		SELECT TM.RECVTRANNAME AS TRANCODE, TM.EAISVCNAME AS EAISVCCODE, HE.EAISVCDESC AS EAISVCDESC
+		  FROM $schemaId$.$tableName$ TM, $schemaId$.TSEAIHE01 HE 
+		 WHERE TM.EAISVCNAME = HE.EAISVCNAME
+		<isNotEmpty prepend="AND" property="tranCode">
+			TM.RECVTRANNAME LIKE CONCAT( '%' , #tranCode# , '%')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="eaiSvcCode">
+			TM.EAISVCNAME LIKE CONCAT( '%' , #eaiSvcCode# , '%')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="eaiSvcDesc">
+			HE.EAISVCDESC LIKE CONCAT( '%' , #eaiSvcDesc# , '%')
+		</isNotEmpty>
+ 	</statement>
+
+</sqlMap>

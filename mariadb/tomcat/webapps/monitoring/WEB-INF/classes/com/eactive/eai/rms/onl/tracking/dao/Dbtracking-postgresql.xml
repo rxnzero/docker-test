@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Dbtracking">
+  <!--  #### Transaction tracking in database  ###  -->
+  
+  
+  <!--  error list count ( single table ) -->
+  <statement id="selectErrorListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(MSGDPSTYMS) AS "CNT"
+    FROM $schemaId$.$tableName$
+    WHERE MSGDPSTYMS BETWEEN #searchStartTime# AND #searchEndTime#
+      AND EAIBZWKDSTCD in (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID =#loginId# )
+    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+            EAIBZWKDSTCD =#searchEaiBzwkDstcd#
+    </isNotEmpty>
+    <isEmpty prepend="AND" property="searchEaiBzwkDstcd">
+       EAIBZWKDSTCD LIKE '%%'
+    </isEmpty>
+    <isNotEmpty prepend="AND" property="searchEaiSvcSerno">
+      EAISVCSERNO LIKE '%'||#searchEaiSvcSerno#||'%'
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="searchLogPrcssSerno">
+      LOGPRCSSSERNO = #searchLogPrcssSerno#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="searchEaiSvcName">
+      EAISVCNAME LIKE '%'||#searchEaiSvcName#||'%'
+    </isNotEmpty>
+  </statement>
+
+    <!--  errorList  -->
+    <statement id="selectErrorList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+       SELECT EAIBZWKDSTCD               AS "EAIBZWKDSTCD",  
+			MSGDPSTYMS                 AS "MSGDPSTYMS",
+			EAISVCSERNO                AS "EAISVCSERNO",
+			EAISVCSERNO                AS "EAISVCSERNO_TMP",          
+			LOGPRCSSSERNO              AS "LOGPRCSSSERNO",
+			EAISVCNAME                 AS "EAISVCNAME",
+			RSPNSERRCDNAME             AS "RSPNSERRCDNAME",
+			GSTATSYSADPTRBZWKGROUPNAME AS "GSTATSYSADPTRBZWKGROUPNAME", 
+			PSVSYSADPTRBZWKGROUPNAME   AS "PSVSYSADPTRBZWKGROUPNAME",
+			EAIERRCD                   AS "EAIERRCD",
+			EAIERRCTNT                 AS "EAIERRCTNT",
+			EAISEVRINSTNCNAME          AS "EAISEVRINSTNCNAME",
+			LGINGSYSID                 AS "LGINGSYSID",
+			MSGPRCSSYMS                AS "MSGPRCSSYMS"
+       FROM $schemaId$.$tableName$
+	    WHERE MSGDPSTYMS BETWEEN #searchStartTime# AND #searchEndTime#
+	    AND EAIBZWKDSTCD in (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID =#loginId# )
+	    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+            EAIBZWKDSTCD =#searchEaiBzwkDstcd#
+    	</isNotEmpty>
+      <isEmpty prepend="AND" property="searchEaiBzwkDstcd">
+         EAIBZWKDSTCD LIKE '%%'
+      </isEmpty>
+    	<isNotEmpty prepend="AND" property="searchEaiSvcSerno">
+	      EAISVCSERNO LIKE '%'||#searchEaiSvcSerno#||'%'
+	    </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="searchLogPrcssSerno">
+	      LOGPRCSSSERNO = #searchLogPrcssSerno#
+	    </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="searchEaiSvcName">
+	      EAISVCNAME LIKE '%'||#searchEaiSvcName#||'%'
+	    </isNotEmpty>
+	    order by MSGDPSTYMS desc,LOGPRCSSSERNO
+    </statement>
+  
+  <!--  list count ( single table ) -->
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(MSGDPSTYMS) AS "CNT"
+         FROM $schemaId$.$tableName$ A
+            , $schemaId$.TSEAIHE01 B
+         WHERE A.EAISVCNAME = B.EAISVCNAME    
+           AND A.EAIBZWKDSTCD in (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID =#loginId# )
+            
+         <isNotEmpty prepend="AND" property="searchGuid">
+            A.GUID LIKE #searchGuid#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchStartTime">
+           A.MSGDPSTYMS BETWEEN #searchStartTime# AND #searchEndTime#
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+            A.EAIBZWKDSTCD =#searchEaiBzwkDstcd#
+         </isNotEmpty>
+         <isEqual compareValue="" prepend="AND" property="searchEaiBzwkDstcd">
+            A.EAIBZWKDSTCD LIKE '%%'
+         </isEqual>
+         <isNotEmpty prepend="AND" property="searchEaiSvcSerno">
+            A.EAISVCSERNO LIKE '%'||#searchEaiSvcSerno#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchEaiSvcName">
+            A.EAISVCNAME LIKE #searchEaiSvcName#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchKeyMgtMsgCtnt">
+            A.KEYMGTMSGCTNT LIKE '%'||#searchKeyMgtMsgCtnt#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchTrackAsisKey1Ctnt">
+            A.TRACKASISKEY1CTNT LIKE '%'||#searchTrackAsisKey1Ctnt#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchTrackAsisKey2Ctnt">
+            A.TRACKASISKEY2CTNT LIKE '%'||#searchTrackAsisKey2Ctnt#||'%'
+         </isNotEmpty>          
+         <isEqual compareValue="Y" prepend="AND" property="searchErrorYn">
+             A.EAIERRCD != ' '
+         </isEqual> 
+         <isNotEmpty prepend="AND" property="searchLogPrcssSerno">
+            A.LOGPRCSSSERNO =#searchLogPrcssSerno#
+         </isNotEmpty>      
+    </statement>
+    <!--  list  -->
+    <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+         SELECT A.EAISVCSERNO AS "EAISVCSERNO" , 
+                A.EAISVCSERNO AS "EAISVCSERNO_TMP",
+                A.LOGPRCSSSERNO AS "LOGPRCSSSERNO",
+                A.LOGPRCSSSERNO AS "LOGPRCSSSERNO_TMP",
+                SUBSTR(A.COMMON, 4,11) AS "SRVCID",
+                A.EAISVCNAME AS "EAISVCNAME" ,
+                B.EAISVCDESC AS "EAISVCDESC",
+                A.KEYMGTMSGCTNT AS "KEYMGTMSGCTNT", 
+                A.EAIBZWKDSTCD AS "EAIBZWKDSTCD",
+                A.EAIBZWKDSTCD AS "EAIBZWKDSTCD_TMP",
+                A.MSGDPSTYMS AS "MSGDPSTYMS", 
+                A.MSGDPSTYMS AS "MSGDPSTYMS_TMP", 
+                A.MSGPRCSSYMS AS "MSGPRCSSYMS",
+                A.TRACKASISKEY1CTNT AS "TRACKASISKEY1CTNT",
+                A.TRACKASISKEY2CTNT AS "TRACKASISKEY2CTNT",
+                CASE WHEN TRIM(EAIERRCTNT) = '' THEN 'N' ELSE 'Y' END AS "ERRYN"
+         FROM $schemaId$.$tableName$ A
+            , $schemaId$.TSEAIHE01 B
+         WHERE A.EAISVCNAME = B.EAISVCNAME    
+           AND A.EAIBZWKDSTCD in (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where USERID =#loginId# )
+          
+         <isNotEmpty prepend="AND" property="searchGuid">
+            A.GUID LIKE #searchGuid#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchStartTime">
+           A.MSGDPSTYMS BETWEEN #searchStartTime# AND #searchEndTime#
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+            A.EAIBZWKDSTCD =#searchEaiBzwkDstcd#
+         </isNotEmpty>
+         <isEqual compareValue="" prepend="AND" property="searchEaiBzwkDstcd">
+            A.EAIBZWKDSTCD LIKE '%%'
+         </isEqual>
+         <isNotEmpty prepend="AND" property="searchEaiSvcSerno">
+            A.EAISVCSERNO LIKE '%'||#searchEaiSvcSerno#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchEaiSvcName">
+            A.EAISVCNAME LIKE #searchEaiSvcName#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchKeyMgtMsgCtnt">
+            A.KEYMGTMSGCTNT LIKE '%'||#searchKeyMgtMsgCtnt#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchTrackAsisKey1Ctnt">
+            A.TRACKASISKEY1CTNT LIKE '%'||#searchTrackAsisKey1Ctnt#||'%'
+         </isNotEmpty>
+         <isNotEmpty prepend="AND" property="searchTrackAsisKey2Ctnt">
+            A.TRACKASISKEY2CTNT LIKE '%'||#searchTrackAsisKey2Ctnt#||'%'
+         </isNotEmpty>          
+         <isEqual compareValue="Y" prepend="AND" property="searchErrorYn">
+             A.EAIERRCD != ' '
+         </isEqual> 
+         <isNotEmpty prepend="AND" property="searchLogPrcssSerno">
+            A.LOGPRCSSSERNO =#searchLogPrcssSerno#
+         </isNotEmpty>  
+         order by A.MSGDPSTYMS desc,A.EAISVCSERNO ,A.LOGPRCSSSERNO
+    </statement>
+    
+    <!--  detail -->
+    <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT A.BASCRSPNSCHNGMSGIDNAME     AS "BASCRSPNSCHNGMSGIDNAME",
+			A.BASCRSPNSCHNGYN            AS "BASCRSPNSCHNGYN",
+			A.BASCRSPNSMSGCMPRCTNT       AS "BASCRSPNSMSGCMPRCTNT",
+			A.BZWKDATACTNT               AS "BZWKDATACTNT",
+			A.CHNGMSGIDNAME              AS "CHNGMSGIDNAME",
+			A.CHNGYN                     AS "CHNGYN",
+			A.CMPENSVCPRCSSNAME          AS "CMPENSVCPRCSSNAME",
+			A.COMMON                     AS "COMMON",
+			A.CORRECTTRANSFORMYN         AS "CORRECTTRANSFORMYN",
+			A.DATAHEADER                 AS "DATAHEADER",
+			A.DMNDERRCHNGIDNAME          AS "DMNDERRCHNGIDNAME",
+			A.DMNDERRFLDNAME             AS "DMNDERRFLDNAME",
+			A.EAIBZWKDSTCD               AS "EAIBZWKDSTCD",
+			A.EAIERRCD                   AS "EAIERRCD",
+			A.EAIERRCTNT                 AS "EAIERRCTNT",
+			A.EAISEVRINSTNCNAME          AS "EAISEVRINSTNCNAME",
+			A.EAISVCNAME                 AS "EAISVCNAME",
+			A.EAISVCSERNO                AS "EAISVCSERNO",
+			A.ERREAISVCNAME              AS "ERREAISVCNAME",
+			A.ERRRSPNSCHNGMSGIDNAME      AS "ERRRSPNSCHNGMSGIDNAME",
+			A.ERRRSPNSCHNGYN             AS "ERRRSPNSCHNGYN",
+			A.ERRRSPNSMSGCMPRCTNT        AS "ERRRSPNSMSGCMPRCTNT",
+			A.FLOVRYN                    AS "FLOVRYN",
+			A.FLOWCTRLROUTNAME           AS "FLOWCTRLROUTNAME",
+			A.GSTATSVCDSTICNAME          AS "GSTATSVCDSTICNAME",
+			A.GSTATSYSADPTRBZWKGROUPNAME AS "GSTATSYSADPTRBZWKGROUPNAME",
+			A.GUID                       AS "GUID",
+			A.HEADER                     AS "HEADER",
+			A.INPTMSGIDNAME              AS "INPTMSGIDNAME",
+			A.INTGRADSTICNAME            AS "INTGRADSTICNAME",
+			A.KEYMGTMSGCTNT              AS "KEYMGTMSGCTNT",
+			A.LOGPRCSSSERNO              AS "LOGPRCSSSERNO",
+			A.MSGDPSTYMS                 AS "MSGDPSTYMS",
+			A.MSGPRCSSYMS                AS "MSGPRCSSYMS",
+			A.NEXTSVCPRCSSNO             AS "NEXTSVCPRCSSNO",
+			A.OUTBNDROUTNAME             AS "OUTBNDROUTNAME",
+			A.PRSNTMSGIDNAME             AS "PRSNTMSGIDNAME",
+			A.PSVBZWKSYSNAME             AS "PSVBZWKSYSNAME",
+			A.PSVINTFACDSTICNAME         AS "PSVINTFACDSTICNAME",
+			A.PSVSYSADPTRBZWKGROUPNAME   AS "PSVSYSADPTRBZWKGROUPNAME",
+			A.PSVSYSIDNAME               AS "PSVSYSIDNAME",
+			A.PSVSYSSVCDSTICNAME         AS "PSVSYSSVCDSTICNAME",
+			A.RSPNSERRCDNAME             AS "RSPNSERRCDNAME",
+			A.RSPNSERRCHNGIDNAME         AS "RSPNSERRCHNGIDNAME",
+			A.RSPNSERRFLDNAME            AS "RSPNSERRFLDNAME",
+			A.SEVRGROUPNAME              AS "SEVRGROUPNAME",
+			A.SEVRLOGLVELNO              AS "SEVRLOGLVELNO",
+			A.SIMYN                      AS "SIMYN",
+			A.STNDMSGUSEYN               AS "STNDMSGUSEYN",
+			A.SUPPLBZWKDATAYN            AS "SUPPLBZWKDATAYN",
+			A.SVCBFCLMNLOGYN             AS "SVCBFCLMNLOGYN",
+			A.SVCHMSEONOT                AS "SVCHMSEONOT",
+			A.SVCLOGLVELNO               AS "SVCLOGLVELNO",
+			A.SVCMOTIVUSEDSTCD           AS "SVCMOTIVUSEDSTCD",
+			A.SVCPRCSSDSTICNAME          AS "SVCPRCSSDSTICNAME",
+			A.SVCPRCSSNO                 AS "SVCPRCSSNO",
+			A.TOUTVAL                    AS "TOUTVAL",
+			A.TRACKASISKEY1CTNT          AS "TRACKASISKEY1CTNT",
+			A.TRACKASISKEY2CTNT          AS "TRACKASISKEY2CTNT",
+			A.MSG                        AS "MSG",
+			B.EAISVCDESC                 AS "EAISVCDESC" 
+        FROM $schemaId$.$tableName$ A
+           , $schemaId$.TSEAIHE01 B 
+        WHERE A.EAISVCNAME = B.EAISVCNAME
+	    AND   A.EAIBZWKDSTCD  = #eaiBzwkDstcd#
+	    AND   A.MSGDPSTYMS    = #msgDpstYMS#
+	    AND   A.LOGPRCSSSERNO = #logPrcssSerno#
+	    AND   A.EAISVCSERNO   = #eaiSvcSerno#
+    </statement>
+
+    <!--  detail2 -->
+    <statement id="selectDetail2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT A.BASCRSPNSCHNGMSGIDNAME     AS "BASCRSPNSCHNGMSGIDNAME",
+			A.BASCRSPNSCHNGYN            AS "BASCRSPNSCHNGYN",
+			A.BASCRSPNSMSGCMPRCTNT       AS "BASCRSPNSMSGCMPRCTNT",
+			A.BZWKDATACTNT               AS "BZWKDATACTNT",
+			A.CHNGMSGIDNAME              AS "CHNGMSGIDNAME",
+			A.CHNGYN                     AS "CHNGYN",
+			A.CMPENSVCPRCSSNAME          AS "CMPENSVCPRCSSNAME",
+			A.COMMON                     AS "COMMON",
+			A.CORRECTTRANSFORMYN         AS "CORRECTTRANSFORMYN",
+			A.DATAHEADER                 AS "DATAHEADER",
+			A.DMNDERRCHNGIDNAME          AS "DMNDERRCHNGIDNAME",
+			A.DMNDERRFLDNAME             AS "DMNDERRFLDNAME",
+			A.EAIBZWKDSTCD               AS "EAIBZWKDSTCD",
+			A.EAIERRCD                   AS "EAIERRCD",
+			A.EAIERRCTNT                 AS "EAIERRCTNT",
+			A.EAISEVRINSTNCNAME          AS "EAISEVRINSTNCNAME",
+			A.EAISVCNAME                 AS "EAISVCNAME",
+			A.EAISVCSERNO                AS "EAISVCSERNO",
+			A.ERREAISVCNAME              AS "ERREAISVCNAME",
+			A.ERRRSPNSCHNGMSGIDNAME      AS "ERRRSPNSCHNGMSGIDNAME",
+			A.ERRRSPNSCHNGYN             AS "ERRRSPNSCHNGYN",
+			A.ERRRSPNSMSGCMPRCTNT        AS "ERRRSPNSMSGCMPRCTNT",
+			A.FLOVRYN                    AS "FLOVRYN",
+			A.FLOWCTRLROUTNAME           AS "FLOWCTRLROUTNAME",
+			A.GSTATSVCDSTICNAME          AS "GSTATSVCDSTICNAME",
+			A.GSTATSYSADPTRBZWKGROUPNAME AS "GSTATSYSADPTRBZWKGROUPNAME",
+			A.GUID                       AS "GUID",
+			A.HEADER                     AS "HEADER",
+			A.INPTMSGIDNAME              AS "INPTMSGIDNAME",
+			A.INTGRADSTICNAME            AS "INTGRADSTICNAME",
+			A.KEYMGTMSGCTNT              AS "KEYMGTMSGCTNT",
+			A.LOGPRCSSSERNO              AS "LOGPRCSSSERNO",
+			A.MSGDPSTYMS                 AS "MSGDPSTYMS",
+			A.MSGPRCSSYMS                AS "MSGPRCSSYMS",
+			A.NEXTSVCPRCSSNO             AS "NEXTSVCPRCSSNO",
+			A.OUTBNDROUTNAME             AS "OUTBNDROUTNAME",
+			A.PRSNTMSGIDNAME             AS "PRSNTMSGIDNAME",
+			A.PSVBZWKSYSNAME             AS "PSVBZWKSYSNAME",
+			A.PSVINTFACDSTICNAME         AS "PSVINTFACDSTICNAME",
+			A.PSVSYSADPTRBZWKGROUPNAME   AS "PSVSYSADPTRBZWKGROUPNAME",
+			A.PSVSYSIDNAME               AS "PSVSYSIDNAME",
+			A.PSVSYSSVCDSTICNAME         AS "PSVSYSSVCDSTICNAME",
+			A.RSPNSERRCDNAME             AS "RSPNSERRCDNAME",
+			A.RSPNSERRCHNGIDNAME         AS "RSPNSERRCHNGIDNAME",
+			A.RSPNSERRFLDNAME            AS "RSPNSERRFLDNAME",
+			A.SEVRGROUPNAME              AS "SEVRGROUPNAME",
+			A.SEVRLOGLVELNO              AS "SEVRLOGLVELNO",
+			A.SIMYN                      AS "SIMYN",
+			A.STNDMSGUSEYN               AS "STNDMSGUSEYN",
+			A.SUPPLBZWKDATAYN            AS "SUPPLBZWKDATAYN",
+			A.SVCBFCLMNLOGYN             AS "SVCBFCLMNLOGYN",
+			A.SVCHMSEONOT                AS "SVCHMSEONOT",
+			A.SVCLOGLVELNO               AS "SVCLOGLVELNO",
+			A.SVCMOTIVUSEDSTCD           AS "SVCMOTIVUSEDSTCD",
+			A.SVCPRCSSDSTICNAME          AS "SVCPRCSSDSTICNAME",
+			A.SVCPRCSSNO                 AS "SVCPRCSSNO",
+			A.TOUTVAL                    AS "TOUTVAL",
+			A.TRACKASISKEY1CTNT          AS "TRACKASISKEY1CTNT",
+			A.TRACKASISKEY2CTNT          AS "TRACKASISKEY2CTNT",
+			A.MSG                        AS "MSG",
+			B.EAISVCDESC                 AS "EAISVCDESC" 
+        FROM $schemaId$.$tableName$ A
+           , $schemaId$.TSEAIHE01 B 
+        WHERE A.EAISVCNAME = B.EAISVCNAME
+	        AND   A.GUID  		  LIKE #guid# || '%'
+	        AND   A.LOGPRCSSSERNO = #logPrcssSerno#
+  
+    </statement>
+
+    <!--  more  -->
+    <statement id="selectDetailMore" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+        SELECT BZWKDATACTNT AS "BZWKDATACTNT"
+        FROM $schemaId$.$tableName$
+        WHERE EAIBZWKDSTCD  = #eaiBzwkDstcd#
+        AND   MSGDPSTYMS    = #msgDpstYMS#
+        AND   LOGPRCSSSERNO = #logPrcssSerno#        
+        AND   EAISVCSERNO   = #eaiSvcSerno#        
+        ORDER BY BZWKDATASERNO
+    </statement>
+    
+    <!-- IQSM Trade Count -->
+    <statement id="iqmsLogCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(DISTINCT GUID)
+        FROM $schemaId$.$tableName$
+        WHERE MSGDPSTYMS LIKE #baseTime#||'%'
+    </statement>
+    
+    <statement id="iqmsBatchCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(*) 
+        FROM $schemaId$.TSEAIBJ08 
+        WHERE FILETRSMTENDHMS LIKE #baseTime#||'%'
+    </statement>
+    
+    <statement id="maxTpsOfDay" parameterClass="java.util.HashMap" resultClass="java.lang.Double">
+		SELECT 1/MIN(R1-R2)
+		FROM (
+			SELECT T1,
+				TIMESTAMP(
+				SUBSTR(T1,1,4) || '-' ||  
+				SUBSTR(T1,5,2) || '-' ||  
+				SUBSTR(T1,7,2) || '-' ||  
+				SUBSTR(T1,9,2) || '.' ||  
+				SUBSTR(T1,11,2)  || '.' ||  
+				SUBSTR(T1,13,2)  || '.' ||  
+				SUBSTR(T1,15,3)  || '000') R1,
+				T2,
+				TIMESTAMP(
+				SUBSTR(T2,1,4) || '-' ||  
+				SUBSTR(T2,5,2) || '-' ||  
+				SUBSTR(T2,7,2) || '-' ||  
+				SUBSTR(T2,9,2) || '.' ||  
+				SUBSTR(T2,11,2)  || '.' ||  
+				SUBSTR(T2,13,2)  || '.' ||  
+				SUBSTR(T2,15,3)  || '000') R2
+				
+			FROM (
+				SELECT MAX(MSGPRCSSYMS) T1, MIN(MSGPRCSSYMS) T2
+				FROM  $schemaId$.$tableName$
+				WHERE MSGPRCSSYMS LIKE #baseDay#||'%'
+				GROUP BY EAISVCSERNO
+			) A
+		) B
+    </statement>
+    
+    <statement id="onlineProcCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	    SELECT COUNT(DISTINCT EAISVCSERNO)
+		FROM  $schemaId$.$tableName$
+		WHERE MSGDPSTYMS BETWEEN #startTime# AND #endTime#
+		AND   NOT ( SVCMOTIVUSEDSTCD = 'SYNC' 
+					AND PSVINTFACDSTICNAME = 'ASYN'
+					AND SPLIZDMNDDSTCD = 'R' 
+					AND EAISVCNAME LIKE '%R__'
+		)
+        <isNotEmpty prepend="AND" property="hostName">
+           LGINGSYSID = #hostName#
+        </isNotEmpty>
+        AND (
+			( SVCMOTIVUSEDSTCD = 'ASYN' AND PSVINTFACDSTICNAME = 'ASYN'  AND LOGPRCSSSERNO IN ('100', '300') )
+			OR
+			( NOT (SVCMOTIVUSEDSTCD = 'ASYN' AND PSVINTFACDSTICNAME = 'ASYN') AND LOGPRCSSSERNO = '100' )
+		)		
+    </statement>
+    
+    <statement id="onlineErrorCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	    SELECT COUNT(DISTINCT EAISVCSERNO)
+		FROM  $schemaId$.$tableName$
+		WHERE MSGDPSTYMS BETWEEN #startTime# AND #endTime#
+		AND   EAIERRCD NOT IN ('', $errorCodes$ )
+        <isNotEmpty prepend="AND" property="hostName">
+           LGINGSYSID = #hostName#
+        </isNotEmpty>		
+    </statement>
+    
+    <statement id="onlineTimeoutCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	    SELECT COUNT(DISTINCT EAISVCSERNO)
+		FROM  $schemaId$.$tableName$
+		WHERE MSGDPSTYMS BETWEEN #startTime# AND #endTime#
+		AND   EAIERRCD IN ( $errorCodes$ )
+        <isNotEmpty prepend="AND" property="hostName">
+           LGINGSYSID = #hostName#
+        </isNotEmpty>		
+    </statement>
+    
+</sqlMap>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC
+    "-//SPRING//DTD BEAN//EN"
+    "http://www.springframework.org/dtd/spring-beans.dtd" >
+
+<beans>
+	<bean
+		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="java.net.SocketAddress">
+					<bean
+						class="org.apache.mina.integration.spring.InetSocketAddressEditor" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="ioAcceptor"
+		class="org.apache.mina.integration.spring.IoAcceptorFactoryBean">
+		<property name="target">
+			<bean
+				class="org.apache.mina.transport.socket.nio.DatagramAcceptor"
+				destroy-method="unbindAll">
+			</bean>
+		</property>
+		<property name="bindings">
+			<list>
+				<bean
+					class="org.apache.mina.integration.spring.Binding">
+ 	 				
+<!-- 
+ 	 				<property name="address" value=":${rms.SERVER_PORT}" />
+-->
+					<property name="address" value="10800" />
+					<property name="handler" ref="protocolHandler"></property>
+					<property name="serviceConfig"
+						ref="defaultAcceptorConfig">
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="agentToServerUdpThreadModel"
+		class="org.apache.mina.integration.spring.ExecutorThreadModelFactoryBean">
+		<property name="serviceName" value="AgentToServerUdpService" />
+		<property name="executor">
+			<bean
+				class="org.apache.mina.integration.spring.ThreadPoolExecutorFactoryBean">
+				<property name="corePoolSize" value="15" />
+				<property name="maxPoolSize" value="30" />
+				<property name="keepAliveSeconds" value="30" />
+			</bean>
+
+		</property>
+	</bean>
+
+	<bean id="protocolCodecFactory"
+		class="org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory">
+		<property name="decoderMaxObjectSize" value="4000000"></property>
+		<property name="encoderMaxObjectSize" value="4000000"></property>
+	</bean>
+
+	<bean id="protocolHandler"
+		class="com.eactive.eai.rms.onl.server.UdpServerSessionHandler">
+	</bean>
+
+	<bean id="defaultAcceptorConfig"
+		class="org.apache.mina.transport.socket.nio.DatagramAcceptorConfig">
+		<property name="threadModel"
+			ref="agentToServerUdpThreadModel">
+		</property>
+		<property name="filterChainBuilder">
+			<bean id="filterChainBuilder"
+				class="org.apache.mina.integration.spring.DefaultIoFilterChainBuilderFactoryBean">
+				<property name="filters">
+					<list>
+
+						<bean
+							class="org.apache.mina.filter.codec.ProtocolCodecFilter">
+							<constructor-arg>
+								<bean
+									class="org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory">
+								</bean>
+							</constructor-arg>
+						</bean>
+						<!-- 
+						<bean class="org.apache.mina.filter.LoggingFilter" />
+						-->
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="disconnectOnUnbind" value="true"></property>
+	</bean>
+
+	<bean id="abstractDatagramSessionConfig" abstract="true">
+		<property name="reuseAddress" value="true" />
+		<property name="sendBufferSize" value="4000000" />
+		<property name="receiveBufferSize" value="4000000" />
+	</bean>
+
+	<bean id="sessionConfig" factory-bean="defaultAcceptorConfig"
+		factory-method="getSessionConfig"
+		parent="abstractDatagramSessionConfig">
+	</bean>
+
+	<bean id="repository"
+		class="com.eactive.eai.rms.onl.server.repository.Repository">
+		<constructor-arg index="0" value="5"></constructor-arg>
+		<constructor-arg index="1" value="1"></constructor-arg>
+	</bean>
+	<bean id="adapterStatusRepository"
+		class="com.eactive.eai.rms.onl.server.repository.AdaptersStatusRepository">
+	</bean>
+</beans>

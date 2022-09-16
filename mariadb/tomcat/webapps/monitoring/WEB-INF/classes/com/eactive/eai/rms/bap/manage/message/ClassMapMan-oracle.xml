@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ClassMap">
+
+    <statement id="list" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT TelgmClsID,
+               TelgmClsName,
+               MsgMetaDstcd,
+               ROWNO
+        FROM(
+            SELECT TelgmClsID,
+                   TelgmClsName,
+                   MsgMetaDstcd,
+                   ROW_NUMBER() OVER( ORDER BY TelgmClsID ) ROWNO
+            FROM $schemaId$.TSEAIBR05
+            <dynamic prepend="WHERE">
+                <isNotEmpty prepend="AND" property="searchTelgmClsID">
+                    TelgmClsID LIKE '%' || #searchTelgmClsID# || '%'
+                </isNotEmpty>
+                <isNotEmpty prepend="AND" property="searchMsgMetaDstcd">
+                    MsgMetaDstcd LIKE '%' || #searchMsgMetaDstcd# || '%'
+                </isNotEmpty>
+            </dynamic>
+            ) TMP
+        WHERE ROWNO BETWEEN #startNum# AND #endNum#
+
+    </statement>
+
+    <statement id="count" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(TelgmClsID) AS "TotalCount"
+        FROM   $schemaId$.TSEAIBR05
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="searchTelgmClsID">
+                TelgmClsID LIKE '%' || #searchTelgmClsID# || '%'
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="searchMsgMetaDstcd">
+               MsgMetaDstcd LIKE '%' || #searchMsgMetaDstcd# || '%'
+            </isNotEmpty>
+        </dynamic>
+    </statement>
+
+</sqlMap>

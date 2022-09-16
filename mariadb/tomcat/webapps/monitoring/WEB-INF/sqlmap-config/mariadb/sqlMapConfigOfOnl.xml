@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+  <settings
+    cacheModelsEnabled="true"
+    enhancementEnabled="true"
+    lazyLoadingEnabled="true"
+    maxRequests="512"
+    maxSessions="128"
+    maxTransactions="32"
+    useStatementNamespaces="true" />
+  
+  <!-- 공통처리 관련 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/dao/TSEAIS001.xml" />
+  
+  <!-- 개발환경/ACL -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/acl/Biz.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/acl/Biz-mariadb.xml" />
+        
+  <!-- 공통코드명관련 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/dao/maps/CommonCodeAndName.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/dao/Combo-mariadb.xml" />
+   <sqlMap
+    resource="com/eactive/eai/rms/onl/common/CommonDomain.xml" /> 
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/CommonDomain-mariadb.xml" /> 
+  
+  <!-- 개발환경/공통코드관리 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/ServerMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/ServerMan-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/RoutingMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/RoutingMan-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/ErrorCode.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/ErrorCode-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/PropertyMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/PropertyMan-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/LifecycleMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/LifecycleMan-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/SysDomainMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/SysDomainMan-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/UnifbwkMan.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/UnifbwkMan-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/InboundErrorInfoMan-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/CodeMan.xml" />
+<sqlMap
+    resource="com/eactive/eai/rms/onl/common/CodeMan-mariadb.xml" />
+
+  <!-- 개발환경/어뎁터정보관리 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/adapter/adapter/Adapter.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/adapter/adapter/Adapter-mariadb.xml" />
+  <sqlMap
+      resource="com/eactive/eai/rms/onl/manage/adapter/adapter/AdapterPropGroup.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/adapter/messagekey/MessageKey.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/adapter/messagekey/MessageKey-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/adapter/adaptertype/AdapterType.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/adapter/adaptertype/AdapterType-mariadb.xml" />
+  
+
+  <!-- 개발환경/서비스정보관리 -->
+  
+  <!-- 1. 메시지 관리 는 sqlMap이 아님 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/eaimsg/EaiMsg.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/eaimsg/EaiMsg-mariadb.xml" />
+  <!-- 3. 필드추출 정보 관리 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/FieldExtractInfo.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/FieldExtractInfo-mariadb.xml" />
+  <!-- 5. 라우팅 필드추출  정보관리 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/service/B2BExtractMan-mariadb.xml" />
+  <!-- 6. 라우팅 B2B기관  정보관리 -->  
+  <!-- <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/B2BService.xml" />   -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/B2BService-mariadb.xml" />  
+<!--   <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/C2RService.xml" /> -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/C2RService-mariadb.xml" />
+    
+  <!-- 7. 라우팅 특정포트  매핑관리 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/B2BAdapterMap.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/B2BAdapterMap-mariadb.xml" />
+  <!-- 8. 내부표준 메시지 관리 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/STDMessage.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/STDMessage-mariadb.xml" />
+  <!-- 9. 비동기 큐 관리 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/jms/JmsQueue.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/jms/JmsQueue-mariadb.xml" />
+  <!--10. 비동기 큐 모니터링 관리 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/jms/JmsQueueMonitor.xml" />
+  <!--11. 비동기 큐 수신자 관리 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/jms/JmsQueueReceiver.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/jms/JmsQueueReceiver-mariadb.xml" />
+  <!--12. 업무별 계정계 인스턴스코드 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/service/BzwkToService.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/service/BzwkToService-mariadb.xml" />
+  <!--13. 내부표준 Default값 관리 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/STDDefault.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/STDDefault-mariadb.xml" />
+   <!--14. 채널정보 모니터링에 업데이트 --> 
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/chnnlinfo/AddB2b-mariadb.xml" />    
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/chnnlinfo/AddFailover-mariadb.xml" />  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/chnnlinfo/AddQueue-mariadb.xml" />  
+  
+  <!--15. Jeju HostHeader Default값 관리 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/HostHeader.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/manage/serviceinfo/dao/maps/HostHeader-mariadb.xml" />
+  
+  <!-- 개발환경/전문레이아웃관련 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/LayoutType.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/LayoutType-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/TransformFunc.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/TransformFunc-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/Layout.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/Layout-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/Transform-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/TransformMapping.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/rule/TransformMapping-mariadb.xml" />
+  
+  <!-- 개발환경/거래통제 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/control/TransactionCtrl.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/control/TransactionCtrl-mariadb.xml" />
+    
+  <!-- 개발환경/ACL -->
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/MenuRender-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/User-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/Menu.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/Menu-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/Role-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/common/acl/Login.xml" />
+    
+  <!-- 거래정보/로그정보 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/tracking/dao/Dbtracking-mariadb.xml" />
+  <!-- 거래정보/외부인터페이스 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/transaction/Interface-mariadb.xml" />
+  <!-- 거래정보/거래흐름도 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/tracking/dao/DbTrackingChart-mariadb.xml" />
+
+  <!-- 백업 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/backup/DailyBackup-mariadb.xml" />    
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/backup/MonthlyBackup-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/backup/Tseaist01-mariadb.xml" />
+   
+  <!-- 통계  -->
+  <!-- 통계/매체별통계 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/chnlmdiadstcd/ChnlMdiaDstcdCompareMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/chnlmdiadstcd/ChnlMdiaDstcdDaily.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/chnlmdiadstcd/ChnlMdiaDstcdMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/chnlmdiadstcd/ChnlMdiaDstcdYearly.xml" />
+  
+  <!-- 통계/업무별통계    -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaibzwkdstcd/EaiBzwkDstcdCompareMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaibzwkdstcd/EaiBzwkDstcdDaily.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaibzwkdstcd/EaiBzwkDstcdMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaibzwkdstcd/EaiBzwkDstcdTransition.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaibzwkdstcd/EaiBzwkDstcdYearly.xml" />
+    
+  <!--  통계/서비스별통계 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaisvcname/EaiSvcNameCompareMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaisvcname/EaiSvcNameDaily.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaisvcname/EaiSvcNameErrMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaisvcname/EaiSvcNameErrTopTen-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaisvcname/EaiSvcNameMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaisvcname/EaiSvcNameTransition.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/eaisvcname/EaiSvcNameYearly.xml" />
+    
+  <!-- 통계/기타 -->  
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/etc/ResponseTimeHourly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/etc/ResponseTimeTopTen-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/etc/TransactionHourly-mariadb.xml" />
+  <!-- 추이분석 -->
+  <sqlMap  
+    resource="com/eactive/eai/rms/onl/statistics/trand/Transition-mariadb.xml" />
+    
+  <!--  통계/인터페이스코드별통계 -->
+  <sqlMap 
+    resource="com/eactive/eai/rms/onl/statistics/intfacptrncd/IntfacPtrnCdCompareMonthly.xml" />
+  <sqlMap 
+    resource="com/eactive/eai/rms/onl/statistics/intfacptrncd/IntfacPtrnCdDaily.xml" />
+  <sqlMap 
+    resource="com/eactive/eai/rms/onl/statistics/intfacptrncd/IntfacPtrnCdMonthly.xml" />
+  <sqlMap 
+    resource="com/eactive/eai/rms/onl/statistics/intfacptrncd/IntfacPtrnCdYearly-mariadb.xml" />
+    
+  <!--  통계/통계자료 생성 현황 -->
+  <sqlMap 
+    resource="com/eactive/eai/rms/onl/statistics/management/StatisticsManagement-mariadb.xml" />
+    
+  <!-- 통계/표준/비표준별통계 -->
+  <sqlMap  
+    resource="com/eactive/eai/rms/onl/statistics/stndmsguseyn/StndMsgUseYnCompareMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/stndmsguseyn/StndMsgUseYnDaily.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/stndmsguseyn/StndMsgUseYnMonthly.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/statistics/stndmsguseyn/StndMsgUseYnYearly-mariadb.xml" />
+  
+  <!-- 거래현황 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/transaction/UserBzwkDstcd.xml" />
+    
+  <!-- 대시보드 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/service/DashboardTarget-mariadb.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/service/DashboardTargetForBatch.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/dashboard/Dashboard.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/dashboard/DashboardError-mariadb.xml" />
+  
+<!-- 메타 동기화 -->    
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/meta/MetaSync.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/common/dao/LogTable.xml" />
+  
+<!-- 형상관리 파일 loader -->    
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/loader/Loader.xml" />
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/loader/History-mariadb.xml" />
+    
+<!-- 어댑터정보 -->
+  <!-- sqlMap
+    resource="com/eactive/eai/rms/onl/common/dao/Adapter.xml" /-->
+
+  <!-- 스케줄러 -->
+  <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/scheduler/Scheduler.xml" />
+    <sqlMap
+    resource="com/eactive/eai/rms/onl/admin/scheduler/Scheduler-mariadb.xml" />  
+</sqlMapConfig>

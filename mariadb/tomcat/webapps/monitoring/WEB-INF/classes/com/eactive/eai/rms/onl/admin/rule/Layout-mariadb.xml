@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Layout">
+<!--  #### 레이아웃  ###  -->
+	<!--  목록 조회  -->
+	<statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+          SELECT FA.*, FB.BZWKDSTICNAME 
+          FROM (
+              SELECT ROWNO, LOUTNAME  , LOUTPTRNNAME , LOUTDESC  , 
+              LOUTPTRNDESC , LASTAMNDHMS , EAIBZWKDSTCD , 
+              UAPPLNAME , SYSINTFACNAME 
+                 FROM ( 
+                   SELECT @NO := @NO + 1 AS ROWNO,
+                   LOUTNAME, LOUTPTRNNAME, LOUTDESC , 
+    	           LOUTPTRNDESC , LASTAMNDHMS , EAIBZWKDSTCD , 
+    	           UAPPLNAME , SYSINTFACNAME 
+                   FROM ( 
+                     SELECT A.LOUTNAME, A.LOUTPTRNNAME, A.LOUTDESC, B.LOUTPTRNDESC, 
+    	          			A.LASTAMNDHMS , A.EAIBZWKDSTCD , A.UAPPLNAME , A.SYSINTFACNAME 
+                     FROM $schemaId$.TSEAITR07 A, $schemaId$.TSEAITR06 B
+                     WHERE A.LOUTPTRNNAME = B.LOUTPTRNNAME
+    				 AND   A.EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where userId =#loginId#)
+    				<isNotEmpty prepend="AND" property="searchLoutName">
+    				    A.LOUTNAME LIKE UPPER( CONCAT( '%' , #searchLoutName# , '%'))
+    				</isNotEmpty>
+
+                    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+                        A.EAIBZWKDSTCD LIKE UPPER( CONCAT( '%' , #searchEaiBzwkDstcd# , '%') )
+                    </isNotEmpty>
+
+                    <isNotEmpty prepend="AND" property="searchLoutDesc">
+                        A.LOUTDESC LIKE UPPER( CONCAT( '%' , #searchLoutDesc# , '%') )
+                    </isNotEmpty>
+             
+                   ) TMP1 ,  (SELECT @NO := 0) R 
+              ) TMP2 WHERE ROWNO BETWEEN  #startNum# AND #endNum#
+         ) FA  LEFT OUTER JOIN $schemaId$.TSEAICM01 FB
+         ON FA.EAIBZWKDSTCD = FB.EAIBZWKDSTCD
+         ORDER BY 1
+	</statement>	
+
+	<!--   전체 목록수 얻기 -->
+	<statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(*) 
+        FROM $schemaId$.TSEAITR07 
+        WHERE EAIBZWKDSTCD IN (select EAIBZWKDSTCD from $schemaId$.TSEAIRM06 where userId =#loginId#)
+		 <isNotEmpty prepend="AND" property="searchLoutName">
+		     LOUTNAME LIKE  UPPER( CONCAT( '%' , #searchLoutName# , '%'))
+		 </isNotEmpty>
+
+         <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+             EAIBZWKDSTCD LIKE UPPER( CONCAT( '%' , #searchEaiBzwkDstcd# , '%') )
+         </isNotEmpty>
+
+         <isNotEmpty prepend="AND" property="searchLoutDesc">
+             LOUTDESC LIKE UPPER( CONCAT( '%' , #searchLoutDesc# , '%') )
+         </isNotEmpty>
+           
+	</statement>	
+
+	<!--  item list  -->
+	<statement id="selectItemList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select 0 AS "level"
+             , LoutItemIDName "id"
+             , ParntLoutItemIDName "parent"
+             , 'true' AS "expanded"
+             , CASE LoutItemNodePtrnIDName WHEN 2203 THEN 'true' ELSE 'false' END "isLeaf"
+		     , LoutItemName LOUTITEMPATH
+		     , LOUTNAME AS LOUTNAME
+		     , LOUTITEMIDNAME AS LOUTITEMIDNAME
+		     , LOUTITEMNAME AS LOUTITEMNAME 
+		     , LOUTITEMDESC AS LOUTITEMDESC 
+		     , LOUTITEMSERNO AS LOUTITEMSERNO
+		     , LOUTITEMLENCNT AS LOUTITEMLENCNT
+		     , DECPTLENCNT AS DECPTLENCNT
+		     , LOUTITEMNODEPTRNIDNAME AS LOUTITEMNODEPTRNIDNAME
+		     , LOUTITEMPTRNIDNAME AS LOUTITEMPTRNIDNAME 
+		     , (CASE LoutItemNodePtrnIDName
+					WHEN 2201 THEN 'MESSAGE'
+					WHEN 2202 THEN 'GROUP'
+					WHEN 2203 THEN 'FIELD'
+					WHEN 2204 THEN 'ATTR'
+					ELSE 'UNKNOWN' END) LOUTITEMNODEPTRNIDDESC 
+		     , (CASE LoutItemPtrnIDName 
+		          WHEN 2100 THEN 'UNKNOWN'
+					 WHEN 2101 THEN 'STRING'
+					 WHEN 2102 THEN 'INT'
+					 WHEN 2103 THEN 'LONG'
+					 WHEN 2104 THEN 'SHORT'
+					 WHEN 2105 THEN 'DOUBLE'
+					 WHEN 2106 THEN 'FLOAT'
+					 WHEN 2107 THEN 'CHAR'
+					 WHEN 2108 THEN 'BYTE'
+					 WHEN 2109 THEN 'DATE'
+					 WHEN 2110 THEN 'TIME'
+					 WHEN 2111 THEN 'TIMESTAMP'
+					 WHEN 2112 THEN 'NUMBER'
+					 WHEN 2113 THEN 'BYTEARRAY'
+					 WHEN 2114 THEN 'NUMERIC'
+					 WHEN 2115 THEN 'PACKDECIMAL'
+					 WHEN 2116 THEN 'OBJECT'
+					 WHEN 2117 THEN 'BOOLEAN'
+					 WHEN 2118 THEN 'BIGDECIMAL'
+					 ELSE 'UNKNOWN' END
+		       )LOUTITEMPTRNIDDESC 
+		     , PARNTLOUTITEMIDNAME AS PARNTLOUTITEMIDNAME
+		     ,  LOUTITEMOCCURPTRNDSTCD AS LOUTITEMOCCURPTRNDSTCD
+             , LOUTITEMMINOCCURNOITM AS LOUTITEMMINOCCURNOITM 
+             , LOUTITEMMAXOCCURNOITM AS LOUTITEMMAXOCCURNOITM 
+             , LOUTITEMREFINFO2 AS LOUTITEMREFINFO2
+		 from (                                                         
+		    	select *                                                   
+		    	  from $schemaId$.TSEAITR08
+		    	 where LoutName = #loutName#                                 
+		      ) T        
+		order by LoutItemSerno 	
+	</statement>	
+
+    <!--  Update date -->
+    <statement id="updateLayoutDate" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE $schemaId$.TSEAITR07 
+        SET    LASTAMNDHMS = DATE_FORMAT( NOW(), '%Y%m%d%H%i%s')
+        WHERE  LOUTNAME = #loutName#
+    </statement> 
+
+	<!--  item detail  -->
+	<statement id="selectItemDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT         
+			LOUTNAME LOUTNAME,                
+			LOUTITEMNAME LOUTITEMNAME,                 
+			LOUTITEMIDNAME LOUTITEMIDNAME,               
+			PARNTLOUTITEMIDNAME PARNTLOUTITEMIDNAME,          
+			LOUTITEMDESC LOUTITEMDESC,                 
+			LOUTITEMNODEPTRNIDNAME LOUTITEMNODEPTRNIDNAME,       
+			LOUTITEMPTRNIDNAME LOUTITEMPTRNIDNAME,           
+			LOUTITEMPATHNAME LOUTITEMPATHNAME,             
+			LOUTITEMLENCNT LOUTITEMLENCNT,               
+			LOUTITEMREFINFO LOUTITEMREFINFO,              
+			LOUTITEMREFINFO2 LOUTITEMREFINFO2,             
+			LOUTITEMSERNO LOUTITEMSERNO,                
+			LOUTITEMOCCURPTRNDSTCD LOUTITEMOCCURPTRNDSTCD,       
+			LOUTITEMMAXOCCURNOITM LOUTITEMMAXOCCURNOITM,        
+			LOUTITEMMINOCCURNOITM LOUTITEMMINOCCURNOITM,        
+			LOUTITEMBASCVAL LOUTITEMBASCVAL,              
+			LOUTITEMMSKYN LOUTITEMMSKYN,    
+			IFNULL(LOUTITEMMASKLENGTH,0) LOUTITEMMASKLENGTH,       
+			LYOUTDPTCNT LYOUTDPTCNT, 
+			DECPTLENCNT DECPTLENCNT,
+			LYOUTITEMREFPTRNIDNAME LYOUTITEMREFPTRNIDNAME
+        FROM $schemaId$.TSEAITR08
+        WHERE LOUTNAME=#loutName# 
+        AND   LOUTITEMNAME =#loutItemName# 
+        AND   LOUTITEMSERNO=#loutItemSerno# 
+        ORDER BY LOUTITEMIDNAME, LOUTITEMOCCURPTRNDSTCD DESC
+	</statement>
+    
+ 	<!-- Oracle에서도 실행이 안됨 -->
+		<statement id="selectLayoutXMLList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+ 		SELECT      
+ 		    CASE WHEN PARNTLOUTITEMIDNAME = '0' THEN 'FORMAT'
+ 		    ELSE CASE WHEN LOUTITEMPTRNIDNAME = '2100' THEN 'GRID'
+ 		              WHEN LOUTITEMPTRNIDNAME = '2113' THEN ( CASE WHEN (SELECT LOUTITEMPTRNIDNAME 
+                                                                             FROM  $schemaId$.TSEAITR08 L 
+                                                                            WHERE L.LOUTNAME = O.LOUTNAME 
+                                                                              AND L.LOUTITEMIDNAME = O.PARNTLOUTITEMIDNAME
+                                                                              AND L.LOUTITEMPTRNIDNAME = '2100' 
+                                                                              AND (L.LOUTITEMMAXOCCURNOITM = -1 OR L.LOUTITEMMAXOCCURNOITM &gt; 1)
+                                                                           ) = '2100' THEN 'COLUMN' ELSE 'FLD' END )
+               END AS FIELDTYPE
+	  	 , LOUTITEMNAME AS ID
+	  	 , LOUTITEMDESC AS DESC
+	  	 ,CASE WHEN LYOUTITEMREFPTRNIDNAME = 'STRING'     THEN 'CHAR'
+                    LYOUTITEMREFPTRNIDNAME = 'BYTEARRAY'  THEN 'CHAR'
+                    LYOUTITEMREFPTRNIDNAME = 'INTEGER'    THEN 'DECIMAL'
+                    LYOUTITEMREFPTRNIDNAME = 'BIGDECIMAL' THEN 'NUMERIC' 
+               ELSE 'CHAR' 
+          END AS TYPE
+	  	 , LOUTITEMLENCNT AS LEN
+	  	 , DECPTLENCNT AS SCALE
+            , (CASE WHEN LOUTITEMPTRNIDNAME = '2100' AND PARNTLOUTITEMIDNAME !=0  AND TRIM(LOUTITEMREFINFO2) IS NOT NULL THEN LOUTITEMREFINFO2
+                    WHEN LOUTITEMPTRNIDNAME = '2100' AND PARNTLOUTITEMIDNAME !=0  AND TRIM(LOUTITEMREFINFO2) IS NULL  THEN TO_CHAR(LOUTITEMMAXOCCURNOITM)
+                    ELSE ' ' END) AS COUNT
+  FROM (                                                        
+				   SELECT *                                                  
+				   FROM $schemaId$.TSEAITR08                                          
+				   WHERE LOUTNAME = #LoutName#
+				)  O                                                           
+	WHERE (LOUTITEMPTRNIDNAME = '2100'  AND (LOUTITEMMAXOCCURNOITM = -1 OR LOUTITEMMAXOCCURNOITM &gt; 1) ) OR (LOUTITEMPTRNIDNAME = '2113' ) OR (PARNTLOUTITEMIDNAME = 0)
+	CONNECT BY PRIOR LOUTITEMIDNAME  = PARNTLOUTITEMIDNAME
+	START WITH PARNTLOUTITEMIDNAME = '0'  
+		</statement>
+ 		
+ 		<statement id="selectLayoutMappingXMLList" resultClass="java.util.HashMap">
+ 		 SELECT  ID "id", 
+			       LOUTDESC "desc", '$schemaId$' "usesystem",
+			       TARGETSYSTEM "targetsystem", TRIM(PSVSYSBZWKDSTCD) "group", IOTYPE "ioType",
+			       COMMON_SRVCID "servicecode", A.EAISVCNAME "interfacecode"      
+			 FROM (
+			SELECT  LOUTNAME ID, CASE WHEN SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN 'I' ELSE 'O' END IOTYPE
+			         ,CASE WHEN PSVINTFACDSTICNAME = 'SYNC' AND SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN '기동' 
+			               WHEN PSVINTFACDSTICNAME = 'SYNC' AND SOURCRSULTDSTCD = 'TGT_LAYOUT' THEN '수동'
+			               WHEN EAISVCNAME LIKE '%1' AND SOURCRSULTDSTCD = 'TGT_LAYOUT' THEN 'CBS'
+			               WHEN EAISVCNAME LIKE '%2' AND SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN 'CBS'
+			               ELSE '대외' END TARGETSYSTEM
+			         ,EAISVCNAME, PSVSYSBZWKDSTCD
+			    FROM $schemaId$.TSEAITR02 A JOIN $schemaId$.TSEAIHE02 B ON A.CNVSNNAME = B.CHNGMSGIDNAME
+			    WHERE B.EAISVCNAME = #eaiSvcName# UNION
+			SELECT LOUTNAME ID, CASE WHEN SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN 'I' ELSE 'O' END  IOTYPE
+			         ,CASE WHEN PSVINTFACDSTICNAME = 'SYNC' AND SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN '수동' 
+			               WHEN PSVINTFACDSTICNAME = 'SYNC' AND SOURCRSULTDSTCD = 'TGT_LAYOUT' THEN '기동'
+			               WHEN EAISVCNAME LIKE '%1' AND SOURCRSULTDSTCD = 'TGT_LAYOUT' THEN 'CBS'
+			               WHEN EAISVCNAME LIKE '%2' AND SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN 'CBS'
+			               ELSE '대외' END TARGETSYSTEM
+			         ,EAISVCNAME, PSVSYSBZWKDSTCD 
+			   FROM	$schemaId$.TSEAITR02 A JOIN $schemaId$.TSEAIHE02 B ON A.CNVSNNAME = B.BASCRSPNSCHNGMSGIDNAME
+			  WHERE B.EAISVCNAME = #eaiSvcName# UNION
+			SELECT LOUTNAME ID, CASE WHEN SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN 'IE' ELSE 'OE' END  IOTYPE
+			         ,CASE WHEN PSVINTFACDSTICNAME = 'SYNC' AND SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN '수동' 
+			               WHEN PSVINTFACDSTICNAME = 'SYNC' AND SOURCRSULTDSTCD = 'TGT_LAYOUT' THEN '기동'
+			               WHEN EAISVCNAME LIKE '%1' AND SOURCRSULTDSTCD = 'TGT_LAYOUT' THEN 'CBS'
+			               WHEN EAISVCNAME LIKE '%2' AND SOURCRSULTDSTCD = 'SRC_LAYOUT' THEN 'CBS'
+			               ELSE '대외' END TARGETSYSTEM
+			         ,EAISVCNAME, PSVSYSBZWKDSTCD 
+			  FROM 	$schemaId$.TSEAITR02 A JOIN $schemaId$.TSEAIHE02 B ON A.CNVSNNAME = B.ERRRSPNSCHNGMSGIDNAME
+			  WHERE B.EAISVCNAME = #eaiSvcName# UNION
+			SELECT REFMSGIDNAME ID, CASE WHEN REFMSGIDNO = 1 THEN 'I' ELSE 'O' END IOTYPE 
+			         ,CASE WHEN PSVINTFACDSTICNAME = 'SYNC' AND REFMSGIDNO = 1 THEN '기동' 
+			               WHEN PSVINTFACDSTICNAME = 'SYNC' AND REFMSGIDNO = 2 THEN '수동'
+			               WHEN PSVINTFACDSTICNAME = 'SYNC' AND REFMSGIDNO = 3 THEN '수동'
+			               WHEN REFMSGIDNAME LIKE '%CBS' THEN 'CBS'
+			               ELSE '대외' END TARGETSYSTEM
+			         ,A.EAISVCNAME, PSVSYSBZWKDSTCD FROM $schemaId$.TSEAIMS02 A JOIN $schemaId$.TSEAIHE02 B ON A.EAISVCNAME = B.EAISVCNAME
+			WHERE B.EAISVCNAME = #eaiSvcName#
+			) A
+			 LEFT OUTER JOIN (  SELECT EAISVCNAME
+			                         , max( CASE WHEN COLUMNNAME = 'COMMON_SRVCID' THEN COLUMNVALUE ELSE '' END) COMMON_SRVCID
+			                      FROM $schemaId$.TSEAIHS04 hs04 , $schemaId$.tseaihs05 hs05
+			                      where hs04.BZWKSVCKEYNAME =hs05.BZWKSVCKEYNAME
+			                     group by hs04.BZWKSVCKEYNAME,EAISVCNAME
+			                  ) HS04 ON A.EAISVCNAME = HS04.EAISVCNAME
+			 LEFT OUTER JOIN $schemaId$.TSEAITR07 TR07 ON TR07.LOUTNAME = A.ID
+			ORDER BY 1
+ 		</statement>
+ 		
+	<!--  목록 조회  -->
+	<statement id="selectListPop" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+          SELECT FA.*, FB.BZWKDSTICNAME 
+          FROM (
+              SELECT ROWNO, LOUTNAME  , LOUTPTRNNAME , LOUTDESC  , 
+              LOUTPTRNDESC , LASTAMNDHMS , EAIBZWKDSTCD , 
+              UAPPLNAME , SYSINTFACNAME 
+                 FROM ( 
+                   SELECT @NO := @NO + 1 AS ROWNO, 
+                   LOUTNAME, LOUTPTRNNAME, LOUTDESC , 
+    	           LOUTPTRNDESC , LASTAMNDHMS , EAIBZWKDSTCD , 
+    	           UAPPLNAME , SYSINTFACNAME 
+                   FROM ( 
+                     SELECT A.LOUTNAME, A.LOUTPTRNNAME, A.LOUTDESC, B.LOUTPTRNDESC, 
+    	          			A.LASTAMNDHMS , A.EAIBZWKDSTCD , A.UAPPLNAME , A.SYSINTFACNAME 
+                     FROM $schemaId$.TSEAITR07 A, $schemaId$.TSEAITR06 B
+                     WHERE A.LOUTPTRNNAME = B.LOUTPTRNNAME
+    				<isNotEmpty prepend="AND" property="searchLoutName">
+    				    UPPER(A.LOUTNAME) LIKE CONCAT('%', UPPER(#searchLoutName#) , '%')
+    				</isNotEmpty>
+
+                    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+                        UPPER(A.EAIBZWKDSTCD) LIKE CONCAT('%' , UPPER(#searchEaiBzwkDstcd#) , '%')
+                    </isNotEmpty>
+
+                    <isNotEmpty prepend="AND" property="searchLoutDesc">
+                        UPPER(A.LOUTDESC) LIKE CONCAT('%' , UPPER(#searchLoutDesc#) , '%')
+                    </isNotEmpty>
+             
+                   ) TMP1, (SELECT @NO := 0) R
+              ) TMP2 WHERE ROWNO BETWEEN  #startNum# AND #endNum#
+         ) FA  LEFT OUTER JOIN $schemaId$.TSEAICM01 FB
+         ON FA.EAIBZWKDSTCD = FB.EAIBZWKDSTCD
+         ORDER BY 1
+	</statement>
+
+	<!--   전체 목록수 얻기 -->
+	<statement id="selectListCountPop" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(*) 
+        FROM $schemaId$.TSEAITR07 
+        <dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="searchLoutName">
+				UPPER(LOUTNAME) LIKE CONCAT('%', UPPER(#searchLoutName#) , '%')
+			</isNotEmpty>
+	
+			<isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+				UPPER(EAIBZWKDSTCD) LIKE CONCAT('%' , UPPER(#searchEaiBzwkDstcd#) , '%')
+			</isNotEmpty>
+	
+			<isNotEmpty prepend="AND" property="searchLoutDesc">
+				UPPER(LOUTDESC) LIKE  CONCAT('%' , UPPER(#searchLoutDesc#) , '%')
+			</isNotEmpty>
+		</dynamic>
+	</statement>
+ 	
+ 	<statement id="insertMappingSyncLog">
+ 		INSERT INTO $schemaId$.TSEAITR09 
+ 		     ( LOGPRCSSSERNO, EXECUTEDATE ,EXECUTECLASS,EXECUTEMETHOD,EXECUTEUSER,SENDXMLCMNT,SENDAMNDHMS )
+ 		VALUES
+  			 ( #logPrcssSerno#, DATE_FORMAT( NOW(), '%Y%m%d') ,#executeClass#,#executeMethod#,#executeUser#,#sendXmlCmnt#, 
+  			 SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 )  )
+ 		</statement>
+ 		
+ 		<statement id="updateMappingSyncLog">
+ 		UPDATE $schemaId$.TSEAITR09
+ 		   SET RECVAMNDHMS=SUBSTR( DATE_FORMAT( NOW(2), '%Y%m%d%H%i%s%f'), 1, 16 ),
+ 		       RECVRSLT=#recvRslt#,
+ 		       RECVFAILCMNT=#recvFailCmnt#
+ 		 WHERE LOGPRCSSSERNO = #logPrcssSerno# 
+ 		</statement>	
+    <!--  item delete  -->
+    <statement id="deleteItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        DELETE FROM $schemaId$.TSEAITR08
+        WHERE LOUTNAME=#loutName# 
+        AND   LOUTITEMNAME =#loutItemName#
+        AND   LOUTITEMSERNO=#loutItemSerno# 
+    </statement>
+
+    <!--  item insert -->
+    <statement id="insertItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO  $schemaId$.TSEAITR08 ( 
+            LOUTNAME, LOUTITEMNAME, LOUTITEMIDNAME, PARNTLOUTITEMIDNAME, LOUTITEMDESC, LOUTITEMNODEPTRNIDNAME, 
+            LOUTITEMPTRNIDNAME, LOUTITEMPATHNAME, LOUTITEMLENCNT, LOUTITEMREFINFO, LOUTITEMREFINFO2, 
+            LOUTITEMSERNO, LOUTITEMOCCURPTRNDSTCD, LOUTITEMMAXOCCURNOITM, LOUTITEMMINOCCURNOITM, 
+            LOUTITEMBASCVAL, LOUTITEMMSKYN, LOUTITEMMASKLENGTH, LYOUTDPTCNT, DECPTLENCNT, LYOUTITEMREFPTRNIDNAME  
+        ) VALUES (
+            #loutName#, #loutItemName#, #loutItemIDName#, #parntLoutItemIDName#, #loutItemDesc#, #loutItemNodePtrnIDName#, 
+            #loutItemPtrnIDName#, #loutItemPathName#, #loutItemLenCnt#, #loutItemRefInfo#, #loutItemRefInfo2#, 
+            #loutItemSerno#, #loutItemOccurPtrnDstcd#, #loutItemMaxOccurNoitm#, #loutItemMinOccurNoitm#, 
+            #loutItemBascVal#, #loutItemMskYn#, #loutItemMaskLength#,  #lyoutDptCnt#, #decptLenCnt#, #lyoutItemRefPtrnIDName#
+        ) 
+    </statement>
+
+    <!--  item update -->
+    <statement id="updateItem" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        UPDATE  $schemaId$.TSEAITR08
+        SET 
+            LOUTNAME =                       #loutName#,                     
+            LOUTITEMNAME =                   #loutItemName#,                 
+            LOUTITEMIDNAME =                 #loutItemIDName#,               
+            PARNTLOUTITEMIDNAME =            #parntLoutItemIDName#,          
+            LOUTITEMDESC =                   #loutItemDesc#,                 
+            LOUTITEMNODEPTRNIDNAME =         #loutItemNodePtrnIDName#,       
+            LOUTITEMPTRNIDNAME =             #loutItemPtrnIDName#,           
+            LOUTITEMPATHNAME =               #loutItemPathName#,             
+            LOUTITEMLENCNT =                 #loutItemLenCnt#,               
+            LOUTITEMREFINFO =                #loutItemRefInfo#,              
+            LOUTITEMREFINFO2 =               #loutItemRefInfo2#,             
+            LOUTITEMSERNO =                  #loutItemSerno#,                
+            LOUTITEMOCCURPTRNDSTCD =         #loutItemOccurPtrnDstcd#,       
+            LOUTITEMMAXOCCURNOITM =          #loutItemMaxOccurNoitm#,        
+            LOUTITEMMINOCCURNOITM =          #loutItemMinOccurNoitm#,        
+            LOUTITEMBASCVAL =                #loutItemBascVal#,              
+            LOUTITEMMSKYN =                  #loutItemMskYn#,
+            LOUTITEMMASKLENGTH =             #loutItemMaskLength#,
+            LYOUTDPTCNT =                  #lyoutDptCnt#, 
+            DECPTLENCNT =                    #decptLenCnt#,                 
+            LYOUTITEMREFPTRNIDNAME =         #lyoutItemRefPtrnIDName#                 
+        WHERE LOUTNAME = #loutName# 
+        AND LOUTITEMNAME =#loutItemName# 
+        AND LOUTITEMSERNO =#loutItemSerno#
+    </statement>
+    
+    <statement id="insertTR08" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        INSERT INTO $schemaId$.TSEAITR08 ( LOUTNAME, LOUTITEMNAME, LOUTITEMSERNO, LOUTITEMIDNAME, PARNTLOUTITEMIDNAME,
+                                      LOUTITEMDESC, LOUTITEMNODEPTRNIDNAME, LOUTITEMPTRNIDNAME, LOUTITEMPATHNAME, LOUTITEMLENCNT,
+                                      LOUTITEMREFINFO, LOUTITEMREFINFO2, LOUTITEMOCCURPTRNDSTCD, LOUTITEMMAXOCCURNOITM, LOUTITEMMINOCCURNOITM,
+                                      LOUTITEMBASCVAL, LOUTITEMMSKYN, LYOUTDPTCNT, DECPTLENCNT, LYOUTITEMREFPTRNIDNAME   )
+        VALUES ( #loutName#, #loutItemName#, #loutItemSerno#, #loutItemIDName#, #parntLoutItemIDName#,
+                 #loutItemDesc#, #loutItemNodePtrnIDName#, #loutItemPtrnIDName#, #loutItemPathName#, #loutItemLenCnt#,
+                 #loutItemRefInfo#, #loutItemRefInfo2#, #loutItemOccurPtrnDstcd#, #loutItemMaxOccurNoitm#, #loutItemMinOccurNoitm#,
+                 #loutItemBascVal#, #loutItemMskYn#, #lyoutDptCnt#, #decptLenCnt#, #lyoutItemRefPtrnIDName#   )
+    </statement>
+    <!-- 여기 까지 마이그레이션 영역 -->
+        
+        <statement id="insertLayoutSyncLog">
+        INSERT INTO $schemaId$.TSEAITR10
+             ( LOGPRCSSSEQNO, SEQNO, SERVICENAME ,COMMAND,LOUTNAME,RECVDATA,RECVAMNDHMS,PRCSSRSLT, PRCSSRSLTCMNT )
+        VALUES
+             ( #logPrcssSeqno#, #seqno#, #serviceName# ,#command#,#loutName#,#recvData#,#recvAmndHMS#,#prcssRslt#, #prcssRsltCmnt# )
+        </statement>
+</sqlMap>

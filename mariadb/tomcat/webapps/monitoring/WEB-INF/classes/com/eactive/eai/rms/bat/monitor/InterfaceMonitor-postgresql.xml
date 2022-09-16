@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BatInterfaceMonitor">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT ROWNO AS "ROWNO"
+		     , IntfId               as "INTFID"
+			 , WorkGrpCd            as "WORKGRPCD"
+		     , Level4               as "LEVEL4"
+		     , BjobMsgScheID        as "BJOBMSGSCHEID"
+		     , IntfName             as "INTFNAME"
+		     , BatchType            as "BATCHTYPE"
+		     , BjobDmndMsgID        as "BJOBDMNDMSGID"
+		     , errYn                as "ERRYN"
+		     , MsgCnt               as "MSGCNT"
+		     , SndStartDate         as "SNDSTARTDATE"
+		     , IntfIdEndDate        as "INTFIDENDDATE"
+		     , SchedulTime          as "SCHEDULTIME"
+		     , IntfEndDate          as "INTFENDDATE"
+		     , CheckName            as "CHECKNAME"
+		     , DelYn                as "DELYN"
+		     , CheckBaseDate        as "CHECKBASEDATE"
+		     , CheckRowCnt          as "CHECKROWCNT"
+		     , SndLineCnt           as "SNDLINECNT"
+		     , RcvLineCnt           as "RCVLINECNT"
+		     , ScheKind             as "SCHEKIND"
+		     , EventCallVal         as "EVENTCALLVAL"
+		     , fileTrsmtSizeCtnt    as "FILETRSMTSIZECTNT"
+		FROM ( SELECT ROW_NUMBER() OVER(ORDER BY A.WorkGrpCd, A.IntfId, C.SndStartDate DESC) ROWNO,  
+		              A.WorkGrpCd,
+		              A.IntfId,
+		              A.Level4,
+		              COALESCE(B.BjobMsgScheID,'') AS BjobMsgScheID,
+		              A.IntfName,
+		              A.BatchType,
+		              C.BjobDmndMsgID,
+		              C.errYn,
+		              (SELECT COUNT(BjobMsgScheID) 
+		               FROM $schemaId$.TSEAIES01
+		               WHERE IntfId=A.IntfId 
+		               AND MsgRegDate BETWEEN #searchStartTime# AND #searchEndTime# ) AS MsgCnt,
+		              C.SndStartDate,
+		              C.IntfIdEndDate,
+		              SUBSTR(B.SndrcvStartHMS,1,2)||':'||SUBSTR(B.SndrcvStartHMS,3,2)|| '~' || SUBSTR(B.SndrcvEndHMS,1,2)||':'||SUBSTR(B.SndrcvEndHMS,3,2) AS SchedulTime,
+		              A.IntfEndDate,
+		              (SELECT CheckName
+		               FROM $schemaId$.TSEAIEA05
+		               WHERE AdptrCd=A.SndAdptrCd
+		               AND AdptrCdSeq=A.SndAdptrCdSeq) AS CheckName,
+		              A.DelYn ,
+		              C.CheckBaseDate,
+		              C.CheckRowCnt,
+		              C.SndLineCnt,
+		              C.RcvLineCnt,
+		              B.ScheKind,
+		              A.EventCallVal,
+		              D.fileTrsmtSizeCtnt
+	           FROM   $schemaId$.TSEAIEA04 A
+						LEFT OUTER JOIN
+	                  ( SELECT TB1.BjobMsgScheID,
+	                           TB2.intfId,
+	                           TB1.SndrcvStartHMS,
+	                           TB1.SndrcvEndHMS,
+	                           TB1.scheKind
+	                    FROM $schemaId$.TSEAIES07 TB1,
+	                         $schemaId$.TSEAIES09 TB2
+	                    WHERE TB1.BjobMsgScheID = TB2.BjobMsgScheID
+	                    AND   TB1.ThisMsgUseYn = '1'
+	                  ) B
+					 ON  A.intfId=B.intfId
+					  LEFT OUTER JOIN
+	                  ( SELECT * FROM (
+	                    SELECT T1.intfId,
+	                           T1.BjobDmndMsgID,
+	                           COALESCE(T1.ErrYn,'N') AS ErrYn,
+	                           T1.sndStartDate,
+	                           T1.intfIdEndDate,
+	                           T1.checkBaseDate,
+	                           T1.checkRowCnt,
+	                           T1.sndLineCnt,
+	                           T1.rcvLineCnt,
+	                           ROW_NUMBER() OVER(PARTITION BY T1.intfId ORDER BY T1.msgRegDate DESC ) RN
+		 	            FROM $schemaId$.TSEAIES01 T1 
+		 	            WHERE msgRegDate BETWEEN #searchStartTime# AND #searchEndTime# ) AS TB
+		 	            WHERE RN = 1
+	                  ) C
+					 ON   A.intfId=C.intfId
+		 	   		  LEFT OUTER JOIN
+	                  ( SELECT T1.intfId,
+	                           T2.fileTrsmtSizeCtnt
+	                    FROM ( SELECT * 
+		 	            FROM ( SELECT T1.intfId AS intfId ,
+		 	                          T1.BjobDmndMsgID,
+		 	                          row_number() over(partition by T1.intfId order by T1.msgRegDate desc ) rn
+                               FROM   $schemaId$.TSEAIES01 T1
+                               WHERE  T1.msgRegDate BETWEEN #searchStartTime# AND #searchEndTime#
+                        ) AS TB WHERE rn = 1                                     
+                        ) T1, $schemaId$.TSEAIES03 T2 
+		 	             WHERE  T1.intfId = T2.intfId
+		 	             AND    T1.BjobDmndMsgID=T2.BjobDmndMsgID
+		 	             AND    T2.sndRcvKind='1' 
+	                  ) D
+	                  ON  A.intfId=D.intfId
+	           WHERE A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	           <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+                   A.workGrpCd =  #searchEaiBzwkDstcd#
+               </isNotEmpty>
+	           <isNotEmpty prepend="AND" property="searchDelYn">
+         	       A.delYn =  #searchDelYn#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchBatchType">
+         			  A.batchType = #searchBatchType#
+               </isNotEmpty>
+         	   <isNotEmpty prepend="AND" property="searchErrorVal">
+         	          COALESCE(C.errYn,'N') = #searchErrorVal#
+               </isNotEmpty>
+               <isNotEmpty prepend="AND" property="searchInterfaceNm">
+                      ( A.intfName LIKE '%' || #searchInterfaceNm# || '%' OR A.intfId LIKE '%' || #searchInterfaceNm# || '%' )
+               </isNotEmpty>
+	           ORDER BY ROWNO
+			 ) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(A.intfId) AS "TOTALCOUNT"
+	    FROM   $schemaId$.TSEAIEA04 A
+	    		LEFT OUTER JOIN
+	           ( SELECT tb1.BjobMsgScheID,
+	                    tb2.intfId,
+	                    tb1.SndrcvStartHMS,
+	                    tb1.SndrcvEndHMS,
+	                    tb1.scheKind
+	             FROM $schemaId$.TSEAIES07 tb1
+					LEFT OUTER JOIN
+	                  $schemaId$.TSEAIES09 tb2
+	             ON tb1.BjobMsgScheID = tb2.BjobMsgScheID
+	           ) B
+				ON A.IntfId=B.IntfId
+				LEFT OUTER JOIN
+	           ( SELECT * FROM (
+	             SELECT T1.intfId,
+	                    T1.BjobDmndMsgID,
+	                    T1.errYn,
+	                    T1.sndStartDate,
+	                    T1.intfIdEndDate,
+	                    T1.checkBaseDate,
+	                    T1.checkRowCnt,
+	                    T1.sndLineCnt,
+	                    T1.rcvLineCnt,
+	                    ROW_NUMBER() OVER(PARTITION BY T1.intfId ORDER BY T1.msgRegDate DESC ) RN
+		 	     FROM $schemaId$.TSEAIES01 T1 
+		 	     WHERE msgRegDate BETWEEN #searchStartTime# AND #searchEndTime# ) AS TB
+		 	     WHERE RN = 1
+	             ) C
+	             ON A.IntfId=C.IntfId
+	    WHERE  A.workGrpCd IN (SELECT EAIBzwkDstcd FROM $schemaId$.TSEAIRM06 WHERE userID = #loginEmpno# )
+	    <isNotEmpty prepend="AND" property="searchEaiBzwkDstcd">
+            A.workGrpCd =  #searchEaiBzwkDstcd#
+        </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="searchDelYn">
+         	A.delYn =  #searchDelYn#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchBatchType">
+         	A.batchType = #searchBatchType#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchErrorVal">
+         	COALESCE(C.errYn,'N') = #searchErrorVal#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="searchInterfaceNm">
+            ( A.intfName LIKE '%' || #searchInterfaceNm# || '%' OR A.intfId LIKE '%' || #searchInterfaceNm# || '%' )
+        </isNotEmpty>
+	</statement>	
+	
+</sqlMap>

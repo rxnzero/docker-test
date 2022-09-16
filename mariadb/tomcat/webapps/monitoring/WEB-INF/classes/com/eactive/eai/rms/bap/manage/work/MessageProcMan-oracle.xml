@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapMessageProc">
+	<statement id="selectList" resultClass="java.util.HashMap">
+        SELECT BjobMsgDstcd            ,
+               BjobBzwkDstcd           ,
+               BjobBzwkName            ,
+               BjobMsgDsticName        ,
+               BjobTranDstcdName       ,
+               EAIFileSendUseYn        ,
+               EAIFileRecvUseYn        ,
+               ThisMsgUseYn            ,
+               UapplCd                 ,
+               GroupCoCd               ,
+               BjobTelgmRecSize        ,
+               SndrcvFileName          ,
+               ThisMsgChrgIDs          ,
+                ROWNO
+        FROM ( SELECT ROW_NUMBER() OVER(ORDER BY BjobTranDstcdName, BjobMsgDstcd) ROWNO,
+                      A.BjobMsgDstcd,
+                      A.BjobBzwkDstcd,
+                      B.BjobBzwkName,
+                      A.BjobMsgDsticName,
+                      A.BjobTranDstcdName,
+                      A.BjobTelgmRecSize,
+                      A.EAIFileSendUseYn,
+                      A.EAIFileRecvUseYn,
+                      A.SndrcvFileName,
+                      A.ThisMsgUseYn,
+                      A.ThisMsgChrgIDs,	
+                      A.UapplCd,	
+                      A.GroupCoCd	
+               FROM   $schemaId$.TSEAIBJ01 A, $schemaId$.TSEAIBJ02 B
+               WHERE  A.BjobBzwkDstcd = B.BjobBzwkDstcd
+               AND    B.BjobBzwkName Like #likeBjobBzwkName#
+               AND    A.BjobMsgDsticName Like #likeBjobMsgDsticName#
+               AND    A.BjobTranDstcdName Like #likeBjobTranDstcdName#
+               AND    A.UapplCd Like #likeUapplCd#
+               AND    A.ThisMsgChrgIDs LIKE #likeThisMsgChrgIDs#
+			<isNotEmpty prepend="AND" property="groupCoCd" >
+                      A.GroupCoCd = #searchGroupCoCd#
+			</isNotEmpty>
+	         ) TMP
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+    <statement id="generatePK" resultClass="java.lang.String">
+        SELECT COALESCE (MAX(SUBSTR(BjobMsgDstcd, 1,5)) || SUBSTR(TO_CHAR(TO_NUMBER(MAX(SUBSTR(BjobMsgDstcd, 6)))+100001 ),2), #bjobBzwkDstcd# || '00001' )
+        FROM   $schemaId$.TSEAIBJ01
+        WHERE BjobBzwkDstcd = #bjobBzwkDstcd#
+    </statement>
+
+    <statement id="checkCount" resultClass="java.lang.Integer">
+        SELECT COUNT(BjobMsgDstcd)
+        FROM   $schemaId$.TSEAIBJ01
+        WHERE BjobMsgDstcd = #bjobMsgDstcd#
+        OR   ( BjobBzwkDstcd = #bjobBzwkDstcd# AND BjobTranDstcdName = #bjobTranDstcdName# )
+    </statement>
+    
+	<statement id="getBzwkDstcd" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+         SELECT BjobBzwkDstcd, BjobBzwkName
+         FROM $schemaId$.TSEAIBJ02
+         ORDER BY BjobBzwkDstcd
+	</statement>
+	
+	<statement id="getProps" resultClass="java.util.HashMap">
+        SELECT NVL(A.PrptyName, B.PrptyName) AS PrptyName,
+               A.PrptyDesc,
+               B.Prpty2Val
+        FROM ( SELECT PrptyName,
+                      PrptyDesc
+               FROM $schemaId$.TSEAIBP06
+               WHERE  BjobBzwkDstcd = #bjobBzwkDstcd#
+               AND    PrptyTypDstcd = 'F' ) A
+             FULL OUTER JOIN
+             ( SELECT PrptyName,
+                      Prpty2Val
+               FROM   $schemaId$.TSEAIBP02
+               WHERE  PrptyGroupName = #propGroupName# ) B
+             ON A.PrptyName = B.PrptyName
+             ORDER BY A.PrptyName
+	</statement>	
+		
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBJ01 (
+		    BjobMsgDstcd              ,
+		    BjobMsgDsticName          ,
+		    BjobBzwkDstcd             ,
+		    BjobTranDstcdName         ,
+            BjobTelgmHdrSize          ,
+            BjobTelgmTrailSize        ,
+            EAIFileSendUseYn          ,
+            EAIFileRecvUseYn          ,
+            RecvNotiUseYn             ,
+            ThisMsgUseYn              ,
+            ThisMsgRegsntID           ,
+            ThisMsgRegiHMS            ,
+            ThisMsgAmndrID            ,
+            ThisMsgAmndHMS            ,
+            MsgPrcssPrity             ,
+            BjobTelgmRecSize          ,
+            SysCd                     ,
+            UapplCd                   ,
+            SndrcvFileName            ,
+            ThisMsgChrgIDs            ,
+            GroupCoCd                 ,
+            intfID                    )
+		VALUES (
+		    #bjobMsgDstcd#              ,
+		    #bjobMsgDsticName#          ,
+		    #bjobBzwkDstcd#             ,
+		    #bjobTranDstcdName#         ,
+            #bjobTelgmHdrSize#          ,
+            #bjobTelgmTrailSize#        ,
+            #fileSendUseYn#             ,
+            #fileRecvUseYn#             ,
+            #recvNotiUseYn#             ,
+            #thisMsgUseYn#              ,
+            #userid#           ,
+            TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3'),
+            #userid#            ,
+            TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3'),
+            #msgPrcssPrity#             ,
+            #bjobTelgmRecSize#          ,
+            #sysCd#                     ,
+            #uapplCd#                   ,
+            #sndrcvFileName#            ,
+            #thisMsgChrgIDs#            ,
+            #groupCoCd#                 ,
+            #intfID#                    )
+	</statement>
+
+	<statement id="update" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBJ01
+		SET BjobMsgDsticName          =  #bjobMsgDsticName#          ,
+		    BjobBzwkDstcd             =  #bjobBzwkDstcd#             ,
+		    BjobTranDstcdName         =  #bjobTranDstcdName#         ,
+            BjobTelgmHdrSize          =  #bjobTelgmHdrSize#          ,
+            BjobTelgmTrailSize        =  #bjobTelgmTrailSize#        ,
+            EAIFileSendUseYn          =  #fileSendUseYn#             ,
+            EAIFileRecvUseYn          =  #fileRecvUseYn#             ,
+            RecvNotiUseYn             =  #recvNotiUseYn#             ,
+            ThisMsgUseYn              =  #thisMsgUseYn#              ,
+            ThisMsgAmndrID            =  #userid#            ,
+            ThisMsgAmndHMS            =  TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3'),
+            MsgPrcssPrity             =  #msgPrcssPrity#             ,
+            BjobTelgmRecSize          =  #bjobTelgmRecSize#          ,
+            SysCd                     =  #sysCd#                     ,
+            UapplCd                   =  #uapplCd#                   ,
+            SndrcvFileName            =  #sndrcvFileName#            ,
+            ThisMsgChrgIDs            =  #thisMsgChrgIDs#            ,
+            GroupCoCd                 =  #groupCoCd#                 ,
+            intfID                    =  #intfID#                   
+		WHERE BjobMsgDstcd = #bjobMsgDstcd#
+		
+	</statement>
+
+	<statement id="userCount" resultClass="java.lang.Integer">
+        SELECT COUNT(*) AS "TotalCount"
+        FROM   $schemaId$.TSEAIRM02
+		<dynamic prepend="WHERE">
+		    <isNotEmpty prepend="AND" property="pafiarInfoEmpid" >
+                 PafiarInfoEmpid LIKE #pafiarInfoEmpid# || '%' 
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="userName" >
+                 UserName LIKE #userName# || '%'
+		    </isNotEmpty>
+		</dynamic> 
+	</statement>	
+
+	<statement id="getUserList" resultClass="java.util.HashMap">
+        SELECT PafiarInfoEmpid,
+               UserName
+        FROM   ( SELECT ROW_NUMBER() OVER(ORDER BY PafiarInfoEmpid) ROWNO,
+                        PafiarInfoEmpid,
+                        UserName
+                 FROM   $schemaId$.TSEAIRM02
+		<dynamic prepend="WHERE">
+		    <isNotEmpty prepend="AND" property="pafiarInfoEmpid" >
+                 PafiarInfoEmpid LIKE #pafiarInfoEmpid# || '%' 
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="userName" >
+                 UserName LIKE #userName# || '%'
+		    </isNotEmpty>
+		</dynamic> 
+	           ) TMP
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="getUserList2" resultClass="java.util.HashMap">
+        SELECT PafiarInfoEmpid,
+               UserName
+        FROM   $schemaId$.TSEAIRM02
+        WHERE  PafiarInfoEmpid IN (
+                                <iterate property="chrgIDs" conjunction=", ">
+                                    #chrgIDs[]#
+                                </iterate>
+                                    )
+	</statement>	
+
+	<statement id="getUserList3" resultClass="java.util.HashMap">
+        SELECT PafiarInfoEmpid,
+               UserName
+        FROM   $schemaId$.TSEAIRM02
+	</statement>	
+
+</sqlMap>

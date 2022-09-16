@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapProcPeriod">
+	<statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS "CNT"
+		  FROM $schemaId$.TSEAIBS05 A
+			 , $schemaId$.TSEAIBJ01 B
+			 , $schemaId$.TSEAIBJ02 C
+			 , $schemaId$.TSEAIBJ06 D	
+		 WHERE A.BJOBMSGDSTCD	= B.BJOBMSGDSTCD
+		   AND B.BJOBBZWKDSTCD	= C.BJOBBZWKDSTCD
+		   AND B.BJOBBZWKDSTCD	= D.BJOBBZWKDSTCD
+		   AND A.OSIDINSTIDSTCD	= D.OSIDINSTIDSTCD
+		   
+		<isNotEmpty prepend="AND" property="searchBjobBzwkName">
+			C.BJOBBZWKNAME LIKE '%'||#searchBjobBzwkName#||'%'
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="searchOsidInstiName">
+			D.OSIDINSTINAME LIKE '%'||#searchOsidInstiName#||'%'
+		</isNotEmpty>
+	</statement>
+	
+	<statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT ROWNO AS "ROWNO"
+					  , BJOBBZWKNAME AS "BJOBBZWKNAME"
+					  , OSIDINSTINAME AS "OSIDINSTINAME"
+					  , BJOBTRANDSTCDNAME AS "BJOBTRANDSTCDNAME"
+					  , BJOBMSGDSTICNAME AS "BJOBMSGDSTICNAME"
+					  , BJOBMSGSCHEID AS "BJOBMSGSCHEID"
+					  , OSIDINSTIDSTCD AS "OSIDINSTIDSTCD"
+					  , BJOBMSGDSTCD AS "BJOBMSGDSTCD"
+					  , SENDRECVYN AS "SENDRECVYN"
+					  , SNDRCVCYCLTYPNAME AS "SNDRCVCYCLTYPNAME"
+					  , SNDRCVSTARTHMS AS "SNDRCVSTARTHMS"
+					  , SNDRCVENDHMS AS "SNDRCVENDHMS"
+					  , WARNYN AS "WARNYN"
+					  , THISMSGUSEYN AS "THISMSGUSEYN"
+					  , THISMSGREGSNTID AS "THISMSGREGSNTID"
+					  , THISMSGREGIHMS AS "THISMSGREGIHMS"
+					  , THISMSGAMNDRID AS "THISMSGAMNDRID"
+					  , THISMSGAMNDHMS AS "THISMSGAMNDHMS"
+		  FROM (
+				 SELECT ROW_NUMBER() OVER (ORDER BY C.BJOBBZWKNAME, D.OSIDINSTINAME, A.BJOBMSGSCHEID) ROWNO
+					  , C.BJOBBZWKNAME
+					  , D.OSIDINSTINAME
+					  , B.BJOBTRANDSTCDNAME
+					  , B.BJOBMSGDSTICNAME
+					  , A.BJOBMSGSCHEID
+					  , A.OSIDINSTIDSTCD
+					  , A.BJOBMSGDSTCD
+					  , A.SENDRECVYN
+					  , LTRIM(RTRIM(A.SNDRCVCYCLTYPNAME))	AS SNDRCVCYCLTYPNAME
+					  , A.SNDRCVSTARTHMS
+					  , A.SNDRCVENDHMS
+					  , A.EAIWARNYN AS WARNYN
+					  , A.THISMSGUSEYN
+					  , A.THISMSGREGSNTID
+					  , A.THISMSGREGIHMS
+					  , A.THISMSGAMNDRID
+					  , A.THISMSGAMNDHMS
+				   FROM $schemaId$.TSEAIBS05 A
+					  , $schemaId$.TSEAIBJ01 B
+					  , $schemaId$.TSEAIBJ02 C
+					  , $schemaId$.TSEAIBJ06 D
+				  WHERE A.BJOBMSGDSTCD		= B.BJOBMSGDSTCD
+					AND B.BJOBBZWKDSTCD		= C.BJOBBZWKDSTCD
+					AND B.BJOBBZWKDSTCD		= D.BJOBBZWKDSTCD
+					AND A.OSIDINSTIDSTCD	= D.OSIDINSTIDSTCD
+					
+					<isNotEmpty prepend="AND" property="searchBjobBzwkName">
+						C.BJOBBZWKNAME LIKE '%'||#searchBjobBzwkName#||'%'
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchOsidInstiName">
+						D.OSIDINSTINAME LIKE '%'||#searchOsidInstiName#||'%'
+					</isNotEmpty>
+			   ) ORGTABLE
+		 WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+
+	<statement id="generatePK" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+		SELECT BjobBzwkDstcd|| #sendRecvYn# ||BjobTranDstcdName||
+				(
+					SELECT
+		        		   CASE LENGTH(TO_CHAR(TO_NUMBER(COALESCE(MAX(SUBSTR(RTRIM(BJOBMSGSCHEID), LENGTH(RTRIM(BJOBMSGSCHEID))-2, 3)), '0')) + 1))
+								WHEN 1
+									THEN '00' || TO_CHAR(TO_NUMBER(COALESCE(MAX(SUBSTR(RTRIM(BJOBMSGSCHEID), LENGTH(RTRIM(BJOBMSGSCHEID))-2, 3)), '0')) + 1)
+								WHEN 2                 
+									THEN '0' || TO_CHAR(TO_NUMBER(COALESCE(MAX(SUBSTR(RTRIM(BJOBMSGSCHEID), LENGTH(RTRIM(BJOBMSGSCHEID))-2, 3)), '0')) + 1)
+								WHEN 3
+									THEN TO_CHAR(TO_NUMBER(COALESCE(MAX(SUBSTR(RTRIM(BJOBMSGSCHEID), LENGTH(RTRIM(BJOBMSGSCHEID))-2, 3)), '0')) + 1)
+							END
+					  FROM $schemaId$.TSEAIBS05
+					 WHERE BJOBMSGDSTCD = #bjobMsgDstcd#
+				) LEFTCODE
+		  FROM $schemaId$.TSEAIBJ01
+		 WHERE BJOBMSGDSTCD = #bjobMsgDstcd#
+	</statement>
+	
+	<statement id="checkCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+        SELECT COUNT(BJOBMSGSCHEID)
+        FROM   $schemaId$.TSEAIBS05
+        WHERE  LTRIM(RTRIM(BJOBMSGSCHEID)) = #bjobMsgScheID#
+    </statement>
+    
+</sqlMap>

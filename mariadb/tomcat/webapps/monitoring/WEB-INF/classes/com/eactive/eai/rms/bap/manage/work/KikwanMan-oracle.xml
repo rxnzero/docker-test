@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapKikwan">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT
+	       ROWNO, 
+	       KikwanCd         ,  
+	       KikwanName       , 
+	       SysIp            ,  
+	       EncIp            ,  
+	       ThisMsgUseYn     ,
+	       ThisMsgRegsntID  ,  
+	       ThisMsgRegiHMS   ,  
+	       ThisMsgAmndrID   ,
+	       ThisMsgAmndHMS  
+	  	FROM (
+		    SELECT
+		       ROW_NUMBER() OVER( ORDER BY KikwanCd) ROWNO, 
+		       KikwanCd         ,  
+		       KikwanName       , 
+		       SysIp            ,  
+		       EncIp            ,  
+		       ThisMsgUseYn     ,
+		       ThisMsgRegsntID  ,  
+		       ThisMsgRegiHMS   ,  
+		       ThisMsgAmndrID   ,
+		       ThisMsgAmndHMS  
+		      FROM $schemaId$.TSEAIBJ21
+		    <dynamic prepend="WHERE">
+			    <isNotEmpty prepend="AND" property="searchKikwanCd">
+					UPPER(KikwanCd) LIKE '%' || UPPER(#searchKikwanCd#) || '%'
+				</isNotEmpty>
+			    <isNotEmpty prepend="AND" property="searchKikwanName">
+					KikwanName LIKE '%' || #searchKikwanName# || '%'
+				</isNotEmpty> 
+			</dynamic> 
+	       ) TMP
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT 	COUNT(*) AS TotalCount
+		FROM $schemaId$.TSEAIBJ21
+	    <dynamic prepend="WHERE">
+		    <isNotEmpty prepend="AND" property="searchKikwanCd">
+				KikwanCd LIKE '%' || #searchKikwanCd# || '%' 
+			</isNotEmpty>
+		    <isNotEmpty prepend="AND" property="searchKikwanName">
+				KikwanName LIKE '%' || #searchKikwanName# || '%' 
+			</isNotEmpty> 
+		</dynamic> 			
+	</statement>	
+	
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	
+	       KikwanCd         ,  
+	       KikwanName       , 
+	       SysIp            ,  
+	       EncIp            ,  
+	       ThisMsgUseYn     ,
+	       ThisMsgRegsntID  ,  
+	       ThisMsgRegiHMS   ,  
+	       ThisMsgAmndrID   ,
+	       ThisMsgAmndHMS  
+        FROM $schemaId$.TSEAIBJ21
+	    WHERE TRIM(KikwanCd) = TRIM(#kikwanCd#)
+	</statement>  
+	<statement id="update" resultClass="java.lang.Integer">
+		UPDATE $schemaId$.TSEAIBJ21 
+		SET
+			 KikwanName = #kikwanName#,
+			 SysIp = #SysIp#,
+			 EncIP = #EncIp#,
+			 ThisMsgUseYn = #thisMsgUseYn#,
+			 ThisMsgAmndrID = #userid#,
+			 ThisMsgAmndHMS = TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3')
+		WHERE KikwanCd = #kikwanCd#
+	</statement>
+	
+	<statement id="insert" resultClass="java.lang.Integer">
+		INSERT INTO $schemaId$.TSEAIBJ21 (
+	       KikwanCd         ,  
+	       KikwanName       , 
+	       SysIp            ,  
+	       EncIp            ,  
+	       ThisMsgUseYn     ,
+	       ThisMsgRegsntID  ,  
+	       ThisMsgRegiHMS   ,  
+	       ThisMsgAmndrID   ,
+	       ThisMsgAmndHMS    )
+		VALUES (
+			#kikwanCd# ,
+			#kikwanName# ,
+			#SysIp#,
+			#EncIp#,
+			#thisMsgUseYn# ,
+			#userid# ,
+			TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3'),
+			#userid# ,
+			TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3') 
+		)
+	</statement>
+	
+
+	<statement id="delete" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIBJ21 
+        WHERE KikwanCd = #kikwanCd#
+	</statement>
+
+     <statement id="selectAutoCd" resultClass="java.util.HashMap">
+		SELECT 	
+         REPLACE(CONCAT('KJB',TO_CHAR(TO_NUMBER(substr(NVL(MAX(KikwanCd),'0000'),4))+1,'0999999')),' ','') AS AUTOCD                 
+        FROM $schemaId$.TSEAIBJ21
+        WHERE KikwanCd LIKE 'KJB%'
+	
+    </statement>   
+ 
+</sqlMap>

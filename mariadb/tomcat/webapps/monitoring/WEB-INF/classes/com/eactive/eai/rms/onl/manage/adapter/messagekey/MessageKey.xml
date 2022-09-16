@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MessageKey">
+    <!-- statement id="selectListAll" resultClass="java.util.HashMap">    
+		SELECT ADPTRBZWKGROUPNAME 
+		     , MSGDSTCD
+		     , IODSTCD
+		     , GROUPINORNO
+		     , FLDPRCSSNO
+		     , BZWKFLDNAME
+		     , CLSNAME
+		     , MSGFLDSTARTSITUVAL
+		     , MSGFLDLEN
+		     , NOMALPRCSSCTNT 
+		FROM   $schemaId$.TSEAIFR04
+		ORDER  BY ADPTRBZWKGROUPNAME, MSGDSTCD, IODSTCD, GROUPINORNO, FLDPRCSSNO
+  </statement-->
+  
+  <!-- statement id="getMessageKey" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">  
+		SELECT ADPTRBZWKGROUPNAME
+		     , MSGDSTCD
+		     , IODSTCD
+		     , GROUPINORNO
+		     , FLDPRCSSNO
+		     , BZWKFLDNAME
+		     , CLSNAME
+		     , MSGFLDSTARTSITUVAL
+		     , MSGFLDLEN 
+		     , NOMALPRCSSCTNT   
+		FROM   $schemaId$.TSEAIFR04 
+		WHERE  ADPTRBZWKGROUPNAME = #adptrBzwkGroupName#
+		AND    IODSTCD = #ioDstCd#
+		ORDER  BY ADPTRBZWKGROUPNAME, MSGDSTCD, IODSTCD, GROUPINORNO, FLDPRCSSNO
+  </statement-->
+  </sqlMap>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MonitoringProperty">
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE  $schemaId$.TSEAIRM07 
+				SET PrptyGroupDesc = #prptyGroupDesc#
+		WHERE 	PrptyGroupName = #prptyGroupName#	
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIRM07
+				(PrptyGroupName, PrptyGroupDesc) 
+                VALUES(#prptyGroupName#, #prptyGroupDesc#)	
+	</statement>	
+	
+	<statement id="insertProperty" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAIRM08
+				(PrptyGroupName, PrptyName, Prpty2Val) 
+                VALUES(#prptyGroupName#, #prptyName#, #prpty2Val# )	
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIRM07 WHERE PrptyGroupName = #prptyGroupName#
+	</statement>
+	
+	<statement id="deleteProperty" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAIRM08 WHERE PrptyGroupName = #prptyGroupName#
+	</statement>
+</sqlMap>

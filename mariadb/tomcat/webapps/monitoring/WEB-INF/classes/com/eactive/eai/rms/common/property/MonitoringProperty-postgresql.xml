@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MonitoringProperty">
+
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT 
+			ROWNO AS "ROWNO" , 
+			PrptyGroupName AS "PRPTYGROUPNAME", 
+			PrptyGroupDesc  AS "PRPTYGROUPDESC"
+		FROM (
+				<!-- SELECT     ROW_NUMBER() OVER (ORDER BY PRPTYGROUPNAME) ROWNUM, -->  
+                SELECT  ROW_NUMBER() OVER (ORDER BY PRPTYGROUPNAME) AS ROWNO, 
+						PrptyGroupName, PrptyGroupDesc  
+						FROM  $schemaId$.TSEAIRM07
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchPrptyGroupName">
+					UPPER(PrptyGroupName) LIKE '%' || #searchPrptyGroupName# || '%'
+				</isNotEmpty>
+			</dynamic>						
+			) ORGTABLE
+		WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>	
+
+	<statement id="selectListCount" resultClass="java.lang.Integer">
+		SELECT 	COUNT(PrptyGroupName) AS "TOTALCOUNT"
+			FROM  $schemaId$.TSEAIRM07
+			<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND" property="searchPrptyGroupName">
+					UPPER(PrptyGroupName) LIKE '%' || #searchPrptyGroupName# || '%'
+				</isNotEmpty>
+			</dynamic>			
+	</statement>	
+	
+	<statement id="propertyGroupDetail" resultClass="java.util.HashMap">
+	 	SELECT  
+	 		PrptyGroupName AS "PRPTYGROUPNAME", 
+	 		PrptyGroupDesc AS "PRPTYGROUPDESC"
+         		FROM  $schemaId$.TSEAIRM07
+		WHERE	PrptyGroupName = #prptyGroupName#
+	</statement> 	
+	
+	<statement id="propertyDetail" resultClass="java.util.HashMap">
+	 	SELECT  PrptyName AS "PRPTYNAME", 
+	 		Prpty2Val AS "PRPTY2VAL"
+         		FROM  $schemaId$.TSEAIRM08
+		WHERE	PrptyGroupName = #prptyGroupName#
+		ORDER BY 1
+	</statement>  
+	
+	  <statement id="selectPrpty2Val" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT PRPTY2VAL AS "PRPTY2VAL"
+			FROM $schemaId$.tseairm08
+			WHERE PRPTYGROUPNAME =#prptyGroupName#
+			AND PRPTYNAME=#prptyName#
+	  </statement>  
+	  <statement id="updatePrpty2Val" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		   WITH UPSERT AS (
+				SELECT CAST('Monitoring' AS character varying(  50)) as PRPTYGROUPNAME
+				     , CAST(#prptyName#  AS character varying( 100)) as PRPTYNAME
+				     , CAST(#prpty2Val#  AS character varying(1000)) as PRPTY2VAL
+			),
+			UPDATE_OPTION AS (
+				UPDATE $schemaId$.TSEAIRM08 A SET PRPTY2VAL = UPSERT.PRPTY2VAL FROM UPSERT 
+				WHERE A.PRPTYGROUPNAME = UPSERT.PRPTYGROUPNAME AND A.PRPTYNAME = UPSERT.PRPTYNAME
+			)
+			INSERT INTO $schemaId$.TSEAIRM08
+				SELECT UPSERT.PRPTYGROUPNAME, UPSERT.PRPTYNAME,UPSERT.PRPTY2VAL FROM UPSERT 
+				WHERE NOT EXISTS (
+					SELECT 1 FROM $schemaId$.TSEAIRM08 A WHERE A.PRPTYGROUPNAME = UPSERT.PRPTYGROUPNAME AND A.PRPTYNAME = UPSERT.PRPTYNAME
+				)         
+	  </statement>    
+</sqlMap>

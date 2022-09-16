@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Biz">
+	<statement id="selectDetail" resultClass="java.util.HashMap">
+		SELECT 	EaiBzwkDstcd AS "EAIBZWKDSTCD" ,
+		        BzwkDsticName AS "BZWKDSTICNAME",
+		        BzwkDsticDesc AS "BZWKDSTICDESC"
+	            FROM $schemaId$.TSEAICM01   
+	    WHERE EaiBzwkDstcd = #eaiBzwkDstcd#
+	</statement>  
+	
+	<statement id="update" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		UPDATE 	$schemaId$.TSEAICM01 SET
+		        BzwkDsticName = #eaiBzwkDsticName#, 
+				BzwkDsticDesc = #bzwkDsticDesc#
+		WHERE 	BzwkDstcd     = #bzwkDstcd#
+	</statement>
+	
+	<statement id="insert" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		INSERT 	INTO $schemaId$.TSEAICM01(
+				EaiBzwkDstcd,
+				BzwkDsticName,
+				BzwkDsticDesc) 
+		VALUES (#eaiBzwkDstcd# ,
+		        #bzwkDsticName#,
+				#bzwkDsticDesc#
+				)
+	</statement>
+	
+	<statement id="delete" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		DELETE 	FROM $schemaId$.TSEAICM01 WHERE EaiBzwkDstcd = #eaiBzwkDstcd#
+	</statement>
+	
+	<statement id="insertUserBiz" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	INSERT INTO $schemaId$.TSEAIRM06(USERID, EAIBZWKDSTCD) 
+		VALUES	(#userId#, #BIZCODE#)	
+	</statement>		
+	
+	<statement id="deleteUserBiz" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	 	DELETE 	FROM $schemaId$.TSEAIRM06 
+	 	WHERE 	USERID = #userId# 
+	</statement>	
+	
+	<statement id="selectUserBizCodes" resultClass="java.util.HashMap">
+		SELECT C01.EAIBZWKDSTCD  AS "BIZCODE"
+			 , C01.BZWKDSTICNAME AS "BIZNAME"
+			 , C01.BZWKDSTICDESC AS "BIZDESC"
+	      FROM $schemaId$.TSEAICM01 C01
+	         , $schemaId$.TSEAIRM06 R06
+	      WHERE C01.EAIBZWKDSTCD = R06.EAIBZWKDSTCD	
+	        AND R06.USERID = #userId# 
+	      ORDER BY C01.EAIBZWKDSTCD	
+	</statement>	
+	
+	<statement id="selectBizList" resultClass="java.util.HashMap">
+		SELECT C01.EAIBZWKDSTCD  AS "BIZCODE"
+			 , C01.BZWKDSTICNAME AS "BIZNAME"
+			 , C01.BZWKDSTICDESC AS "BIZDESC"
+	      FROM $schemaId$.TSEAICM01 C01
+	     order by C01.EAIBZWKDSTCD
+	</statement>		
+	
+	
+</sqlMap>

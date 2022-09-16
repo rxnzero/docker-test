@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fieldExtractInfo">
+  <statement id="selectListForEaiSvcName" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT 
+        A.EAISVCNAME AS "EAISVCNAME" ,  	A.ETRACTDSTCD AS "ETRACTDSTCD", 		
+        A.FLDPRCSSNO AS "FLDPRCSSNO", A.MSGDSTCD AS "MSGDSTCD",       
+        A.BZWKFLDNAME AS "BZWKFLDNAME", A.MSGFLDSTARTSITUVAL AS "MSGFLDSTARTSITUVAL" , 
+        A.MSGFLDLEN AS "MSGFLDLEN", B.EAISVCDESC AS "EAISVCDESC"
+    FROM $schemaId$.TSEAIFR03 A
+    	RIGHT OUTER JOIN
+       $schemaId$.TSEAIHE01 B
+    	ON A.EAISVCNAME = B.EAISVCNAME
+     WHERE A.EAISVCNAME = #eaiSvcName# 
+        AND A.ETRACTDSTCD = #etractDstcd# 
+    ORDER BY
+        A.EAISVCNAME, A.ETRACTDSTCD, A.FLDPRCSSNO
+  </statement>
+
+  <statement id="selectListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    SELECT COUNT(*) AS "CNT" FROM $schemaId$.TSEAIFR03
+    <dynamic prepend="WHERE">
+      <isNotEmpty prepend="AND" property="searchEaiSvcName">
+          EAISVCNAME LIKE UPPER('%'||#searchEaiSvcName#||'%')
+      </isNotEmpty>
+    </dynamic>
+  </statement>
+
+  <statement id="selectList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT ROWNO AS "ROWNO", 
+    	EAISVCNAME AS "EAISVCNAME", ETRACTDSTCD AS "ETRACTDSTCD", 
+    	FLDPRCSSNO AS "FLDPRCSSNO", MSGDSTCD AS "MSGDSTCD",
+		BZWKFLDNAME AS "BZWKFLDNAME" 
+    FROM ( 
+    SELECT ROW_NUMBER() OVER() AS ROWNO, A.* 
+    FROM (
+    SELECT 
+			EAISVCNAME, ETRACTDSTCD, FLDPRCSSNO, MSGDSTCD,
+    		BZWKFLDNAME
+    FROM $schemaId$.TSEAIFR03
+      <dynamic prepend="WHERE">
+        <isNotEmpty prepend="AND" property="searchEaiSvcName">
+          EAISVCNAME LIKE UPPER('%'||#searchEaiSvcName#||'%')
+        </isNotEmpty>
+      </dynamic>
+    ) A ) B WHERE ROWNO BETWEEN #startNum# AND #endNum#
+  </statement>
+  <insert id="insert" parameterClass="java.util.HashMap">
+    INSERT INTO $schemaId$.TSEAIFR03
+            (
+            EAISVCNAME ,    ETRACTDSTCD,    FLDPRCSSNO, 
+            MSGDSTCD,       BZWKFLDNAME,    MSGFLDSTARTSITUVAL, 
+            MSGFLDLEN
+            )
+    VALUES (
+            #eaiSvcName# ,    #etractDstcd#,    CAST(#fldPrcssNo# AS NUMERIC), 
+            #msgDstcd#,       #bzwkFldName#,    CAST(#msgFldStartSituVal# AS NUMERIC),
+            CAST(#msgFldLen# AS NUMERIC)
+            )
+  </insert>
+
+  
+  <update id="update" parameterClass="java.util.HashMap">
+    UPDATE $schemaId$.TSEAIFR03 
+    SET MSGDSTCD=#msgDstcd#, 
+        BZWKFLDNAME=#bzwkFldName#, 
+        MSGFLDSTARTSITUVAL=#startSituVal#,
+        MSGFLDLEN=#len#
+    WHERE EAISVCNAME  =#eaiSvcName#  
+      AND ETRACTDSTCD =#etractDstcd# 
+      AND FLDPRCSSNO  =CAST(#fldPrcssNo# AS NUMERIC)
+  </update>
+</sqlMap>

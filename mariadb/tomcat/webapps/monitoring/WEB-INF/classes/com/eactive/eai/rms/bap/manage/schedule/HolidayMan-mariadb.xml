@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" 
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="BapHoliday">
+	<statement id="selectList" resultClass="java.util.HashMap">
+		SELECT ROWNO, HOLDYYMD, HOLDYDSTCD, EVNTSCHDRHOLDYCTNT 
+         FROM ( 
+        	SELECT 
+        		   @NO := @NO + 1 AS ROWNO,
+        		   HOLDYYMD, HOLDYDSTCD, EVNTSCHDRHOLDYCTNT   
+        	FROM (  
+              SELECT 
+                  HOLDYYMD,
+                  HOLDYDSTCD,
+                  EVNTSCHDRHOLDYCTNT
+              FROM $schemaId$.TSEAIBE02
+		    <dynamic prepend="WHERE">
+			    <isNotEmpty prepend="AND" property="likeHoldyYmd">
+					HoldyYmd LIKE #likeHoldyYmd#
+				</isNotEmpty>  
+			</dynamic> 
+			) TMP,  (SELECT @NO := 0) R
+			ORDER BY HoldyYmd
+		) T
+	 	WHERE ROWNO BETWEEN #startNum# AND #endNum#
+	</statement>
+</sqlMap>

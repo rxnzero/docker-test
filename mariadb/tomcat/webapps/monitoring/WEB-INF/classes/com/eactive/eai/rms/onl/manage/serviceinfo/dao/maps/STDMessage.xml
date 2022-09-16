@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stdMessage">
+  <statement id="selectDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+            SELECT HS04.EAISVCNAME AS "EAISVCNAME" 
+            ,HS05.BZWKSVCKEYNAME AS "BZWKSVCKEYNAME"
+            ,HS05.COLUMNNAME AS "COLUMNNAME"
+            ,HS05.COLUMNVALUE AS "COLUMNVALUE"
+              FROM $schemaId$.TSEAIHS04 HS04, $schemaId$.TSEAIHS05 HS05
+             WHERE HS04.BZWKSVCKEYNAME = #bzwkSvcKeyName#
+              AND HS04.BZWKSVCKEYNAME = HS05.BZWKSVCKEYNAME
+  </statement>
+  
+  <insert id="insertHS04" parameterClass="java.util.HashMap">
+            INSERT INTO $schemaId$.TSEAIHS04 ( 
+              BZWKSVCKEYNAME
+            , EAISVCNAME
+            ) VALUES ( 
+            #bzwkSvcKeyName#,  
+            #eaiSvcName#
+            )
+  </insert>
+  <insert id="insertHS05" parameterClass="java.util.HashMap">
+            INSERT INTO $schemaId$.TSEAIHS05 ( 
+              BZWKSVCKEYNAME
+            , COLUMNNAME
+            , COLUMNVALUE
+            ) VALUES ( 
+            #bzwkSvcKeyName#,  
+            #columnName#,
+            #columnValue#
+            )
+  </insert>  
+
+  <update id="updateHS04" parameterClass="java.util.HashMap">
+ 		UPDATE $schemaId$.TSEAIHS04 SET 
+              EAISVCNAME            = #eaiSvcName#
+        WHERE BZWKSVCKEYNAME = #bzwkSvcKeyName# 
+  </update>
+  
+  <delete id="deleteHS04" parameterClass="java.util.HashMap">
+           DELETE FROM $schemaId$.TSEAIHS04 
+           WHERE BZWKSVCKEYNAME=#bzwkSvcKeyName#
+  </delete>
+  <delete id="deleteHS05" parameterClass="java.util.HashMap">
+           DELETE FROM $schemaId$.TSEAIHS05 
+           WHERE BZWKSVCKEYNAME=#bzwkSvcKeyName#
+  </delete>  
+
+  <statement id="selectHS03ForKey" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT 
+		    COLUMNNAME    AS "COLUMNNAME"
+			, COLUMNDESC    AS "COLUMNDESC"
+			, COLUMNLENGTH  AS "COLUMNLENGTH"
+			, ISKEY         AS "ISKEY"
+			, KEYSEQ        AS "KEYSEQ"
+			, ISINTERFACE   AS "ISINTERFACE"
+			, COMBONAME     AS "COMBONAME"
+			, COMBODEPTH    AS "COMBODEPTH"
+			, COLUMNDEFAULT AS "COLUMNDEFAULT"
+         FROM $schemaId$.TSEAIHS03
+        WHERE ISKEY = 'Y'
+        ORDER BY KEYSEQ
+  </statement>
+
+   <statement id="selectHS03"  parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+ 	 SELECT 
+		    COLUMNNAME    AS "COLUMNNAME"
+			, COLUMNDESC    AS "COLUMNDESC"
+			, COLUMNLENGTH  AS "COLUMNLENGTH"
+			, ISKEY         AS "ISKEY"
+			, KEYSEQ        AS "KEYSEQ"
+			, ISINTERFACE   AS "ISINTERFACE"
+			, COMBONAME     AS "COMBONAME"
+			, COMBODEPTH    AS "COMBODEPTH"
+			, COLUMNDEFAULT AS "COLUMNDEFAULT"
+ 	 FROM $schemaId$.TSEAIHS03 
+ 	</statement>
+  
+  <statement id="selectHS04" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT 
+         	BZWKSVCKEYNAME AS "BZWKSVCKEYNAME"
+            , EAISVCNAME AS "EAISVCNAME"
+         FROM $schemaId$.TSEAIHS04
+        WHERE BZWKSVCKEYNAME=#bzwkSvcKeyName#
+ 
+  </statement> 
+  <statement id="getPrptyData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        SELECT PRPTYNAME AS "CODE", PRPTY2VAL AS "NAME" 
+        FROM $schemaId$.TSEAICM03
+        WHERE PRPTYGROUPNAME = #prptyGroupName#
+        ORDER BY PRPTYNAME
+  </statement>
+  
+  <delete id="deleteRestoreTable">
+  		DELETE FROM $schemaId$.TSEAIHS02 WHERE EAIMSGSTORGYMD &lt;= #targetDay#
+  </delete>
+</sqlMap>
